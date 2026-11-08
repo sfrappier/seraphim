@@ -45,15 +45,30 @@ namespace Seraphim
         public float infernoCost = 22;
         public float infernoDamage = 35;
         [Header("Demon encounter")]
-        [Range(1,12)] public int enemyLimit = 8;
+        [Range(1,32)] public int enemyLimit = 24;
         public int initialEnemies = 5;
         public float enemySpawnInterval = 3.5f;
         [Header("Cathedral scenario")]
         public Vector2 cathedralSize = new Vector2(84,112);
         public int waveCount = 10;
-        public float waveRestSeconds = 7;
-        public float waveSpawnInterval = 1.8f;
+        public float waveRestSeconds = 6;
+        public float waveSpawnInterval = 1.25f;
         public float lifeDropRestore = 12;
         public float spiritDropRestore = 18;
+        [Header("Wave pressure")]
+        public int firstWaveEnemies = 10;
+        public int enemiesAddedPerWave = 6;
+        public int firstWaveConcurrent = 4;
+        public int concurrentAddedPerWave = 2;
+        public float minimumWaveSpawnInterval = .32f;
+        public float waveSpawnAcceleration = .105f;
+        public float reinforcementInterval = 12;
+        [Range(1,8)] public int maxConcurrentSpecialAttacks = 4;
+        [Header("Demon scaling")]
+        public float enemyVisualScale = 1.2f;
+        public float enemySizeGrowth = .025f;
+        public float enemyHealthGrowth = .18f;
+        public float enemySpeedGrowth = .065f;
+        public float enemyDamageGrowth = .18f;
     }
 }

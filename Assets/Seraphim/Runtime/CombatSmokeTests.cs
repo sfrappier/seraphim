@@ -24,7 +24,7 @@ namespace Seraphim
             yield return new WaitForSeconds(game.settings.enemySpawnInterval+.65f);
             game.Enemies.SpawnAutomatic=false;
             Check(game.Enemies.ActiveCount>initial && game.Enemies.ActiveCount<=game.settings.enemyLimit,"Timed random demon spawning respects the population cap");
-            for (var i=0;i<16;i++) game.Enemies.SpawnRandom();
+            for (var i=0;i<game.settings.enemyLimit+8;i++) game.Enemies.SpawnRandom();
             Check(game.Enemies.ActiveCount==game.settings.enemyLimit,"Additional spawn requests cannot exceed the demon limit");
             var grounded=true;
             foreach (var enemy in game.Enemies.Enemies) if (enemy.IsAlive)
@@ -98,8 +98,8 @@ namespace Seraphim
             game.Player.Agent.Warp(new Vector3(0,0,-8));
             var attacker=game.Enemies.SpawnAt(new Vector3(0,0,-6.7f),DemonKind.CinderImp);
             var life=game.Vitals.Life;
-            yield return new WaitForSeconds(1.65f);
-            Check(attacker!=null && game.Vitals.Life<life,"Nearby demons perform gentle melee attacks");
+            yield return new WaitForSeconds(2);
+            Check(attacker!=null && game.Vitals.Life<life,"Nearby demons land telegraphed melee attacks");
             game.Enemies.DespawnAll();
             game.Vitals.TakeDamage(1000);
             yield return new WaitForSeconds(.25f);

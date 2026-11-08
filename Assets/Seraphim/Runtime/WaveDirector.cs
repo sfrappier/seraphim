@@ -6,7 +6,7 @@ namespace Seraphim
     {
         public enum EncounterState { Dormant,Resting,Fighting,Victory }
         SanctuaryGame game;
-        float nextSpawn,restUntil;
+        float nextSpawn,restUntil,waveStarted;
         public EncounterState State { get; private set; }
         public int Wave { get; private set; }
         public int Spawned { get; private set; }
@@ -14,9 +14,26 @@ namespace Seraphim
         public int Total => TargetFor(Wave);
         public int ConcurrentLimit => LimitFor(Wave);
         public float RestRemaining => Mathf.Max(0,restUntil-Time.time);
-        public int TargetFor(int wave) => 6+Mathf.Max(0,wave-1)*2;
-        public int LimitFor(int wave) => Mathf.Min(game.settings.enemyLimit,3+(Mathf.Max(1,wave)-1)/2+((wave>=8)?1:0));
-        public float IntervalFor(int wave) => Mathf.Max(.65f,game.settings.waveSpawnInterval-(wave-1)*.13f);
+        public int TargetFor(int wave) => game.settings.firstWaveEnemies+Mathf.Max(0,wave-1)*game.settings.enemiesAddedPerWave;
+        public int LimitFor(int wave) => Mathf.Min(game.settings.enemyLimit,game.settings.firstWaveConcurrent+Mathf.Max(0,wave-1)*game.settings.concurrentAddedPerWave+(wave>=7?2:0));
+        public float IntervalFor(int wave) => Mathf.Max(game.settings.minimumWaveSpawnInterval,game.settings.waveSpawnInterval-Mathf.Max(0,wave-1)*game.settings.waveSpawnAcceleration);
+        public int BurstFor(int wave) => wave>=9?3:wave>=6?2:1;
+        public int GroupsFor(int wave) => wave>=9?3:wave>=6?2:1;
+        public int SpawnBudgetFor(int wave,float elapsed)
+        {
+            var groups=GroupsFor(wave);
+            var available=Mathf.Clamp(1+Mathf.FloorToInt(Mathf.Max(0,elapsed)/game.settings.reinforcementInterval),1,groups);
+            return Mathf.CeilToInt(TargetFor(wave)*available/(float)groups);
+        }
+        public float ReinforcementRemaining
+        {
+            get
+            {
+                if (State!=EncounterState.Fighting || SpawnBudgetFor(Wave,Time.time-waveStarted)>Spawned || Spawned>=Total) return 0;
+                var stage=Mathf.FloorToInt(Mathf.Max(0,Time.time-waveStarted)/game.settings.reinforcementInterval)+1;
+                return Mathf.Max(0,waveStarted+stage*game.settings.reinforcementInterval-Time.time);
+            }
+        }
         public void Initialize(SanctuaryGame owner) { game=owner; }
         public void BeginScenario()
         {
@@ -26,10 +43,10 @@ namespace Seraphim
             game.Drops.Clear(); Wave=0; Spawned=Slain=0;
             State=EncounterState.Resting; restUntil=Time.time+4;
         }
-        public void StartNextWave()
+        public void StartNextWave(float? now=null)
         {
             if (State!=EncounterState.Resting || game.Enemies.ActiveCount>0) return;
-            Wave++; Spawned=Slain=0; State=EncounterState.Fighting; nextSpawn=Time.time;
+            Wave++; Spawned=Slain=0; State=EncounterState.Fighting; nextSpawn=waveStarted=now??Time.time;
         }
         public void RecordSlay(DemonEnemy enemy)
         {
@@ -52,7 +69,7 @@ namespace Seraphim
         // Explicit clock keeps the encounter scheduler repeatable in player checks.
         public void Tick(float now)
         {
-            if (State==EncounterState.Resting && now>=restUntil) StartNextWave();
+            if (State==EncounterState.Resting && now>=restUntil) StartNextWave(now);
             if (State!=EncounterState.Fighting) return;
             if (Slain>=Total && Spawned>=Total && game.Enemies.ActiveCount==0)
             {
@@ -64,12 +81,16 @@ namespace Seraphim
                 }
                 return;
             }
-            if (Spawned>=Total || game.Enemies.ActiveCount>=ConcurrentLimit || now<nextSpawn) return;
+            var budget=SpawnBudgetFor(Wave,now-waveStarted);
+            if (Spawned>=budget || game.Enemies.ActiveCount>=ConcurrentLimit || now<nextSpawn) return;
             nextSpawn=now+IntervalFor(Wave);
-            var roll=Random.value;
-            var guardChance=.04f+Wave*.015f;
-            var kind=roll<guardChance?DemonKind.ObsidianGuard:roll<.35f?DemonKind.AshStalker:DemonKind.CinderImp;
-            if (game.Enemies.SpawnRandom(kind,Wave)!=null) Spawned++;
+            for (var i=0;i<BurstFor(Wave) && Spawned<budget && game.Enemies.ActiveCount<ConcurrentLimit;i++)
+            {
+                var roll=Random.value;
+                var guardChance=.06f+Wave*.021f;
+                var kind=roll<guardChance?DemonKind.ObsidianGuard:roll<guardChance+.28f?DemonKind.AshStalker:DemonKind.CinderImp;
+                if (game.Enemies.SpawnRandom(kind,Wave)!=null) Spawned++;
+            }
         }
     }
 }

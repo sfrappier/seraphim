@@ -49,7 +49,7 @@ namespace Seraphim
             var clock=Time.time+100;
             for (var i=0;i<7;i++) { clock+=4; game.Waves.Tick(clock); }
             foreach (var enemy in game.Enemies.Enemies) if (enemy.IsAlive) enemy.Passive=true;
-            Check(game.Waves.Wave==1 && game.Enemies.ActiveCount==3 && game.Waves.Spawned==3,"First wave increases spawn rate while limiting the encounter to three demons");
+            Check(game.Waves.Wave==1 && game.Enemies.ActiveCount==4 && game.Waves.Spawned==4,"First wave starts with a manageable four-demon concurrency limit");
             yield return new WaitForSeconds(.6f);
             Check(game.Hud.Minimap.EnemyMarkerCount==game.Enemies.ActiveCount,"Minimap tracks living enemies as red markers");
             var beforeMap=game.Hud.Minimap.PlayerMapPosition;
@@ -61,7 +61,7 @@ namespace Seraphim
             for (var guard=0;guard<500 && game.Waves.State!=WaveDirector.EncounterState.Victory;guard++)
             {
                 clock+=8; game.Waves.Tick(clock);
-                capped &= game.Enemies.ActiveCount<=game.Waves.ConcurrentLimit && game.Enemies.ActiveCount<=8;
+                capped &= game.Enemies.ActiveCount<=game.Waves.ConcurrentLimit && game.Enemies.ActiveCount<=game.settings.enemyLimit;
                 foreach (var enemy in game.Enemies.Enemies) if (enemy.IsAlive)
                 {
                     if (game.Waves.Wave==10) maxHealth=Mathf.Max(maxHealth,enemy.MaxHealth);
@@ -70,10 +70,10 @@ namespace Seraphim
                 if (guard%8==0) yield return null;
             }
             allWaves=game.Waves.State==WaveDirector.EncounterState.Victory && game.Waves.Wave==10;
-            Check(capped,"All ten waves obey their increasing concurrency limits and the eight-enemy safety cap");
-            Check(allWaves && game.Enemies.KillCount==150,"Ten-wave scenario ends in victory after all 150 demons are slain");
-            Check(maxHealth>42 && maxHealth<80 && game.Waves.IntervalFor(10)<game.Waves.IntervalFor(1),"Later waves increase demon durability and spawn rate gradually");
-            Check(game.Enemies.Score>=15000,"Scenario score includes every demon and later-wave bonuses");
+            Check(capped,"All ten waves obey their increasing concurrency limits and the 24-enemy cap");
+            Check(allWaves && game.Enemies.KillCount==370,"Ten-wave scenario ends in victory after all 370 demons are slain");
+            Check(maxHealth>100 && maxHealth<210 && game.Waves.IntervalFor(10)<game.Waves.IntervalFor(1),"Later waves increase demon durability and spawn rate substantially");
+            Check(game.Enemies.Score>=37000,"Scenario score includes every demon and later-wave bonuses");
             yield return Capture("13-cathedral-victory.png");
             game.Waves.BeginScenario();
             Check(game.Enemies.Score==0 && game.Waves.Wave==0 && game.Drops.ActiveCount==0,"Replaying the scenario resets score, wave progress, and drops");

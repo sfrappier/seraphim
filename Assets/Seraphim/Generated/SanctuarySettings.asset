@@ -44,12 +44,25 @@ MonoBehaviour:
   infernoCooldown: 4.5
   infernoCost: 22
   infernoDamage: 35
-  enemyLimit: 8
+  enemyLimit: 24
   initialEnemies: 5
   enemySpawnInterval: 3.5
   cathedralSize: {x: 84, y: 112}
   waveCount: 10
-  waveRestSeconds: 7
-  waveSpawnInterval: 1.8
+  waveRestSeconds: 6
+  waveSpawnInterval: 1.25
   lifeDropRestore: 12
   spiritDropRestore: 18
+  firstWaveEnemies: 10
+  enemiesAddedPerWave: 6
+  firstWaveConcurrent: 4
+  concurrentAddedPerWave: 2
+  minimumWaveSpawnInterval: 0.32
+  waveSpawnAcceleration: 0.105
+  reinforcementInterval: 12
+  maxConcurrentSpecialAttacks: 4
+  enemyVisualScale: 1.2
+  enemySizeGrowth: 0.025
+  enemyHealthGrowth: 0.18
+  enemySpeedGrowth: 0.065
+  enemyDamageGrowth: 0.18

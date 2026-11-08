@@ -22,6 +22,8 @@ namespace Seraphim
         public float LastRecoveryAt { get; private set; }=-10;
         public IReadOnlyList<DemonEnemy> Enemies => pool;
         public int ActiveCount { get { var count=0; foreach (var enemy in pool) if (enemy.IsAlive) count++; return count; } }
+        public int ActiveSpecialAttacks { get { var count=0; foreach (var enemy in pool) if (enemy.IsAlive && enemy.Offense.SpecialActive) count++; return count; } }
+        public int PoolCapacity => (Game.settings.enemyLimit+4)*3;
 
         public void Initialize(SanctuaryGame game,bool spawn)
         {
@@ -51,7 +53,7 @@ namespace Seraphim
             for (var attempt=0;attempt<30;attempt++)
             {
                 var angle=(float)random.NextDouble()*Mathf.PI*2;
-                var radius=12+(float)random.NextDouble()*9;
+                var radius=10+(float)random.NextDouble()*8;
                 var candidate=Game.Player.transform.position+new Vector3(Mathf.Cos(angle),0,Mathf.Sin(angle))*radius;
                 if (Mathf.Abs(candidate.x)>Game.settings.cathedralSize.x/2-3 || Mathf.Abs(candidate.z)>Game.settings.cathedralSize.y/2-3) continue;
                 if (!NavMesh.SamplePosition(candidate,out var sample,1,NavMesh.AllAreas)) continue;
@@ -68,7 +70,9 @@ namespace Seraphim
             foreach (var item in pool) if (!item.gameObject.activeSelf && item.Kind==kind) { enemy=item; break; }
             if (enemy==null)
             {
-                if (pool.Count>=Game.settings.enemyLimit+6) return null;
+                var sameKind=0;
+                foreach (var item in pool) if (item.Kind==kind) sameKind++;
+                if (sameKind>=Game.settings.enemyLimit+4) return null;
                 enemy=new GameObject("Demon · "+kind).AddComponent<DemonEnemy>(); enemy.transform.SetParent(transform,false);
                 enemy.Initialize(this,kind); pool.Add(enemy);
             }
@@ -111,7 +115,7 @@ namespace Seraphim
             {
                 if (!enemy.IsAlive || (hit!=null && hit.Contains(enemy.TargetId))) continue;
                 var offset=enemy.transform.position-origin; offset.y=0;
-                if (offset.sqrMagnitude>(radius+.35f)*(radius+.35f)) continue;
+                if (offset.sqrMagnitude>(radius+enemy.HitRadius)*(radius+enemy.HitRadius)) continue;
                 hit?.Add(enemy.TargetId);
                 enemy.Hit(damage,source,origin,push,stun,burn); count++;
             }
@@ -122,7 +126,7 @@ namespace Seraphim
             var count=0;
             foreach (var enemy in pool)
             {
-                if (!enemy.IsAlive || hit.Contains(enemy.TargetId) || CombatArt.SegmentDistance(enemy.transform.position,from,to)>radius+.35f) continue;
+                if (!enemy.IsAlive || hit.Contains(enemy.TargetId) || CombatArt.SegmentDistance(enemy.transform.position,from,to)>radius+enemy.HitRadius) continue;
                 hit.Add(enemy.TargetId); enemy.Hit(damage,DivineDamage.Lance,from,1.2f,.18f); count++;
             }
             return count;

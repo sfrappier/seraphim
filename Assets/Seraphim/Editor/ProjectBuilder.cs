@@ -59,7 +59,7 @@ namespace Seraphim.Editor
         {
             PlayerSettings.companyName = "Seraphim";
             PlayerSettings.productName = "Seraphim";
-            PlayerSettings.bundleVersion = "0.5.0";
+            PlayerSettings.bundleVersion = "0.6.0";
             PlayerSettings.colorSpace = ColorSpace.Linear;
             PlayerSettings.defaultScreenWidth = 1600;
             PlayerSettings.defaultScreenHeight = 900;
@@ -276,7 +276,7 @@ namespace Seraphim.Editor
             if (game.models.hudDisplayFont==null || game.models.celestialMote==null) throw new BuildFailedException("HUD font or particle material is missing.");
             if (game.settings.ultimateCooldown!=30 || game.settings.maxSpirit<=0 || game.settings.maxLife<=0)
                 throw new BuildFailedException("Life, Spirit, or Word of God configuration is invalid.");
-            if (game.settings.ultimateDuration!=15 || game.settings.pulseCooldown>.75f || game.settings.enemyLimit>12 || game.settings.enemyLimit<1)
+            if (game.settings.ultimateDuration!=15 || game.settings.pulseCooldown>.75f || game.settings.enemyLimit>32 || game.settings.enemyLimit<1)
                 throw new BuildFailedException("Pulse duration, Radiance cooldown, or demon population configuration is invalid.");
             if (game.models.marble==null || game.models.marble.mainTexture==null || game.models.cathedralWood==null
                 || game.settings.waveCount!=10 || game.settings.cathedralSize.x<80 || game.settings.cathedralSize.y<100)

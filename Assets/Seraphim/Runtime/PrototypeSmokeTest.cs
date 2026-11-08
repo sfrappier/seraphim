@@ -47,6 +47,10 @@ namespace Seraphim
             foreach (var pad in UnityEngine.InputSystem.Gamepad.all) hardware.Add(pad.displayName+" ["+pad.layout+"]");
             detectedGamepads=hardware.ToArray();
             Debug.Log("SERAPHIM_GAMEPADS: "+string.Join(", ",detectedGamepads));
+            if (Array.Exists(Environment.GetCommandLineArgs(),a=>a=="-seraphim-difficulty-only"))
+            {
+                yield return DifficultyChecks(); SaveReport(); yield break;
+            }
             if (Array.Exists(Environment.GetCommandLineArgs(),a=>a=="-seraphim-controller-only"))
             {
                 yield return ControllerChecks(); SaveReport(); yield break;
@@ -194,6 +198,7 @@ namespace Seraphim
             yield return CombatChecks();
             yield return ScenarioChecks();
             yield return ControllerChecks();
+            yield return DifficultyChecks();
             SaveReport();
         }
 

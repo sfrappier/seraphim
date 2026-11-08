@@ -157,6 +157,8 @@ namespace Seraphim
             var wave=game.Waves;
             objectiveText.text=wave.State==WaveDirector.EncounterState.Victory?"All ten waves defeated!\nR / Options / Start to replay":"Survive ten waves\nWaystones awakened   "+game.AttunedCount+" / 3";
             waveStatus.text=wave.State==WaveDirector.EncounterState.Victory?"VICTORY · CATHEDRAL DEFENDED":wave.State==WaveDirector.EncounterState.Resting?"WAVE "+(wave.Wave+1)+" / 10   IN "+Mathf.CeilToInt(wave.RestRemaining)+"s":wave.State==WaveDirector.EncounterState.Fighting?"WAVE "+wave.Wave+" / 10    ·    "+wave.Slain+" / "+wave.Total+" BANISHED":"THE CATHEDRAL AWAITS";
+            if (wave.ReinforcementRemaining>0 && game.Enemies.ActiveCount==0)
+                waveStatus.text="WAVE "+wave.Wave+" · REINFORCEMENTS IN "+Mathf.CeilToInt(wave.ReinforcementRemaining)+"s";
             combatStatus.text=Time.time-game.Enemies.LastRecoveryAt<3?"Grace restores you. This wave will retry.":"SCORE  "+game.Enemies.Score+"       DEMONS  "+game.Enemies.ActiveCount+" / "+(wave.State==WaveDirector.EncounterState.Fighting?wave.ConcurrentLimit:game.settings.enemyLimit);
             pickupStatus.text=Time.time-game.Drops.LastPickupAt<2?game.Drops.LastPickup:"";
             buffStatus.text=game.Ultimate.IsActive && game.Ultimate.Stage!=WordOfGodAbility.Phase.Charging?"WORD OF GOD  ·  "+game.Ultimate.ActiveRemaining.ToString("0.0")+"s":"";

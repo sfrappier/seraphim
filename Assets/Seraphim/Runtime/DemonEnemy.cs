@@ -14,18 +14,24 @@ namespace Seraphim
         ParticleSystem sparks;
         LineRenderer spawnRing;
         CapsuleCollider targetCollider;
-        float appearedAt,deathAt,nextPath,nextAttack,flashUntil,burnUntil,nextBurn,stunUntil;
+        float appearedAt,deathAt,nextPath,flashUntil,burnUntil,nextBurn,stunUntil;
         bool marked;
         public bool IsAlive { get; private set; }
         public bool Passive { get; set; }
         public int TargetId { get; private set; }
         public int WaveNumber { get; private set; }
-        float baseHealth,baseSpeed,damageMultiplier=1;
+        float baseHealth,baseSpeed;
+        public DemonDifficulty Difficulty { get; private set; }
+        public DemonOffense Offense { get; private set; }
+        public NavMeshAgent Agent => agent;
+        public float VisualScale => BaseScale;
+        public float MoveSpeed => agent.speed;
+        public float HitRadius => .35f*BaseScale;
         public DemonKind Kind { get; private set; }
         public float Health { get; private set; }
         public float MaxHealth { get; private set; }
         public float HealthFraction => Mathf.Clamp01(Health/Mathf.Max(1,MaxHealth));
-        public float BarHeight => Kind==DemonKind.ObsidianGuard?2.8f:2.45f;
+        public float BarHeight => (Kind==DemonKind.ObsidianGuard?2.8f:2.45f)*Difficulty.size;
         public string DisplayName => Kind==DemonKind.CinderImp?"CINDER IMP":Kind==DemonKind.AshStalker?"ASH STALKER":"OBSIDIAN GUARD";
         public DemonHealthBar HealthBar { get; private set; }
         public DivineDamage LastDamageSource { get; private set; }
@@ -47,6 +53,7 @@ namespace Seraphim
             targetCollider.isTrigger=true; targetCollider.height=2; targetCollider.radius=.45f; targetCollider.center=Vector3.up;
             BuildVisuals();
             HealthBar=gameObject.AddComponent<DemonHealthBar>(); HealthBar.Initialize(this,director.Game.Hud.HudCanvas);
+            Offense=gameObject.AddComponent<DemonOffense>(); Offense.Initialize(this,director);
             agent.enabled=false;
             gameObject.SetActive(false);
         }
@@ -91,10 +98,12 @@ namespace Seraphim
         public bool Activate(Vector3 point,int id,bool passive,int wave=0)
         {
             WaveNumber=wave;
-            var level=Mathf.Max(0,wave-1);
-            MaxHealth=baseHealth*(1+level*.035f); agent.speed=baseSpeed*(1+level*.012f); damageMultiplier=1+level*.045f;
+            Difficulty=new DemonDifficulty(director.Game.settings,Kind,wave);
+            MaxHealth=baseHealth*Difficulty.health; agent.speed=baseSpeed*Difficulty.speed;
+            agent.radius=Mathf.Clamp(.38f*Difficulty.size,.38f,.6f); agent.height=1.8f*Difficulty.size;
+            targetCollider.height=2*BaseScale; targetCollider.radius=.45f*BaseScale; targetCollider.center=Vector3.up*BaseScale;
             TargetId=id; Health=MaxHealth; IsAlive=true; Passive=passive;
-            deathAt=0; appearedAt=Time.time; nextPath=0; nextAttack=Time.time+1.3f;
+            deathAt=0; appearedAt=Time.time; nextPath=0;
             burnUntil=stunUntil=flashUntil=0;
             visual.localScale=Vector3.one*BaseScale;
             gameObject.SetActive(true);
@@ -104,28 +113,29 @@ namespace Seraphim
             if (!agent.Warp(point)) { ReturnToPool(); return false; }
             agent.ResetPath(); agent.isStopped=false;
             foreach (var renderer in renderers) renderer.SetPropertyBlock(null);
-            HealthBar.ResetBar(); return true;
+            HealthBar.ResetBar(); Offense.ResetForSpawn(); return true;
         }
-        float BaseScale => Kind==DemonKind.ObsidianGuard?1.13f:Kind==DemonKind.AshStalker?.92f:1;
+        float BaseScale => (Kind==DemonKind.ObsidianGuard?1.13f:Kind==DemonKind.AshStalker?.92f:1)*Difficulty.size;
         public void Hit(float amount,DivineDamage source,Vector3 origin,float push=0,float stun=0,float burn=0)
         {
             if (!IsAlive || amount<=0) return;
             var actual=Mathf.Min(Health,amount); Health=Mathf.Max(0,Health-amount); LastDamageSource=source;
             director.RecordDamage(actual); HealthBar.Hit(actual,source);
             flashUntil=Time.time+.12f; stunUntil=Mathf.Max(stunUntil,Time.time+stun);
+            if (stun>0) Offense.Interrupt();
             if (burn>0) { burnUntil=Time.time+burn; nextBurn=Time.time+1; }
             sparks.Emit(12);
             if (Health<=0)
             {
                 IsAlive=false; deathAt=Time.time; targetCollider.enabled=false; if (agent.enabled) agent.enabled=false;
-                sparks.Emit(45); director.RecordKill(this); return;
+                Offense.ClearThreat(); sparks.Emit(45); director.RecordKill(this); return;
             }
             if (push>0 && agent.enabled && agent.isOnNavMesh)
             {
                 var away=transform.position-origin; away.y=0;
                 if (away.sqrMagnitude>.01f)
                 {
-                    var desired=transform.position+away.normalized*push;
+                    var desired=transform.position+away.normalized*push*Difficulty.knockback;
                     if (agent.Raycast(desired,out var edge)) desired=edge.position;
                     agent.Move((desired-transform.position)*.8f);
                 }
@@ -142,6 +152,7 @@ namespace Seraphim
                 return;
             }
             if (burnUntil>0 && nextBurn<=burnUntil+.01f && Time.time>=nextBurn) { nextBurn+=1; Hit(8,DivineDamage.Burning,transform.position); if (!IsAlive) return; sparks.Emit(5); }
+            Offense.Tick();
             var flashing=Time.time<flashUntil;
             if (flashing || IsBurning || marked)
             {
@@ -164,13 +175,17 @@ namespace Seraphim
             if (!Passive && director.Game.Vitals.Life>0 && agent.enabled && agent.isOnNavMesh)
             {
                 var distance=Vector3.Distance(transform.position,director.Game.Player.transform.position);
-                agent.isStopped=Time.time<stunUntil || distance<1.55f;
-                if (!agent.isStopped && Time.time>=nextPath) { agent.SetDestination(director.Game.Player.transform.position); nextPath=Time.time+.3f; }
-                if (distance<1.9f && Time.time>=nextAttack && Time.time>=stunUntil)
+                var keepRange=Kind==DemonKind.AshStalker && WaveNumber>=3;
+                agent.isStopped=IsStunned || Offense.BlocksMovement || (keepRange?distance>=5 && distance<=12:distance<1.55f);
+                if (!agent.isStopped && Time.time>=nextPath)
                 {
-                    nextAttack=Time.time+1.7f;
-                    director.Game.Vitals.TakeDamage((Kind==DemonKind.ObsidianGuard?4:2)*damageMultiplier);
-                    sparks.Emit(5);
+                    var destination=director.Game.Player.transform.position;
+                    if (keepRange && distance<5)
+                    {
+                        var retreat=transform.position+(transform.position-destination).normalized*4;
+                        if (NavMesh.SamplePosition(retreat,out var safe,1.5f,NavMesh.AllAreas)) destination=safe.position;
+                    }
+                    agent.SetDestination(destination); nextPath=Time.time+.3f;
                 }
             }
             var swing=Mathf.Sin(Time.time*8+TargetId)*Mathf.Clamp01(agent.enabled?agent.velocity.magnitude/2:0)*28;
@@ -181,6 +196,7 @@ namespace Seraphim
         public void ReturnToPool()
         {
             IsAlive=false; deathAt=0; if (agent!=null) agent.enabled=false;
+            if (Offense!=null) Offense.ClearThreat();
             if (targetCollider!=null) targetCollider.enabled=false;
             if (HealthBar!=null) HealthBar.Hide();
             if (sparks!=null) sparks.Stop(true,ParticleSystemStopBehavior.StopEmittingAndClear);
