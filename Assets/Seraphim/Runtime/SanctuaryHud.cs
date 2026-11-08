@@ -138,7 +138,7 @@ namespace Seraphim
             lifeValue=Label(left,"Life amount","",new Vector2(.5f,.5f),new Vector2(0,-88),new Vector2(150,25),14,ivory);
             var right=Node(bottom,"Spirit orb",new Vector2(1,0),new Vector2(-112,103),new Vector2(182,182));
             spirit=right.gameObject.AddComponent<CelestialOrbGraphic>(); spirit.spirit=true; spirit.raycastTarget=false;
-            Label(right,"Spirit label","SPIRIT",new Vector2(.5f,.5f),new Vector2(0,93),new Vector2(150,25),14,new Color(.64f,.85f,.96f),true);
+            Label(right,"Spirit label","SPIRIT",new Vector2(.5f,.5f),new Vector2(0,93),new Vector2(150,25),14,ResourcePalette.SpiritLight,true);
             spiritValue=Label(right,"Spirit amount","",new Vector2(.5f,.5f),new Vector2(0,-88),new Vector2(150,25),14,ivory);
             controls=Label(bottom,"Control hint","",new Vector2(.5f,0),new Vector2(0,10),new Vector2(900,18),10,muted);
         }

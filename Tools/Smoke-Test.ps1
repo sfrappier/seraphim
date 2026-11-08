@@ -14,12 +14,12 @@ $process = Start-Process -FilePath $player -ArgumentList "-screen-width 1600 -sc
 $watch=[Diagnostics.Stopwatch]::StartNew()
 $nextProgress=15
 while (!$process.WaitForExit(1000)) {
-    if ($watch.Elapsed.TotalSeconds -gt 180) {
+    if ($watch.Elapsed.TotalSeconds -gt 240) {
         Stop-Process -Id $process.Id
         throw "Player smoke test timed out. See $log."
     }
     if ($watch.Elapsed.TotalSeconds -ge $nextProgress) {
-        Write-Host "Player checks running ($nextProgress seconds; includes the ultimate recharge test)..."
+        Write-Host "Player checks running ($nextProgress seconds)..."
         $nextProgress+=15
     }
 }

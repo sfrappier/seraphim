@@ -15,10 +15,17 @@ namespace Seraphim
         Light furnace;
         int previousPhase;
         float channelPose;
+        GameObject ritual;
+        ParticleSystem ascension;
+        LineRenderer seal,innerSeal;
+        readonly List<LineRenderer> spires=new List<LineRenderer>();
+        float transformBegan,transformSeconds,nextEmission;
+        bool transforming;
         public Transform Body { get; private set; }
         public float Slash { get; set; }
         public int Phase { get; set; }=1;
         public bool Channeling { get; set; }
+        public bool TransformationActive => transforming;
         Material Material(Material template,Color tint)
         {
             var mat=new Material(template); mat.SetColor("_BaseColor",tint); materials.Add(mat); return mat;
@@ -127,6 +134,32 @@ namespace Seraphim
                 Bone(halo,p,p*1.18f,.09f,ember);
             }
             furnace=SceneArt.PointLight("Ashen furnace light",Body,new Vector3(0,4,1),new Color(1,.12f,.3f),4,12);
+            ritual=new GameObject("Ascension of Ash · transformation"); ritual.transform.SetParent(transform,false);
+            seal=SceneArt.Ring("Ascension seal",ritual.transform,4,.14f,voidGlow,128); seal.transform.localPosition=Vector3.up*.13f;
+            innerSeal=SceneArt.Ring("Rising crown seal",ritual.transform,3,.07f,ember,96);
+            ascension=CombatArt.Motes(ritual.transform,director.Game.models.celestialMote,450,new Color(1,.2f,.55f),5,1.2f);
+            var shape=ascension.shape; shape.shapeType=ParticleSystemShapeType.Circle; shape.radius=3.5f;
+            ascension.transform.localRotation=Quaternion.Euler(-90,0,0);
+            var rising=ascension.velocityOverLifetime; rising.enabled=true; rising.space=ParticleSystemSimulationSpace.World;
+            rising.x=0; rising.y=4; rising.z=0;
+            for (var i=0;i<8;i++)
+            {
+                var line=new GameObject("Ritual lightning spire").AddComponent<LineRenderer>(); line.transform.SetParent(ritual.transform,false);
+                line.useWorldSpace=false; line.positionCount=7; line.widthMultiplier=.07f; line.sharedMaterial=voidGlow;
+                line.shadowCastingMode=UnityEngine.Rendering.ShadowCastingMode.Off; spires.Add(line);
+            }
+            ritual.SetActive(false);
+        }
+        public void BeginTransformation(float seconds)
+        {
+            transforming=true; transformBegan=Time.time; transformSeconds=seconds; nextEmission=0;
+            ritual.SetActive(true); ascension.Stop(true,ParticleSystemStopBehavior.StopEmittingAndClear); ascension.Emit(120);
+        }
+        public void ResetForEncounter()
+        {
+            transforming=false; Slash=0; Phase=1; Channeling=false; channelPose=0;
+            if (ritual!=null) ritual.SetActive(false);
+            if (ascension!=null) ascension.Stop(true,ParticleSystemStopBehavior.StopEmittingAndClear);
         }
         void Update()
         {
@@ -138,6 +171,26 @@ namespace Seraphim
                 furnace.color=Phase==3?new Color(1,.3f,.05f):new Color(1,.12f,.3f);
             }
             Body.localPosition=Vector3.up*(.2f+Mathf.Sin(Time.time*1.6f)*.18f);
+            if (transforming)
+            {
+                var t=Mathf.Clamp01((Time.time-transformBegan)/transformSeconds);
+                var alpha=Mathf.Clamp01((transformSeconds+.65f-(Time.time-transformBegan))/.65f);
+                Body.localPosition+=Vector3.up*Mathf.Sin(t*Mathf.PI)*.9f;
+                seal.transform.localScale=Vector3.one*(1+t*.6f);
+                seal.transform.localRotation=Quaternion.Euler(0,Time.time*85,0);
+                innerSeal.transform.localPosition=Vector3.up*(.3f+t*8);
+                innerSeal.transform.localScale=Vector3.one*(1+t*.5f);
+                seal.startColor=seal.endColor=innerSeal.startColor=innerSeal.endColor=new Color(1,1,1,alpha);
+                for (var i=0;i<spires.Count;i++)
+                {
+                    var angle=i*Mathf.PI/4; var radial=new Vector3(Mathf.Sin(angle),0,Mathf.Cos(angle));
+                    for (var p=0;p<7;p++)
+                        spires[i].SetPosition(p,radial*(3.5f+t*2)+Vector3.up*(p*1.6f)+Vector3.right*Mathf.Sin(Time.time*40+p*7+i)*.2f);
+                    spires[i].startColor=spires[i].endColor=new Color(1,1,1,alpha);
+                }
+                if (Time.time>=nextEmission) { nextEmission=Time.time+.08f; ascension.Emit(14); }
+                if (Time.time-transformBegan>=transformSeconds+.65f) { transforming=false; ritual.SetActive(false); }
+            }
             halo.localRotation=Quaternion.Euler(90,Time.time*(9+Phase*3),0);
             halo.localScale=Vector3.one*(1+(Phase-1)*.06f);
             weapon.parent.localRotation=Quaternion.Euler(-10+Mathf.Sin(Time.time)*4,Mathf.Lerp(-40,100,Slash),Mathf.Lerp(-10,-60,Slash));

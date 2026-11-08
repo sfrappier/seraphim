@@ -36,6 +36,11 @@ namespace Seraphim
             var back=Node(panel,"Health track",new Vector2(652,15),new Vector2(0,8)); back.gameObject.AddComponent<Image>().color=new Color(.12f,.03f,.08f);
             ghost=Node(back,"Damage echo",new Vector2(648,11),new Vector2(-324,0)); ghost.pivot=new Vector2(0,.5f); ghost.gameObject.AddComponent<Image>().color=new Color(1,.63f,.2f);
             fill=Node(back,"Boss remaining health",new Vector2(648,11),new Vector2(-324,0)); fill.pivot=new Vector2(0,.5f); fill.gameObject.AddComponent<Image>().color=new Color(.75f,.13f,.56f);
+            foreach (var threshold in new[]{.3f,.65f})
+            {
+                var mark=Node(back,"Phase boundary",new Vector2(2,19),new Vector2(-324+648*threshold,0));
+                mark.gameObject.AddComponent<Image>().color=new Color(1,.88f,.57f,.9f);
+            }
             health=Label(panel,"Boss health and phase",new Vector2(0,-14),12,new Color(.92f,.86f,.94f));
             hint=Label(panel,"Boss attack warning",new Vector2(0,-40),14,new Color(1,.8f,.45f));
             foreach (var graphic in panel.GetComponentsInChildren<Graphic>()) graphic.raycastTarget=false;
@@ -48,8 +53,8 @@ namespace Seraphim
             DisplayedFraction=boss.Enemy.HealthFraction;
             ghostHealth=Mathf.MoveTowards(ghostHealth,DisplayedFraction,Time.deltaTime*.14f);
             fill.sizeDelta=new Vector2(648*DisplayedFraction,11); ghost.sizeDelta=new Vector2(648*ghostHealth,11);
-            title.text="VORATH, HERALD OF ASH";
-            health.text=$"{Mathf.CeilToInt(boss.Enemy.Health)} / {Mathf.CeilToInt(boss.Enemy.MaxHealth)}    ·    PHASE {boss.Phase} / 3";
+            title.text=boss.Phase==3?"VORATH ASCENDANT":"VORATH, HERALD OF ASH";
+            health.text=$"{Mathf.CeilToInt(boss.Enemy.Health)} / {Mathf.CeilToInt(boss.Enemy.MaxHealth)}    ·    PHASE {boss.Phase} / 3"+(boss.IsTransitioning?"   ·   WARDED":boss.Phase>=2?"   ·   HOST "+boss.Summons.ActiveCount+" / "+boss.Summons.Limit:"");
             hint.text=boss.AttackHint;
         }
     }

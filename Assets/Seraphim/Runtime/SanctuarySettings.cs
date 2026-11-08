@@ -73,12 +73,18 @@ namespace Seraphim
         [Header("Main menu showcase")]
         [Range(32,128)] public int menuEnemyLimit = 96;
         [Header("Final boss")]
-        public float bossHealth = 4800;
+        public float bossHealth = 9600;
         public float bossMoveSpeed = 2.7f;
         public float bossMeteorDamage = 32;
         public float bossFireDamage = 11;
         public float bossSlashDamage = 38;
         public float bossNovaDamage = 34;
         public float bossRestSeconds = 7;
+        public float bossRallySeconds = 2.2f;
+        public float bossTransformationSeconds = 3.4f;
+        public float bossAscendedScale = 1.55f;
+        public float bossSummonScale = 1.35f;
+        public int bossPhaseTwoSummonLimit = 6;
+        public int bossPhaseThreeSummonLimit = 10;
     }
 }

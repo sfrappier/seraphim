@@ -22,7 +22,7 @@ namespace Seraphim
             Box(vh,Project(new Rect(-3.2f,-size.y/2,6.4f,size.y)),new Color(.25f,.38f,.49f),new Color(.25f,.38f,.49f));
             foreach (var obstacle in game.MapObstacles) Box(vh,Project(obstacle),new Color(.55f,.49f,.34f),new Color(.55f,.49f,.34f));
             foreach (var stone in game.Waystones) Diamond(vh,Project(stone.transform.position),2.4f,3.2f,stone.IsAttuned?Pale:new Color(.3f,.85f,1));
-            foreach (var orb in game.Drops.Orbs) if (orb.Active) Disc(vh,Project(orb.position),1.1f,orb.kind==DropKind.Life?Gold:new Color(.2f,.7f,1),Color.clear,8);
+            foreach (var orb in game.Drops.Orbs) if (orb.Active) Disc(vh,Project(orb.position),1.1f,ResourcePalette.Main(orb.kind==DropKind.Spirit),Color.clear,8);
             EnemyMarkerCount=0;
             foreach (var enemy in game.Enemies.Enemies) if (enemy.IsAlive)
             {

@@ -16,8 +16,11 @@ namespace Seraphim
         CapsuleCollider targetCollider;
         float appearedAt,deathAt,nextPath,flashUntil,burnUntil,nextBurn,stunUntil;
         bool marked;
+        float encounterScale=1,growthFrom=1,growthTo=1,growthBegan,growthSeconds;
         public bool IsAlive { get; private set; }
         public bool IsBoss { get; private set; }
+        public bool IsBossSummon { get; private set; }
+        public float EncounterScale => encounterScale;
         public bool Passive { get; set; }
         public int TargetId { get; private set; }
         public int WaveNumber { get; private set; }
@@ -27,12 +30,12 @@ namespace Seraphim
         public NavMeshAgent Agent => agent;
         public float VisualScale => BaseScale;
         public float MoveSpeed => agent.speed;
-        public float HitRadius => IsBoss?1.7f:.35f*BaseScale;
+        public float HitRadius => IsBoss?1.7f*encounterScale:.35f*BaseScale;
         public DemonKind Kind { get; private set; }
         public float Health { get; private set; }
         public float MaxHealth { get; private set; }
         public float HealthFraction => Mathf.Clamp01(Health/Mathf.Max(1,MaxHealth));
-        public float BarHeight => IsBoss?8.5f:(Kind==DemonKind.ObsidianGuard?2.8f:2.45f)*Difficulty.size;
+        public float BarHeight => IsBoss?8.5f*encounterScale:(Kind==DemonKind.ObsidianGuard?2.8f:2.45f)*Difficulty.size*encounterScale;
         public string DisplayName => IsBoss?"VORATH, HERALD OF ASH":Kind==DemonKind.CinderImp?"CINDER IMP":Kind==DemonKind.AshStalker?"ASH STALKER":"OBSIDIAN GUARD";
         public DemonHealthBar HealthBar { get; private set; }
         public DivineDamage LastDamageSource { get; private set; }
@@ -110,6 +113,7 @@ namespace Seraphim
         }
         public bool Activate(Vector3 point,int id,bool passive,int wave=0)
         {
+            IsBossSummon=false; encounterScale=growthFrom=growthTo=1; growthSeconds=0;
             WaveNumber=wave;
             Difficulty=new DemonDifficulty(director.Game.settings,Kind,wave);
             MaxHealth=baseHealth*Difficulty.health; agent.speed=baseSpeed*Difficulty.speed;
@@ -134,11 +138,31 @@ namespace Seraphim
             foreach (var renderer in renderers) renderer.SetPropertyBlock(null);
             HealthBar.ResetBar(); Offense.ResetForSpawn(); return true;
         }
-        float BaseScale => IsBoss?1:(Kind==DemonKind.ObsidianGuard?1.13f:Kind==DemonKind.AshStalker?.92f:1)*Difficulty.size;
+        float BaseScale => IsBoss?encounterScale:(Kind==DemonKind.ObsidianGuard?1.13f:Kind==DemonKind.AshStalker?.92f:1)*Difficulty.size*encounterScale;
+        public void MarkBossSummon() { IsBossSummon=true; }
+        public void GrowTo(float size,float seconds)
+        {
+            growthFrom=encounterScale; growthTo=Mathf.Clamp(size,1,2); growthBegan=Time.time; growthSeconds=Mathf.Max(.01f,seconds);
+        }
+        void UpdateGrowth()
+        {
+            if (growthSeconds<=0) return;
+            var t=Mathf.Clamp01((Time.time-growthBegan)/growthSeconds);
+            encounterScale=Mathf.Lerp(growthFrom,growthTo,Mathf.SmoothStep(0,1,t));
+            visual.localScale=Vector3.one*BaseScale;
+            agent.radius=IsBoss?1.1f*encounterScale:Mathf.Clamp(.38f*Difficulty.size*encounterScale,.38f,.8f);
+            agent.height=(IsBoss?6:1.8f*Difficulty.size)*encounterScale;
+            targetCollider.height=IsBoss?6.5f*encounterScale:2*BaseScale;
+            targetCollider.radius=IsBoss?1.7f*encounterScale:.45f*BaseScale;
+            targetCollider.center=Vector3.up*(IsBoss?3.1f*encounterScale:BaseScale);
+            if (t>=1) growthSeconds=0;
+        }
         public void Hit(float amount,DivineDamage source,Vector3 origin,float push=0,float stun=0,float burn=0)
         {
             if (!IsAlive || amount<=0) return;
+            if (IsBoss) { amount=director.Game.Boss.FilterDamage(amount); if (amount<=0) return; }
             var actual=Mathf.Min(Health,amount); Health=Mathf.Max(0,Health-amount); LastDamageSource=source;
+            if (IsBoss) director.Game.Boss.HealthChanged();
             director.RecordDamage(actual); HealthBar.Hit(actual,source);
             director.Game.Audio?.Play(SoundCue.Hit,transform.position);
             if (IsBoss) { stun=0; push=0; }
@@ -164,6 +188,7 @@ namespace Seraphim
         }
         void Update()
         {
+            if (IsAlive) UpdateGrowth();
             if (!IsAlive)
             {
                 if (deathAt<=0) return;

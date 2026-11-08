@@ -27,8 +27,8 @@ namespace Seraphim
         public void Initialize(SanctuaryGame owner)
         {
             game=owner;
-            lifeMaterial=new Material(game.models.glowGold); lifeMaterial.SetColor("_BaseColor",new Color(2,.35f,.15f));
-            spiritMaterial=new Material(game.models.glowCyan);
+            lifeMaterial=new Material(game.models.glowGold); lifeMaterial.SetColor("_BaseColor",ResourcePalette.Glow(false));
+            spiritMaterial=new Material(game.models.glowCyan); spiritMaterial.SetColor("_BaseColor",ResourcePalette.Glow(true));
             collection=CombatArt.Motes(transform,game.models.celestialMote,180,Color.white,2,.6f);
         }
         public void SpawnPair(Vector3 point)
@@ -96,7 +96,7 @@ namespace Seraphim
             Collected++; LastPickupAt=Time.time; LastPickup="+"+Mathf.CeilToInt(amount)+" "+orb.kind;
             game.Audio?.Play(orb.kind==DropKind.Life?SoundCue.Life:SoundCue.Spirit,game.Player.transform.position);
             collection.transform.position=game.Player.transform.position+Vector3.up*.7f;
-            var main=collection.main; main.startColor=orb.kind==DropKind.Life?new Color(1,.65f,.3f):new Color(.3f,.85f,1); collection.Emit(28);
+            var main=collection.main; main.startColor=ResourcePalette.Light(orb.kind==DropKind.Spirit); collection.Emit(28);
             orb.root.gameObject.SetActive(false);
         }
         void OnDestroy() { if (lifeMaterial!=null) Destroy(lifeMaterial); if (spiritMaterial!=null) Destroy(spiritMaterial); }

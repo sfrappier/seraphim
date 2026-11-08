@@ -14,20 +14,22 @@ namespace Seraphim
             var center=rectTransform.rect.center;
             var radius=Mathf.Min(rectTransform.rect.width,rectTransform.rect.height)*.39f;
             var sign=spirit?-1:1;
+            var metal=spirit?ResourcePalette.SpiritSilver:Gold;
+            var pale=spirit?ResourcePalette.SpiritLight:Pale;
             for (var i=0;i<7;i++)
             {
                 var start=center+new Vector2(sign*(radius-5),20-i*7);
                 var tip=center+new Vector2(sign*(radius+34+i*11),49-i*12);
                 var shoulder=Vector2.Lerp(start,tip,.55f)+Vector2.up*7;
-                Quad(vh,start,Vector2.Lerp(start,tip,.6f)-Vector2.up*5,tip,shoulder,new Color(.28f,.23f,.14f),Pale);
-                Line(vh,start,tip,.65f,Gold);
+                Quad(vh,start,Vector2.Lerp(start,tip,.6f)-Vector2.up*5,tip,shoulder,spirit?new Color(.23f,.25f,.28f):new Color(.28f,.23f,.14f),pale);
+                Line(vh,start,tip,.65f,metal);
             }
             Disc(vh,center+Vector2.down*3,radius+12,new Color(0,0,0,.95f),new Color(0,0,0,0));
-            Arc(vh,center,radius+9,7,new Color(.19f,.16f,.12f),new Color(.68f,.54f,.29f));
-            Arc(vh,center,radius+3,2,Pale,Gold);
+            Arc(vh,center,radius+9,7,spirit?new Color(.18f,.2f,.24f):new Color(.19f,.16f,.12f),metal);
+            Arc(vh,center,radius+3,2,pale,metal);
             Disc(vh,center,radius,new Color(.035f,.06f,.09f),new Color(.005f,.01f,.022f));
-            var main=spirit?new Color(.12f,.57f,.91f):new Color(.91f,.29f,.16f);
-            var light=spirit?new Color(.62f,.94f,1):new Color(1,.76f,.36f);
+            var main=ResourcePalette.Main(spirit);
+            var light=ResourcePalette.Light(spirit);
             const int rows=70;
             var surface=-1+fraction*2;
             for (var row=0;row<rows;row++)
@@ -55,9 +57,9 @@ namespace Seraphim
             }
             Disc(vh,center+new Vector2(-.25f,.34f)*radius,radius*.28f,new Color(1,1,1,.24f),new Color(1,1,1,0));
             Arc(vh,center,radius-5,2,new Color(1,1,1,.45f),new Color(1,1,1,0),60,82,30);
-            Arc(vh,center,radius+11,1,Gold,Pale,15,150,40);
-            Diamond(vh,center+Vector2.up*(radius+13),4,8,Pale);
-            Diamond(vh,center+Vector2.down*(radius+9),3,6,Gold);
+            Arc(vh,center,radius+11,1,metal,pale,15,150,40);
+            Diamond(vh,center+Vector2.up*(radius+13),4,8,pale);
+            Diamond(vh,center+Vector2.down*(radius+9),3,6,metal);
         }
     }
 }

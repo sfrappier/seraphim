@@ -72,7 +72,7 @@ namespace Seraphim
             var h=Rent(); if (h==null) return false;
             direction.y=0; if (direction.sqrMagnitude<.01f) direction=Vector3.forward;
             h.kind=kind; h.point=point; h.direction=direction.normalized; h.began=Time.time+delay;
-            h.radius=kind==BossAttack.Meteor?2.4f:kind==BossAttack.Nova?12:kind==BossAttack.Slash?5.8f:.8f;
+            h.radius=kind==BossAttack.Meteor?2.4f:kind==BossAttack.Nova?12:kind==BossAttack.Slash?5.8f*owner.ScytheScale:.8f;
             h.impact=h.began+(kind==BossAttack.Meteor?1.5f:kind==BossAttack.Nova?1.45f:kind==BossAttack.Slash?1.05f:1.15f);
             h.expires=h.impact+(kind==BossAttack.Meteor?4.2f:kind==BossAttack.Fire?1.7f:.55f);
             h.damage=kind==BossAttack.Meteor?game.settings.bossMeteorDamage:kind==BossAttack.Fire?game.settings.bossFireDamage*2.5f:kind==BossAttack.Nova?game.settings.bossNovaDamage:game.settings.bossSlashDamage;
@@ -117,10 +117,10 @@ namespace Seraphim
                 h.particles.Stop(true,ParticleSystemStopBehavior.StopEmittingAndClear);
             }
         }
-        public static bool InSlash(Vector3 player,Vector3 origin,Vector3 direction)
+        public static bool InSlash(Vector3 player,Vector3 origin,Vector3 direction,float radius=5.8f)
         {
             var delta=player-origin; delta.y=0;
-            return delta.magnitude<=6.05f && (delta.magnitude<.1f || Vector3.Angle(delta,direction)<=67);
+            return delta.magnitude<=radius+.25f && (delta.magnitude<.1f || Vector3.Angle(delta,direction)<=67);
         }
         void Damage(float amount)
         {
@@ -156,7 +156,7 @@ namespace Seraphim
                     var distance=FlatDistance(player,h.point);
                     if (h.kind==BossAttack.Meteor && distance<=h.radius+.25f) Damage(h.damage);
                     if (h.kind==BossAttack.Nova && distance>=4.75f && distance<=12.25f) Damage(h.damage);
-                    if (h.kind==BossAttack.Slash && InSlash(player,h.point,h.direction)) Damage(h.damage);
+                    if (h.kind==BossAttack.Slash && InSlash(player,h.point,h.direction,h.radius)) Damage(h.damage);
                     if (h.kind==BossAttack.Meteor) Camera.main.GetComponent<SanctuaryCamera>().Impact();
                     if (h.kind==BossAttack.Fire)
                     {
