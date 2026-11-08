@@ -72,5 +72,13 @@ namespace Seraphim
         public float enemyDamageGrowth = .18f;
         [Header("Main menu showcase")]
         [Range(32,128)] public int menuEnemyLimit = 96;
+        [Header("Final boss")]
+        public float bossHealth = 4800;
+        public float bossMoveSpeed = 2.7f;
+        public float bossMeteorDamage = 32;
+        public float bossFireDamage = 11;
+        public float bossSlashDamage = 38;
+        public float bossNovaDamage = 34;
+        public float bossRestSeconds = 7;
     }
 }

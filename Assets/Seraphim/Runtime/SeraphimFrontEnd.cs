@@ -51,8 +51,9 @@ namespace Seraphim
             Label(main.transform,"CATHEDRAL OF DAWN",new Vector2(62,-116),new Vector2(340,28),13,new Color(.7f,.79f,.87f));
             start=Button(main.transform,"START",new Vector2(60,-174),new Vector2(282,64),StartGame);
             settingsButton=Button(main.transform,"SETTINGS",new Vector2(60,-258),new Vector2(282,54),OpenSettings);
-            Button(main.transform,"QUIT",new Vector2(60,-330),new Vector2(282,54),Quit);
-            Label(main.transform,"A six-winged angel. An endless light.",new Vector2(62,-432),new Vector2(355,35),15,new Color(.75f,.8f,.84f));
+            Button(main.transform,"BOSS TRIAL",new Vector2(60,-330),new Vector2(282,54),StartBossTrial);
+            Button(main.transform,"QUIT",new Vector2(60,-402),new Vector2(282,54),Quit);
+            Label(main.transform,"A six-winged angel. An endless light.",new Vector2(62,-504),new Vector2(355,35),15,new Color(.75f,.8f,.84f));
             Label(main.transform,"v"+Application.version,new Vector2(62,-850),new Vector2(350,25),12,new Color(.52f,.62f,.7f));
             settings=Full(canvas.transform,"Audio settings");
             var panel=Node(settings.transform,"Settings panel",new Vector2(0,1),new Vector2(40,-40),new Vector2(550,540)); panel.pivot=new Vector2(0,1);
@@ -147,6 +148,11 @@ namespace Seraphim
             if (State==ScreenState.GameSettings) { Time.timeScale=0; game.Audio.StopEffects(); }
             EnableGameplay(false); controlsReady=false; backLabel.text=IsMainMenu?"BACK":"RESUME";
             returnToMenu.gameObject.SetActive(!IsMainMenu); SetOverlay(true); RefreshAudioLabels(); Select(music.gameObject);
+        }
+        public void StartBossTrial()
+        {
+            if (!IsMainMenu) return;
+            StartGame(); game.Waves.BeginBossTrial();
         }
         public void CloseSettings()
         {

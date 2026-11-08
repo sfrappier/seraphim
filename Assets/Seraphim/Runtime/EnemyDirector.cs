@@ -25,7 +25,7 @@ namespace Seraphim
         public int ActiveSpecialAttacks { get { var count=0; foreach (var enemy in pool) if (enemy.IsAlive && enemy.Offense.SpecialActive) count++; return count; } }
         public int PopulationLimit => Game.Attract!=null && Game.Attract.IsRunning?Game.settings.menuEnemyLimit:Game.settings.enemyLimit;
         public int SpecialAttackLimit => Game.Attract!=null && Game.Attract.IsRunning?8:Game.settings.maxConcurrentSpecialAttacks;
-        public int PoolCapacity => (PopulationLimit+4)*3;
+        public int PoolCapacity => (PopulationLimit+4)*3+1;
 
         public void Initialize(SanctuaryGame game,bool spawn)
         {
@@ -69,16 +69,27 @@ namespace Seraphim
         {
             if (Game==null || ActiveCount>=PopulationLimit || !NavMesh.SamplePosition(point,out var sample,.8f,NavMesh.AllAreas)) return null;
             DemonEnemy enemy=null;
-            foreach (var item in pool) if (!item.gameObject.activeSelf && item.Kind==kind) { enemy=item; break; }
+            foreach (var item in pool) if (!item.IsBoss && !item.gameObject.activeSelf && item.Kind==kind) { enemy=item; break; }
             if (enemy==null)
             {
                 var sameKind=0;
-                foreach (var item in pool) if (item.Kind==kind) sameKind++;
+                foreach (var item in pool) if (!item.IsBoss && item.Kind==kind) sameKind++;
                 if (sameKind>=PopulationLimit+4) return null;
                 enemy=new GameObject("Demon · "+kind).AddComponent<DemonEnemy>(); enemy.transform.SetParent(transform,false);
                 enemy.Initialize(this,kind); pool.Add(enemy);
             }
             return enemy.Activate(sample.position,++serial,passive,wave)?enemy:null;
+        }
+        public DemonEnemy SpawnBoss(Vector3 point)
+        {
+            if (!NavMesh.SamplePosition(point,out var sample,3,NavMesh.AllAreas)) return null;
+            var enemy=pool.Find(item=>item.IsBoss);
+            if (enemy==null)
+            {
+                enemy=new GameObject("Vorath · final boss").AddComponent<DemonEnemy>(); enemy.transform.SetParent(transform,false);
+                enemy.Initialize(this,DemonKind.ObsidianGuard,true); pool.Add(enemy);
+            }
+            return enemy.Activate(sample.position,++serial,true,10)?enemy:null;
         }
         public void DespawnAll() { foreach (var enemy in pool) enemy.ReturnToPool(); }
         public void TrimShowcasePool()
@@ -87,6 +98,7 @@ namespace Seraphim
             for (var i=pool.Count-1;i>=0;i--)
             {
                 var enemy=pool[i];
+                if (enemy.IsBoss) continue;
                 if (++retained[(int)enemy.Kind]<=8) continue;
                 pool.RemoveAt(i); Destroy(enemy.gameObject);
             }
@@ -95,9 +107,10 @@ namespace Seraphim
         public void ResetScore() { Score=0; KillCount=0; }
         public void RecordKill(DemonEnemy enemy)
         {
-            KillCount++; Score+=100+(int)enemy.Kind*25+Mathf.Max(0,enemy.WaveNumber-1)*10;
+            KillCount++; Score+=enemy.IsBoss?5000:100+(int)enemy.Kind*25+Mathf.Max(0,enemy.WaveNumber-1)*10;
             Game.Audio?.Play(SoundCue.Banish,enemy.transform.position);
-            Game.Drops.SpawnPair(enemy.transform.position); Game.Waves.RecordSlay(enemy);
+            Game.Drops.SpawnPair(enemy.transform.position);
+            if (enemy.IsBoss) Game.Boss.Defeated(); else Game.Waves.RecordSlay(enemy);
         }
         public DemonEnemy Nearest(Vector3 origin,float range,HashSet<int> excluded=null)
         {
@@ -149,6 +162,7 @@ namespace Seraphim
             if (Game==null) return;
             if (Game.Vitals.Life<=0)
             {
+                Game.Boss.Clear();
                 DespawnAll(); Game.Ultimate.Cancel(); Game.Player.StopKeyboardMovement();
                 Game.Player.Agent.ResetPath(); Game.Player.Agent.Warp(Game.settings.spawnPoint);
                 Game.Vitals.Revive(); LastRecoveryAt=Time.time; nextSpawn=Time.time+4;

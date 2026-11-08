@@ -25,6 +25,7 @@ namespace Seraphim
         public SanctuaryAudio Audio { get; private set; }
         public SeraphimFrontEnd FrontEnd { get; private set; }
         public CathedralShowcase Attract { get; private set; }
+        public CathedralBoss Boss { get; private set; }
         public readonly List<Rect> MapObstacles=new List<Rect>();
         public List<Waystone> Waystones { get; } = new List<Waystone>();
         public int AttunedCount => Waystones.FindAll(s => s.IsAttuned).Count;
@@ -55,6 +56,7 @@ namespace Seraphim
             Hud.Initialize(this);
             var smoke=System.Array.Exists(System.Environment.GetCommandLineArgs(), a => a == "-seraphim-smoke");
             Enemies.Initialize(this,false);
+            Boss=gameObject.AddComponent<CathedralBoss>(); Boss.Initialize(this);
             Attract=gameObject.AddComponent<CathedralShowcase>(); Attract.Initialize(this);
             FrontEnd=gameObject.AddComponent<SeraphimFrontEnd>(); FrontEnd.Initialize(this);
             var menuSmoke=System.Array.Exists(System.Environment.GetCommandLineArgs(),a=>a=="-seraphim-front-end-only");

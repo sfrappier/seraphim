@@ -67,3 +67,10 @@ MonoBehaviour:
   enemySpeedGrowth: 0.065
   enemyDamageGrowth: 0.18
   menuEnemyLimit: 96
+  bossHealth: 4800
+  bossMoveSpeed: 2.7
+  bossMeteorDamage: 32
+  bossFireDamage: 11
+  bossSlashDamage: 38
+  bossNovaDamage: 34
+  bossRestSeconds: 7

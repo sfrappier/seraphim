@@ -8,13 +8,15 @@ This repository is the Unity project root. On this computer it lives at `F:\Temp
 
 [Main menu](Docs/images/main-menu.png) · [Audio settings](Docs/images/audio-settings.png)
 
+[Vorath, Herald of Ash](Docs/images/vorath.png) · [Meteor rain](Docs/images/meteor-rain.png) · [Hellfire fan](Docs/images/hellfire-fan.png) · [Reaping scythe](Docs/images/reaping-scythe.png)
+
 The previews are camera renders from the exported Windows player, including its native angelic HUD.
 
 ## Play the prototype
 
 Double-click **Play Seraphim.cmd** after a successful build. The executable is `Builds/Windows/Seraphim.exe`; distribute its entire folder, including `Seraphim_Data`, not just the executable.
 
-Version **0.7.0** opens at a shaded main menu with **Start** in the upper left. Its background is a live, autonomous battle: a moving seraphim uses all five powers against up to **96 demons**, with eight simultaneous special attacks. Start clears the demonstration and begins a fresh ten-wave campaign with the normal 24-enemy cap. The demonstration grants no campaign score, drops, or cooldown penalties.
+Version **0.8.0** opens at a shaded main menu with **Start** in the upper left. Its background is a live, autonomous battle: a moving seraphim uses all five powers against up to **96 demons**, with eight simultaneous special attacks. Start clears the demonstration and begins a fresh ten-wave campaign with the normal 24-enemy cap, followed by a final boss. **Boss Trial** skips directly to that fight for practice. The demonstration grants no campaign score, drops, or cooldown penalties.
 
 Open **Settings** from the menu or the in-game button to adjust **Music** and **Sound Effects** separately. Zero mutes a channel, and volumes persist between runs. Escape or controller Options/Start opens in-game settings and pauses combat; music continues. Circle/B or Escape returns. Main-menu buttons and sliders support mouse, keyboard arrows/Enter, and controller navigation. Quit is available on the main menu.
 
@@ -31,7 +33,7 @@ Open **Settings** from the menu or the in-game button to adjust **Music** and **
 - Cinder Imps, winged Ash Stalkers, and armored Obsidian Guards have different health and movement speeds. Their overhead bars show remaining health, recent damage, and floating damage numbers. Each defeat awards **100/125/150 points**, plus 10 per wave after the first. Demons disperse into light without blood or gore.
 - Every demon drops a **Life orb (+12)** and a **Spirit orb (+18)**. Walk near a drop to attract and collect it. Orbs stay available while the matching resource is full, expire after 45 seconds, and use a pool capped at 48. Nearby walls and pews block attraction.
 - The **top-right minimap** shows the cathedral floor plan, obstacles, a gold player arrow, cyan waystones, and **red enemy dots**. Its north-up orientation is fixed. Clicking it does not move the character.
-- If Life reaches zero, you return to the starting point with full resources and brief protection. The current wave restarts after a rest, retaining earned points. After defeating wave 10, press **R**, controller **Options**, or **Start** to replay with a fresh score and full resources. Score is per session and is not saved yet.
+- If Life reaches zero, you return to the starting point with full resources and brief protection. The current wave restarts after a rest, retaining earned points. During the final boss, defeat retries that fight with full boss health after a seven-second rest. After banishing Vorath, press **R**, controller **Options**, or **Start** to replay with a fresh score and full resources. Score is per session and is not saved yet.
 - Awaken the three waystones as an optional exploration objective while defending the cathedral.
 - Press Escape or controller Options/Start for settings during play. Return to the main menu to quit.
 
@@ -56,6 +58,21 @@ The Xbox mapping follows the physical positions of the requested PlayStation but
 The sanctuary is now an **84 × 112 meter cathedral**, nearly six times the original floor area. Its cutaway architecture includes a nave, side aisles, Gothic ribs, clustered columns, wooden pews, candelabra, lancet windows, a rose window, memorials, and a raised high altar. Three CC0 2K texture sets provide marble, masonry, and oak, with world-scaled UVs and normal maps.
 
 The playable angel uses KayKit's rigged Knight as an armored base, an ivory palette shader, bone-mounted celestial vestments, a crown, and six animated wings with sculpted feathers. The body and demons remain stylized prototype art. This is a playable wave scenario; classes, equipment, pets, saving, campaign generation, and multiplayer are future milestones.
+
+## Final boss: Vorath, Herald of Ash
+
+After all **370 wave demons**, a seven-second preparation rest restores 35 Life and full Spirit. Vorath then descends nearby on reachable ground. His original procedural model stands over eight meters tall, with a skeletal rib cage, horned skull, torn mantle, spectral bone train, turning sigil crown, and hooked scythe. A large top-center health bar shows his health, phase, and attack warning; the minimap marks him with a larger magenta dot. The camera widens and includes him while retaining player movement and aiming controls.
+
+Vorath has **4,800 HP** and three phases: phase two below 65% health and phase three below 30%. He moves toward distant players, alternates ranged patterns, and uses a separate close-range scythe attack. Later phases shorten ranged intervals from 4.3 to 3.7 to 3.1 seconds. All five player powers damage him, including Inferno's burn; boss poise prevents permanent stun or knockback locking. Each phase transition releases two nearby pairs of restoration orbs, which require moving to collect.
+
+| Attack | Warning and damage | How to evade |
+| --- | --- | --- |
+| Meteor rain | Three / four / five fixed circles by phase; 1.5-second warning plus staggered impacts. Each meteor deals 32 damage and leaves a 4.2-second crater that burns for 11 damage every 0.65 seconds. | Leave the marked circles and avoid the burning ground. Targets stop tracking once marked. |
+| Hellfire fan | Five / seven traveling firebolts, with 1.15 seconds of marked paths before launch. Each bolt deals 27.5 damage once, travels at 11 m/s, and stops at solid architecture. | Move between the paths, behind the boss, or behind solid architecture. |
+| Hollow nova | A purple annular warning for 1.45 seconds, then 34 damage between roughly 5 and 12 meters. Phase three repeats the nova after 1.9 seconds. | Enter the safe inner circle or escape beyond the outer circle; watch the repeated cast. |
+| Reaping scythe | A locked 130-degree sector reaching 5.8 meters, with a 1.05-second windup, followed by an animated weapon sweep dealing 38 damage once. | Get behind him or retreat beyond the sector before the blade lands. |
+
+Victory requires defeating Vorath and awards **5,000 bonus points** once. His death clears pending impacts, fire, and slashes. Boss effects use at most **18 reusable hazard objects**; the dedicated boss instance cannot be reused as an ordinary guard. Leaving, retrying, replaying, and starting a new campaign clear the fight and restore normal camera settings. The model and attacks contain no blood or gore. Difficulty is a first tuning pass and still needs human playtesting.
 
 ## Build again
 
@@ -110,7 +127,7 @@ Use `-AlreadyTrimmed` only if the input already begins at 3831 seconds and ends 
 .\Tools\Smoke-Test.ps1
 ```
 
-Build already includes validation; a normal change only needs Build followed by Smoke-Test. The player test exercises click and WASD movement, control handoffs, diagonal speed, obstacle boundaries, HUD click blocking, Spirit spending/regeneration, character animation, and waystone activation. It checks the ultimate's traveling aura, fifteen pulses, transformation, restoration, full 30-second recharge, and reuse. Combat checks cover spawning, population caps, health bars, damage, demon reuse, spears, lightning, burn ticks, melee attacks, and recovery after defeat. Cathedral checks cover the model and textures, navigation through the expanded world, minimap behavior, drop collection, scoring, all ten waves, victory, replay, and recovery quotas. Allow roughly 100–150 seconds for the full player checks. Screenshots include the HUD, each power, and cathedral previews. Results go to `Builds/Windows/SmokeTests/`, with the runtime log at `Logs/player-smoke.log`.
+Build already includes validation; a normal change only needs Build followed by Smoke-Test. The player test exercises click and WASD movement, control handoffs, diagonal speed, obstacle boundaries, HUD click blocking, Spirit spending/regeneration, character animation, and waystone activation. It checks the ultimate's traveling aura, fifteen pulses, transformation, restoration, full 30-second recharge, and reuse. Combat checks cover spawning, population caps, health bars, damage, demon reuse, spears, lightning, burn ticks, melee attacks, and recovery after defeat. Cathedral checks cover the model and textures, navigation through the expanded world, minimap behavior, drop collection, scoring, all ten waves, the final boss, victory, replay, and recovery quotas. Allow roughly 130–180 seconds for the full player checks. Screenshots include the HUD, each power, cathedral previews, and boss attacks. Results go to `Builds/Windows/SmokeTests/`, with the runtime log at `Logs/player-smoke.log`.
 
 For a focused combat iteration, use `.\Tools\Smoke-Test.ps1 -CombatOnly`. This skips baseline movement and the long ultimate recharge sequence; run the full test before releasing gameplay changes. The smoke-test launch uses isolated encounters instead of the normal automatic encounter so damage and cooldown checks are repeatable.
 
@@ -122,6 +139,8 @@ Use `.\Tools\Smoke-Test.ps1 -DifficultyOnly` for pressure checks. These exercise
 
 Use `.\Tools\Smoke-Test.ps1 -FrontEndOnly` for menu/showcase, start/reset, pause/resume, independent volumes, preference persistence, and music-loading checks. Add `-FallbackMusic` to verify the original soundtrack without removing the authorized local recording. These checks restore the user's saved volumes afterward. Audio signal measurements verify playback, not perceived musical quality or speaker routing.
 
+Use `.\Tools\Smoke-Test.ps1 -BossOnly` for the final encounter. Checks cover all five powers, boss poise, health and phase transitions, meteors and persistent fire, warning escape routes, traveling fire and wall blocking, nova safe zones, scythe hits and dodges, automatic attack chaining, hazard bounds, retry cleanup, final scoring, and normal guard reuse. Full scenario checks additionally verify that wave ten leads to the boss and that victory requires all 371 enemies. Boss Trial uses the same encounter as the normal campaign.
+
 ## Make changes
 
 - `Assets/Seraphim/Generated/SanctuarySettings.asset`: movement speed, acceleration, camera, seed, resource regeneration, ability tuning, and enemy population. In the editor, select it in the Project window and edit the Inspector.
@@ -131,6 +150,7 @@ Use `.\Tools\Smoke-Test.ps1 -FrontEndOnly` for menu/showcase, start/reset, pause
 - `WaveDirector.cs`: ten-wave quotas, spawn pacing, concurrency limits, intermissions, victory, and retries. `CelestialDrops.cs` owns pooled restoration drops; `CathedralMinimap.cs` draws the same obstacle definitions used to build navigation.
 - `DemonDifficulty.cs`: settings-driven health, damage, speed, visual scale, and resistance curves. `DemonOffense.cs` owns pooled attack warnings, ember fields, interruptible charges, and melee attacks. Wave-pressure tuning lives in the existing `SanctuarySettings.asset`.
 - `SeraphimFrontEnd.cs` owns menu/settings UI and input handoffs; `CathedralShowcase.cs` runs the automatic menu battle. `SanctuaryAudio.cs` separates persistent channel volumes, streamed music, and bounded effects voices; `SanctuarySound.cs` creates original clips.
+- `CathedralBoss.cs` schedules the final encounter and phase changes; `BossHazardField.cs` owns bounded warning geometry and damage. `CathedralBossArt.cs` creates and animates the original model. `BossHealthHud.cs` presents the shared enemy health pool. Boss tuning lives in the existing `SanctuarySettings.asset`.
 - `CathedralBuilder.cs`: cathedral geometry, world-scaled surfaces, lighting props, collision, and minimap placement definitions. `AngelicVestments.cs` and `SeraphimWings.cs` own the angel additions.
 - `DivinePowers.cs` and `DivineProjectile.cs`: the three new powers, cursor aiming, and swept projectile hits. `CelestialAbility.cs` and `WordOfGodAbility.cs` own the two pulse powers.
 - `Assets/Seraphim/Shaders/`: celestial effect shader.

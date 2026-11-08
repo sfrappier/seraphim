@@ -17,6 +17,7 @@ namespace Seraphim
         float appearedAt,deathAt,nextPath,flashUntil,burnUntil,nextBurn,stunUntil;
         bool marked;
         public bool IsAlive { get; private set; }
+        public bool IsBoss { get; private set; }
         public bool Passive { get; set; }
         public int TargetId { get; private set; }
         public int WaveNumber { get; private set; }
@@ -26,21 +27,21 @@ namespace Seraphim
         public NavMeshAgent Agent => agent;
         public float VisualScale => BaseScale;
         public float MoveSpeed => agent.speed;
-        public float HitRadius => .35f*BaseScale;
+        public float HitRadius => IsBoss?1.7f:.35f*BaseScale;
         public DemonKind Kind { get; private set; }
         public float Health { get; private set; }
         public float MaxHealth { get; private set; }
         public float HealthFraction => Mathf.Clamp01(Health/Mathf.Max(1,MaxHealth));
-        public float BarHeight => (Kind==DemonKind.ObsidianGuard?2.8f:2.45f)*Difficulty.size;
-        public string DisplayName => Kind==DemonKind.CinderImp?"CINDER IMP":Kind==DemonKind.AshStalker?"ASH STALKER":"OBSIDIAN GUARD";
+        public float BarHeight => IsBoss?8.5f:(Kind==DemonKind.ObsidianGuard?2.8f:2.45f)*Difficulty.size;
+        public string DisplayName => IsBoss?"VORATH, HERALD OF ASH":Kind==DemonKind.CinderImp?"CINDER IMP":Kind==DemonKind.AshStalker?"ASH STALKER":"OBSIDIAN GUARD";
         public DemonHealthBar HealthBar { get; private set; }
         public DivineDamage LastDamageSource { get; private set; }
         public bool IsBurning => IsAlive && Time.time<burnUntil;
         public bool IsStunned => IsAlive && Time.time<stunUntil;
 
-        public void Initialize(EnemyDirector owner,DemonKind kind)
+        public void Initialize(EnemyDirector owner,DemonKind kind,bool boss=false)
         {
-            director=owner; Kind=kind;
+            director=owner; Kind=kind; IsBoss=boss;
             MaxHealth=kind==DemonKind.CinderImp?42:kind==DemonKind.AshStalker?32:60;
             baseHealth=MaxHealth;
             agent=gameObject.AddComponent<NavMeshAgent>();
@@ -51,11 +52,23 @@ namespace Seraphim
             gameObject.layer=9;
             targetCollider=gameObject.AddComponent<CapsuleCollider>();
             targetCollider.isTrigger=true; targetCollider.height=2; targetCollider.radius=.45f; targetCollider.center=Vector3.up;
-            BuildVisuals();
+            if (IsBoss) BuildBossVisuals(); else BuildVisuals();
             HealthBar=gameObject.AddComponent<DemonHealthBar>(); HealthBar.Initialize(this,director.Game.Hud.HudCanvas);
             Offense=gameObject.AddComponent<DemonOffense>(); Offense.Initialize(this,director);
             agent.enabled=false;
             gameObject.SetActive(false);
+        }
+        void BuildBossVisuals()
+        {
+            var art=gameObject.AddComponent<CathedralBossArt>(); art.Initialize(director);
+            visual=art.Body;
+            renderers=visual.GetComponentsInChildren<Renderer>(); baseColors=new Color[renderers.Length];
+            for (var i=0;i<renderers.Length;i++) baseColors[i]=renderers[i].sharedMaterial.GetColor("_BaseColor");
+            hitBlock=new MaterialPropertyBlock();
+            sparks=CombatArt.Motes(transform,director.Game.models.celestialMote,350,new Color(1,.35f,.65f),5,1);
+            sparks.transform.localPosition=Vector3.up*3;
+            spawnRing=SceneArt.Ring("Herald arrival",transform,3,.12f,director.Game.models.glowGold,96);
+            spawnRing.transform.localPosition=Vector3.up*.09f;
         }
         void BuildVisuals()
         {
@@ -102,6 +115,12 @@ namespace Seraphim
             MaxHealth=baseHealth*Difficulty.health; agent.speed=baseSpeed*Difficulty.speed;
             agent.radius=Mathf.Clamp(.38f*Difficulty.size,.38f,.6f); agent.height=1.8f*Difficulty.size;
             targetCollider.height=2*BaseScale; targetCollider.radius=.45f*BaseScale; targetCollider.center=Vector3.up*BaseScale;
+            if (IsBoss)
+            {
+                MaxHealth=director.Game.settings.bossHealth; agent.speed=director.Game.settings.bossMoveSpeed;
+                agent.radius=1.1f; agent.height=6; agent.stoppingDistance=4.4f;
+                targetCollider.height=6.5f; targetCollider.radius=1.7f; targetCollider.center=Vector3.up*3.1f;
+            }
             TargetId=id; Health=MaxHealth; IsAlive=true; Passive=passive;
             deathAt=0; appearedAt=Time.time; nextPath=0;
             burnUntil=stunUntil=flashUntil=0;
@@ -115,13 +134,14 @@ namespace Seraphim
             foreach (var renderer in renderers) renderer.SetPropertyBlock(null);
             HealthBar.ResetBar(); Offense.ResetForSpawn(); return true;
         }
-        float BaseScale => (Kind==DemonKind.ObsidianGuard?1.13f:Kind==DemonKind.AshStalker?.92f:1)*Difficulty.size;
+        float BaseScale => IsBoss?1:(Kind==DemonKind.ObsidianGuard?1.13f:Kind==DemonKind.AshStalker?.92f:1)*Difficulty.size;
         public void Hit(float amount,DivineDamage source,Vector3 origin,float push=0,float stun=0,float burn=0)
         {
             if (!IsAlive || amount<=0) return;
             var actual=Mathf.Min(Health,amount); Health=Mathf.Max(0,Health-amount); LastDamageSource=source;
             director.RecordDamage(actual); HealthBar.Hit(actual,source);
             director.Game.Audio?.Play(SoundCue.Hit,transform.position);
+            if (IsBoss) { stun=0; push=0; }
             flashUntil=Time.time+.12f; stunUntil=Mathf.Max(stunUntil,Time.time+stun);
             if (stun>0) Offense.Interrupt();
             if (burn>0) { burnUntil=Time.time+burn; nextBurn=Time.time+1; }
@@ -153,7 +173,7 @@ namespace Seraphim
                 return;
             }
             if (burnUntil>0 && nextBurn<=burnUntil+.01f && Time.time>=nextBurn) { nextBurn+=1; Hit(8,DivineDamage.Burning,transform.position); if (!IsAlive) return; sparks.Emit(5); }
-            Offense.Tick();
+            if (!IsBoss) Offense.Tick();
             var flashing=Time.time<flashUntil;
             if (flashing || IsBurning || marked)
             {
@@ -173,6 +193,7 @@ namespace Seraphim
             spawnRing.enabled=arrival<1;
             spawnRing.transform.localScale=Vector3.one*(.3f+arrival);
             spawnRing.startColor=spawnRing.endColor=new Color(1,.3f,.08f,1-arrival);
+            if (IsBoss) return; // Dedicated encounter controls navigation, attacks and animation.
             if (!Passive && director.Game.Vitals.Life>0 && agent.enabled && agent.isOnNavMesh)
             {
                 var distance=Vector3.Distance(transform.position,director.Game.Player.transform.position);

@@ -26,7 +26,7 @@ namespace Seraphim
             EnemyMarkerCount=0;
             foreach (var enemy in game.Enemies.Enemies) if (enemy.IsAlive)
             {
-                Disc(vh,Project(enemy.transform.position),2.6f,new Color(1,.18f,.12f),new Color(.8f,.02f,.015f),12); EnemyMarkerCount++;
+                Disc(vh,Project(enemy.transform.position),enemy.IsBoss?5:2.6f,enemy.IsBoss?new Color(1,.25f,.85f):new Color(1,.18f,.12f),new Color(.8f,.02f,.015f),12); EnemyMarkerCount++;
             }
             var player=PlayerMapPosition; var forward=game.Player.transform.forward; var direction=new Vector2(forward.x,forward.z).normalized;
             var side=new Vector2(-direction.y,direction.x);

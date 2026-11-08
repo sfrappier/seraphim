@@ -4,7 +4,7 @@ namespace Seraphim
 {
     public sealed class WaveDirector : MonoBehaviour
     {
-        public enum EncounterState { Dormant,Resting,Fighting,Victory }
+        public enum EncounterState { Dormant,Resting,Fighting,BossApproaching,BossBattle,Victory }
         SanctuaryGame game;
         float nextSpawn,restUntil,waveStarted;
         public EncounterState State { get; private set; }
@@ -37,6 +37,7 @@ namespace Seraphim
         public void Initialize(SanctuaryGame owner) { game=owner; }
         public void BeginScenario()
         {
+            game.Boss?.Clear();
             game.Enemies.SpawnAutomatic=false; game.Enemies.DespawnAll(); game.Enemies.ResetScore();
             game.Ultimate.Cancel(); game.Player.StopKeyboardMovement(); game.Player.Agent.ResetPath(); game.Player.Agent.Warp(game.settings.spawnPoint);
             game.Vitals.RestoreLife(game.Vitals.MaxLife); game.Vitals.RestoreSpirit(game.Vitals.MaxSpirit);
@@ -49,18 +50,32 @@ namespace Seraphim
             Wave++; Spawned=Slain=0; State=EncounterState.Fighting; nextSpawn=waveStarted=now??Time.time;
             game.Audio?.Play(SoundCue.Wave);
         }
+        public void BeginBossTrial()
+        {
+            BeginScenario(); Wave=game.settings.waveCount; State=EncounterState.BossApproaching;
+            restUntil=Time.time+game.settings.bossRestSeconds;
+        }
         public void RecordSlay(DemonEnemy enemy)
         {
             if (State==EncounterState.Fighting && enemy.WaveNumber==Wave) Slain++;
         }
         public void Recover()
         {
+            if (State==EncounterState.BossBattle || State==EncounterState.BossApproaching)
+            {
+                game.Boss.Clear(); State=EncounterState.BossApproaching; restUntil=Time.time+game.settings.bossRestSeconds; return;
+            }
             if (State!=EncounterState.Fighting && State!=EncounterState.Resting) return;
             // Retry the current wave with a fresh quota; score already earned is retained.
             if (State==EncounterState.Fighting) Wave--;
             Spawned=Slain=0; State=EncounterState.Resting; restUntil=Time.time+game.settings.waveRestSeconds;
         }
-        public void StopScenario() { State=EncounterState.Dormant; game.Enemies.SpawnAutomatic=false; }
+        public void StopScenario() { State=EncounterState.Dormant; game.Enemies.SpawnAutomatic=false; game.Boss?.Clear(); }
+        public void BossDefeated()
+        {
+            if (State!=EncounterState.BossBattle) return;
+            State=EncounterState.Victory; game.Audio.Play(SoundCue.Victory);
+        }
         void Update()
         {
             if (game==null) return;
@@ -70,11 +85,21 @@ namespace Seraphim
         // Explicit clock keeps the encounter scheduler repeatable in player checks.
         public void Tick(float now)
         {
+            if (State==EncounterState.BossApproaching && now>=restUntil)
+            {
+                if (game.Boss.Begin()) State=EncounterState.BossBattle;
+                else restUntil=now+1;
+            }
             if (State==EncounterState.Resting && now>=restUntil) StartNextWave(now);
             if (State!=EncounterState.Fighting) return;
             if (Slain>=Total && Spawned>=Total && game.Enemies.ActiveCount==0)
             {
-                if (Wave>=game.settings.waveCount) { State=EncounterState.Victory; game.Audio?.Play(SoundCue.Victory); }
+                if (Wave>=game.settings.waveCount)
+                {
+                    State=EncounterState.BossApproaching; restUntil=now+game.settings.bossRestSeconds;
+                    game.Drops.Clear(); game.Vitals.RestoreLife(35); game.Vitals.RestoreSpirit(100);
+                    game.Audio.Play(SoundCue.Warning);
+                }
                 else
                 {
                     State=EncounterState.Resting; restUntil=now+game.settings.waveRestSeconds;

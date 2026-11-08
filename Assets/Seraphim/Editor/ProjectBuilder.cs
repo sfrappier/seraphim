@@ -59,7 +59,7 @@ namespace Seraphim.Editor
         {
             PlayerSettings.companyName = "Seraphim";
             PlayerSettings.productName = "Seraphim";
-            PlayerSettings.bundleVersion = "0.7.0";
+            PlayerSettings.bundleVersion = "0.8.0";
             PlayerSettings.colorSpace = ColorSpace.Linear;
             PlayerSettings.defaultScreenWidth = 1600;
             PlayerSettings.defaultScreenHeight = 900;
@@ -280,6 +280,9 @@ namespace Seraphim.Editor
                 throw new BuildFailedException("Pulse duration, Radiance cooldown, or demon population configuration is invalid.");
             if (game.settings.menuEnemyLimit<32 || game.settings.menuEnemyLimit>128)
                 throw new BuildFailedException("Main-menu showcase population must remain bounded between 32 and 128.");
+            if (game.settings.bossHealth<=0 || game.settings.bossMoveSpeed<=0 || game.settings.bossMeteorDamage<=0
+                || game.settings.bossSlashDamage<=0 || game.settings.bossFireDamage<=0 || game.settings.bossNovaDamage<=0 || game.settings.bossRestSeconds<3)
+                throw new BuildFailedException("Final boss health, attacks, speed or arrival rest is invalid.");
             if (game.models.marble==null || game.models.marble.mainTexture==null || game.models.cathedralWood==null
                 || game.settings.waveCount!=10 || game.settings.cathedralSize.x<80 || game.settings.cathedralSize.y<100)
                 throw new BuildFailedException("Cathedral textures, dimensions, or ten-wave scenario are missing.");

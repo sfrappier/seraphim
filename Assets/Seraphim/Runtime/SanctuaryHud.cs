@@ -32,6 +32,7 @@ namespace Seraphim
         {
             if (instance==null || instance.canvas==null) return false;
             if (instance.game.FrontEnd!=null && instance.game.FrontEnd.BlocksWorldPointer) return true;
+            if (instance.game.Boss!=null && instance.game.Boss.Hud.BlocksPoint(position)) return true;
             var camera=instance.canvas.worldCamera;
             return RectTransformUtility.RectangleContainsScreenPoint(instance.bottom,position,camera)
                 || RectTransformUtility.RectangleContainsScreenPoint(instance.objective,position,camera)
@@ -157,8 +158,10 @@ namespace Seraphim
             lifeValue.text=$"{Mathf.CeilToInt(game.Vitals.Life)} / {Mathf.CeilToInt(game.Vitals.MaxLife)}";
             spiritValue.text=$"{Mathf.CeilToInt(game.Vitals.Spirit)} / {Mathf.CeilToInt(game.Vitals.MaxSpirit)}";
             var wave=game.Waves;
-            objectiveText.text=wave.State==WaveDirector.EncounterState.Victory?"All ten waves defeated!\nR / Options / Start to replay":"Survive ten waves\nWaystones awakened   "+game.AttunedCount+" / 3";
+            objectiveText.text=wave.State==WaveDirector.EncounterState.Victory?"Vorath banished!\nR / Options / Start to replay":wave.State==WaveDirector.EncounterState.BossBattle?"Defeat Vorath\nHerald of Ash":wave.State==WaveDirector.EncounterState.BossApproaching?"Final battle approaches\nPrepare your powers":"Survive ten waves, then Vorath\nWaystones awakened   "+game.AttunedCount+" / 3";
             waveStatus.text=wave.State==WaveDirector.EncounterState.Victory?"VICTORY · CATHEDRAL DEFENDED":wave.State==WaveDirector.EncounterState.Resting?"WAVE "+(wave.Wave+1)+" / 10   IN "+Mathf.CeilToInt(wave.RestRemaining)+"s":wave.State==WaveDirector.EncounterState.Fighting?"WAVE "+wave.Wave+" / 10    ·    "+wave.Slain+" / "+wave.Total+" BANISHED":"THE CATHEDRAL AWAITS";
+            if (wave.State==WaveDirector.EncounterState.BossApproaching) waveStatus.text="VORATH ARRIVES IN "+Mathf.CeilToInt(wave.RestRemaining)+"s";
+            if (wave.State==WaveDirector.EncounterState.BossBattle) waveStatus.text="FINAL BOSS · PHASE "+game.Boss.Phase+" / 3";
             if (wave.ReinforcementRemaining>0 && game.Enemies.ActiveCount==0)
                 waveStatus.text="WAVE "+wave.Wave+" · REINFORCEMENTS IN "+Mathf.CeilToInt(wave.ReinforcementRemaining)+"s";
             combatStatus.text=Time.time-game.Enemies.LastRecoveryAt<3?"Grace restores you. This wave will retry.":"SCORE  "+game.Enemies.Score+"       DEMONS  "+game.Enemies.ActiveCount+" / "+(wave.State==WaveDirector.EncounterState.Fighting?wave.ConcurrentLimit:game.settings.enemyLimit);
