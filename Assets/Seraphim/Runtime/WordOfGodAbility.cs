@@ -27,8 +27,6 @@ namespace Seraphim
         Light heavenLight,groundLight;
         Volume volume;
         VolumeProfile profile;
-        AudioSource audioSource;
-        AudioClip chord;
         Mesh beamMesh;
         float readyAt,startedAt;
         bool revealed;
@@ -123,11 +121,6 @@ namespace Seraphim
             var bloom=profile.Add<Bloom>(true); bloom.intensity.Override(1.4f); bloom.threshold.Override(.8f);
             var exposure=profile.Add<ColorAdjustments>(true); exposure.postExposure.Override(.95f);
             volume.sharedProfile=profile;
-            audioSource=effectRoot.AddComponent<AudioSource>();
-            audioSource.playOnAwake=false;
-            audioSource.volume=.35f;
-            audioSource.spatialBlend=0;
-            chord=CreateChord();
             effectRoot.SetActive(false);
         }
 
@@ -168,6 +161,7 @@ namespace Seraphim
             chargeEmission=risingEmission=0;
             Stage=Phase.Charging;
             CastCount++;
+            enemies.Game.Audio?.Play(SoundCue.Ascend,transform.position);
             effectRoot.transform.position=transform.position;
             effectRoot.SetActive(true);
             chargeMotes.Emit(100);
@@ -190,7 +184,7 @@ namespace Seraphim
             foreach (var stone in stones) if (Vector3.Distance(transform.position,stone.transform.position)<=settings.ultimateRadius) stone.Attune();
             var camera=Camera.main.GetComponent<SanctuaryCamera>();
             if (camera!=null) camera.Impact();
-            audioSource.PlayOneShot(chord);
+            enemies.Game.Audio?.Play(SoundCue.Revelation,transform.position);
             Pulse();
             nextPulseAt=startedAt+ChargeTime+settings.ultimatePulseInterval;
         }
@@ -198,6 +192,7 @@ namespace Seraphim
         void Pulse()
         {
             PulseCount++;
+            if (PulseCount>1) enemies.Game.Audio?.Play(SoundCue.Pulse,transform.position);
             enemies.Radial(transform.position,settings.ultimateRadius,settings.ultimateDamage,DivineDamage.WordOfGod,null,.35f,.15f);
             if (PulseCount>1) burstMotes.Emit(100);
             foreach (var stone in stones) if (Vector3.Distance(transform.position,stone.transform.position)<=settings.ultimateRadius) stone.Attune();
@@ -260,6 +255,7 @@ namespace Seraphim
         }
 
         public void Cancel() { if (IsActive) RestoreForm(); }
+        public void ResetForRun() { Cancel(); readyAt=0; CastCount=PulseCount=0; }
 
         void RestoreForm()
         {
@@ -309,29 +305,12 @@ namespace Seraphim
             return mesh;
         }
 
-        static AudioClip CreateChord()
-        {
-            const int rate=22050;
-            const float duration=2.5f;
-            var samples=new float[(int)(rate*duration)];
-            for (var i=0;i<samples.Length;i++)
-            {
-                var t=i/(float)rate;
-                var envelope=Mathf.Clamp01(t*12)*Mathf.Pow(1-t/duration,1.5f);
-                samples[i]=(Mathf.Sin(t*2*Mathf.PI*110)*.12f+Mathf.Sin(t*2*Mathf.PI*220)*.08f
-                    +Mathf.Sin(t*2*Mathf.PI*330)*.06f+Mathf.Sin(t*2*Mathf.PI*554.37f)*.04f)*envelope;
-            }
-            var clip=AudioClip.Create("Celestial revelation",samples.Length,1,rate,false);
-            clip.SetData(samples,0);
-            return clip;
-        }
         void OnDisable() { if (effectRoot!=null) RestoreForm(); }
         void OnDestroy()
         {
             if (effectRoot!=null) Destroy(effectRoot);
             if (ascendedMaterial!=null) Destroy(ascendedMaterial);
             if (beamMesh!=null) Destroy(beamMesh);
-            if (chord!=null) Destroy(chord);
             if (profile!=null) { foreach (var component in profile.components) Destroy(component); Destroy(profile); }
         }
     }

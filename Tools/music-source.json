@@ -1,0 +1,24 @@
+{
+  "title": "Diablo 4 Inspired Dark Fantasy Music - Epic Angelic Choir & Cathedral Chants (2 Hours)",
+  "creator": "Track Realm",
+  "source": "https://www.youtube.com/watch?v=8uLfE1A1WHQ",
+  "section": "Repeat Cycle 3",
+  "startSeconds": 3831,
+  "endSeconds": 5740,
+  "durationSeconds": 1909,
+  "permission": "Project owner confirmed permission to use this recording on 2026-11-08. No public redistribution license for the raw recording has been asserted.",
+  "storage": "Ignored LocalAudio/seraphim-theme.ogg, copied to local Windows exports only. No recording is committed to this public repository.",
+  "processing": "Vorbis quality 5, half-second fades at both boundaries; loop entire selected segment.",
+  "localProcessedSha256": "b8e558c60f9692fcb0b0edbdce81fb56a2a4d6e3479d9780589b0a80efc134ef",
+  "fallback": "Original procedural 32-second choir/organ-style composition in SanctuarySound.cs; no external samples.",
+  "downloadTools": {
+    "ytDlpVersion": "2026.10.26",
+    "ytDlpSource": "https://github.com/yt-dlp/yt-dlp/releases/tag/2026.10.26",
+    "ytDlpLicense": "Unlicense source; bundled Windows executable includes dependencies under their own licenses. Build tool only, not shipped.",
+    "ytDlpSha256": "f5389d3698ecde4ef06f4e6b1ce0294fe9ac1396228c8990b8d3416d6d177a7d",
+    "ffmpegArchiveUrl": "https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip",
+    "ffmpegVersion": "9.0.2 essentials",
+    "ffmpegLicense": "GPLv3 essentials build; conversion tool only, not shipped.",
+    "ffmpegArchiveSha256": "60f467265b1e312373dbcd92200c2618a74850f98d3d078e94296bb3fa2047ba"
+  }
+}

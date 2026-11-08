@@ -62,7 +62,7 @@ namespace Seraphim
         }
         public bool TrySpecial()
         {
-            if (!owner.IsAlive || !SpecialReady || director.ActiveSpecialAttacks>=director.Game.settings.maxConcurrentSpecialAttacks) return false;
+            if (!owner.IsAlive || !SpecialReady || director.ActiveSpecialAttacks>=director.SpecialAttackLimit) return false;
             var target=director.Game.Player.transform.position;
             var distance=FlatDistance(target,transform.position);
             if (owner.Kind==DemonKind.AshStalker)
@@ -86,6 +86,7 @@ namespace Seraphim
         {
             kind=attack; point=target; radius=size; started=Time.time; until=Time.time+windup;
             Phase=AttackPhase.Windup; chargeHit=false;
+            if (kind!=AttackKind.Melee) director.Game.Audio?.Play(SoundCue.Warning,transform.position);
             effects.transform.position=point; effects.SetActive(true);
             warning.enabled=progress.enabled=true; lane.enabled=kind==AttackKind.Charge;
             var mat=kind==AttackKind.EmberField?director.Game.models.glowCyan:director.Game.models.glowGold;
@@ -114,6 +115,7 @@ namespace Seraphim
                 else if (kind==AttackKind.Charge)
                 {
                     Phase=AttackPhase.Charging; until=Time.time+.7f;
+                    director.Game.Audio?.Play(SoundCue.Charge,transform.position);
                     lane.startColor=lane.endColor=new Color(1,.4f,.07f,.8f);
                 }
                 else

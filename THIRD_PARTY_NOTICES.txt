@@ -62,3 +62,19 @@ Licenses/UnityInputSystem-LICENSE.md.
 Pinned registry archive and verified checksums: Tools/package-sources.json
 
 No Unity Asset Store or Mixamo assets are redistributed in this source tree.
+
+Optional local soundtrack: Track Realm
+Title: Diablo 4 Inspired Dark Fantasy Music - Epic Angelic Choir & Cathedral
+Chants (2 Hours)
+Source: https://www.youtube.com/watch?v=8uLfE1A1WHQ
+Selected segment: 3831-5740 seconds, Repeat Cycle 3.
+The project owner confirmed permission to use the recording on 2026-11-08.
+No public redistribution license for raw audio has been asserted. The audio is
+excluded from this public source repository and added only to local builds.
+Source details: Tools/music-source.json. Local processed SHA-256: Music/source.json
+in an export containing the recording, or LocalAudio/source.json on this machine.
+yt-dlp and FFmpeg are optional preparation tools, not shipped game dependencies.
+Their origins, versions, license notes, and checksums: Tools/music-source.json.
+
+The fallback musical composition and all synthesized sound effects are original
+Seraphim source code; they contain no third-party recordings or samples.

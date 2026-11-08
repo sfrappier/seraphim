@@ -32,6 +32,7 @@ namespace Seraphim
             if (slot>=1 && slot<=3) return game.Powers.Cast(slot-1,aim);
             return false;
         }
+        public bool TryUseDirected(int slot,Vector3 aim) => Cast(slot,aim);
         void Update()
         {
             if (!InputEnabled) return;

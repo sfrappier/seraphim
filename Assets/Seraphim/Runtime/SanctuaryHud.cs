@@ -26,10 +26,12 @@ namespace Seraphim
         public bool HasResourceOrbs => life!=null && spirit!=null;
         public int SkillSlotCount => icons.Length;
         public Canvas HudCanvas => canvas;
+        public void SetVisible(bool visible) { canvas.enabled=visible; }
 
         public static bool BlocksScreenPoint(Vector2 position)
         {
             if (instance==null || instance.canvas==null) return false;
+            if (instance.game.FrontEnd!=null && instance.game.FrontEnd.BlocksWorldPointer) return true;
             var camera=instance.canvas.worldCamera;
             return RectTransformUtility.RectangleContainsScreenPoint(instance.bottom,position,camera)
                 || RectTransformUtility.RectangleContainsScreenPoint(instance.objective,position,camera)

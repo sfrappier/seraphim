@@ -121,6 +121,7 @@ namespace Seraphim
             if (!IsAlive || amount<=0) return;
             var actual=Mathf.Min(Health,amount); Health=Mathf.Max(0,Health-amount); LastDamageSource=source;
             director.RecordDamage(actual); HealthBar.Hit(actual,source);
+            director.Game.Audio?.Play(SoundCue.Hit,transform.position);
             flashUntil=Time.time+.12f; stunUntil=Mathf.Max(stunUntil,Time.time+stun);
             if (stun>0) Offense.Interrupt();
             if (burn>0) { burnUntil=Time.time+burn; nextBurn=Time.time+1; }

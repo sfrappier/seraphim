@@ -6,11 +6,17 @@ This repository is the Unity project root. On this computer it lives at `F:\Temp
 
 [Wave-ten pressure](Docs/images/wave-ten-pressure.png) · [Ember fields](Docs/images/ember-field.png) · [Guard charges](Docs/images/guard-charge.png) · [Controller HUD](Docs/images/controller-hud.png) · [Cathedral overview](Docs/images/cathedral-overview.png) · [Recorded validation results](Docs/validation.json)
 
+[Main menu](Docs/images/main-menu.png) · [Audio settings](Docs/images/audio-settings.png)
+
 The previews are camera renders from the exported Windows player, including its native angelic HUD.
 
 ## Play the prototype
 
 Double-click **Play Seraphim.cmd** after a successful build. The executable is `Builds/Windows/Seraphim.exe`; distribute its entire folder, including `Seraphim_Data`, not just the executable.
+
+Version **0.7.0** opens at a shaded main menu with **Start** in the upper left. Its background is a live, autonomous battle: a moving seraphim uses all five powers against up to **96 demons**, with eight simultaneous special attacks. Start clears the demonstration and begins a fresh ten-wave campaign with the normal 24-enemy cap. The demonstration grants no campaign score, drops, or cooldown penalties.
+
+Open **Settings** from the menu or the in-game button to adjust **Music** and **Sound Effects** separately. Zero mutes a channel, and volumes persist between runs. Escape or controller Options/Start opens in-game settings and pauses combat; music continues. Circle/B or Escape returns. Main-menu buttons and sliders support mouse, keyboard arrows/Enter, and controller navigation. Quit is available on the main menu.
 
 - Use WASD, the controller's **left stick**, or click/hold the left mouse button to navigate. Keyboard and stick steering are camera-relative and take over a click path. Centering the stick or releasing the keys stops steering. Partial stick deflection gives slower walking; a radial deadzone rejects drift. WASD takes priority if keys and stick steer simultaneously, without adding their speeds.
 - Scroll to zoom the overhead camera.
@@ -27,7 +33,7 @@ Double-click **Play Seraphim.cmd** after a successful build. The executable is `
 - The **top-right minimap** shows the cathedral floor plan, obstacles, a gold player arrow, cyan waystones, and **red enemy dots**. Its north-up orientation is fixed. Clicking it does not move the character.
 - If Life reaches zero, you return to the starting point with full resources and brief protection. The current wave restarts after a rest, retaining earned points. After defeating wave 10, press **R**, controller **Options**, or **Start** to replay with a fresh score and full resources. Score is per session and is not saved yet.
 - Awaken the three waystones as an optional exploration objective while defending the cathedral.
-- Press Escape to exit.
+- Press Escape or controller Options/Start for settings during play. Return to the main menu to quit.
 
 | Key | Power | Cooldown | Spirit | Effect |
 | --- | --- | --- | --- | --- |
@@ -85,6 +91,17 @@ The Windows MSIX distribution of Unity Hub can place activation in its isolated 
 
 Unity Package Manager installs the pinned Input System package automatically. Its official registry source, license, and verified archive checksums are recorded in `Tools/package-sources.json`; the package cache is excluded from Git.
 
+The local Windows build includes the owner-authorized **Track Realm** recording, starting at **1:03:51** and looping through the end of Repeat Cycle 3 at **1:35:40** (31 minutes 49 seconds). The game reads a local streaming OGG file; it does not contact YouTube during play. Recording provenance and conversion-tool checksums are in `Tools/music-source.json`. The recording and its SHA-256 receipt stay in ignored `LocalAudio/`; build preparation copies them into `Builds/Windows/Music/`. Permission to use the recording was confirmed by the project owner; no raw recording is published in this repository.
+
+A clean checkout uses an original 32-second choir/organ-style loop. All combat, pickup, movement, wave, and UI effects are generated from original synthesis code, with a bounded 20-voice pool and hit-rate limits. To prepare the authorized recording again, supply its local file and an FFmpeg installation:
+
+```powershell
+.\Tools\Import-LicensedMusic.ps1 -InputFile 'C:\Music\authorized-recording.webm' -FfmpegPath 'C:\Tools\ffmpeg.exe'
+.\Tools\Build.ps1
+```
+
+Use `-AlreadyTrimmed` only if the input already begins at 3831 seconds and ends at 5740 seconds in the source recording. Conversion applies half-second boundary fades; the whole selected segment repeats. The long recording is streamed from disk rather than decoded entirely into memory.
+
 ## Check a change
 
 ```powershell
@@ -103,6 +120,8 @@ Use `.\Tools\Smoke-Test.ps1 -ControllerOnly` for focused controller checks. The 
 
 Use `.\Tools\Smoke-Test.ps1 -DifficultyOnly` for pressure checks. These exercise late-wave melee damage, marked-field damage and escape, lightning interrupts, special-attack limits, charge dodges and wall collisions, pooled difficulty reset, a three-power kill, and a live 24-enemy wave-ten scene. Wave progression in the scheduler checks uses an accelerated clock; dodges and damage checks run in real time. The wave-ten preview uses a wider camera view. Human playtesting is still needed to assess the challenge and frame rate.
 
+Use `.\Tools\Smoke-Test.ps1 -FrontEndOnly` for menu/showcase, start/reset, pause/resume, independent volumes, preference persistence, and music-loading checks. Add `-FallbackMusic` to verify the original soundtrack without removing the authorized local recording. These checks restore the user's saved volumes afterward. Audio signal measurements verify playback, not perceived musical quality or speaker routing.
+
 ## Make changes
 
 - `Assets/Seraphim/Generated/SanctuarySettings.asset`: movement speed, acceleration, camera, seed, resource regeneration, ability tuning, and enemy population. In the editor, select it in the Project window and edit the Inspector.
@@ -111,6 +130,7 @@ Use `.\Tools\Smoke-Test.ps1 -DifficultyOnly` for pressure checks. These exercise
 - `EnemyDirector.cs`, `DemonEnemy.cs`, and `DemonHealthBar.cs`: spawning, damage/status effects, demon behavior, and overhead readouts. Demons and spell effects are reused through bounded pools.
 - `WaveDirector.cs`: ten-wave quotas, spawn pacing, concurrency limits, intermissions, victory, and retries. `CelestialDrops.cs` owns pooled restoration drops; `CathedralMinimap.cs` draws the same obstacle definitions used to build navigation.
 - `DemonDifficulty.cs`: settings-driven health, damage, speed, visual scale, and resistance curves. `DemonOffense.cs` owns pooled attack warnings, ember fields, interruptible charges, and melee attacks. Wave-pressure tuning lives in the existing `SanctuarySettings.asset`.
+- `SeraphimFrontEnd.cs` owns menu/settings UI and input handoffs; `CathedralShowcase.cs` runs the automatic menu battle. `SanctuaryAudio.cs` separates persistent channel volumes, streamed music, and bounded effects voices; `SanctuarySound.cs` creates original clips.
 - `CathedralBuilder.cs`: cathedral geometry, world-scaled surfaces, lighting props, collision, and minimap placement definitions. `AngelicVestments.cs` and `SeraphimWings.cs` own the angel additions.
 - `DivinePowers.cs` and `DivineProjectile.cs`: the three new powers, cursor aiming, and swept projectile hits. `CelestialAbility.cs` and `WordOfGodAbility.cs` own the two pulse powers.
 - `Assets/Seraphim/Shaders/`: celestial effect shader.

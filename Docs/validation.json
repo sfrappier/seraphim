@@ -1,11 +1,13 @@
 {
     "success": true,
     "engine": "6000.3.28f1",
-    "avatarHeight": 1.982058048248291,
+    "avatarHeight": 1.9820611476898194,
     "detectedGamepads": [
         "Xbox Controller [XInputControllerWindows]",
         "DualSense Wireless Controller [DualSenseGamepadHID]"
     ],
+    "music": "Track Realm · Repeat Cycle 3",
+    "musicSeconds": 1909.0,
     "passed": [
         "Player spawns on navigation mesh",
         "Six animated wings exist",
@@ -187,7 +189,37 @@
         "Chaining lightning, fire, and spears quickly banishes a durable late guard",
         "A live wave-ten encounter fills the larger population while keeping its pool bounded",
         "The minimap tracks the larger late-wave population",
-        "Rendered gameplay is visible in 18-wave-ten-pressure.png"
+        "Rendered gameplay is visible in 18-wave-ten-pressure.png",
+        "Main menu automatically moves and casts all five powers",
+        "Showcase seraphim navigates autonomously",
+        "Showcase maintains a large bounded demon population",
+        "Showcase population is separate from campaign balance",
+        "Menu battle protects the hero and disables gameplay input and HUD",
+        "Start is selected for keyboard and controller navigation",
+        "Start button occupies the upper left corner",
+        "Main menu blocks world clicking",
+        "Showcase sound effects use a bounded voice pool",
+        "Rendered gameplay is visible in 21-main-menu.png",
+        "Background music loads and loops in the exported player",
+        "Requested local or fallback music source is selected",
+        "Music duration matches the selected cycle or original fallback",
+        "Music channel produces an audible nonzero audio signal",
+        "Menu settings keep the background battle running",
+        "Effects mute independently while music retains its own volume",
+        "Music mute leaves sound effects active",
+        "Rendered gameplay is visible in 22-audio-settings.png",
+        "Independent audio preferences persist and reload",
+        "Start transitions from showcase into the playable campaign",
+        "Starting clears demonstration kills, enemies, drops and waystones",
+        "Fresh campaign restores resources and all five ability cooldowns",
+        "Campaign restores normal camera, HUD and population cap",
+        "Gameplay resumes concurrent keyboard, mouse and controller input",
+        "Rendered gameplay is visible in 23-started-game.png",
+        "In-game settings pause simulation and movement",
+        "Music continues while in-game settings pause combat",
+        "Settings clicks cannot move the character",
+        "Resume restores gameplay after settings",
+        "Returning to the main menu restarts the autonomous showcase"
     ],
     "failures": []
 }

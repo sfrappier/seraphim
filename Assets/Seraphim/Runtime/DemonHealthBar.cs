@@ -64,7 +64,7 @@ namespace Seraphim
         public void Hide() { if (root!=null) root.gameObject.SetActive(false); }
         void LateUpdate()
         {
-            if (enemy==null || !enemy.gameObject.activeInHierarchy || canvas==null || Camera.main==null) { Hide(); return; }
+            if (enemy==null || !enemy.gameObject.activeInHierarchy || canvas==null || !canvas.isActiveAndEnabled || Camera.main==null) { Hide(); return; }
             var point=Camera.main.WorldToScreenPoint(enemy.transform.position+Vector3.up*enemy.BarHeight);
             var visible=point.z>0 && point.x>-60 && point.x<Screen.width+60 && point.y<Screen.height+40 && point.y>210*Screen.width/1600f
                 && !SanctuaryHud.BlocksScreenPoint(new Vector2(point.x,point.y));

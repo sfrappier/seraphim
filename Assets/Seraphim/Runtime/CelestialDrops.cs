@@ -94,6 +94,7 @@ namespace Seraphim
             }
             else { amount=Mathf.Min(game.settings.spiritDropRestore,game.Vitals.MaxSpirit-game.Vitals.Spirit); game.Vitals.RestoreSpirit(amount); }
             Collected++; LastPickupAt=Time.time; LastPickup="+"+Mathf.CeilToInt(amount)+" "+orb.kind;
+            game.Audio?.Play(orb.kind==DropKind.Life?SoundCue.Life:SoundCue.Spirit,game.Player.transform.position);
             collection.transform.position=game.Player.transform.position+Vector3.up*.7f;
             var main=collection.main; main.startColor=orb.kind==DropKind.Life?new Color(1,.65f,.3f):new Color(.3f,.85f,1); collection.Emit(28);
             orb.root.gameObject.SetActive(false);

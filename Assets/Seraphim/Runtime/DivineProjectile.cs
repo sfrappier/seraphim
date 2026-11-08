@@ -47,5 +47,6 @@ namespace Seraphim
             if (age>1.25f || blocked) { if (blocked) owner.SparksAt(to,18,new Color(.7f,.9f,1)); Stop(); }
         }
         void Stop() { IsFlying=false; trail.emitting=false; gameObject.SetActive(false); }
+        public void ResetProjectile() { Stop(); trail.Clear(); hit.Clear(); }
     }
 }

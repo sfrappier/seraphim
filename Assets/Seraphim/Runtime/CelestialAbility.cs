@@ -66,6 +66,7 @@ namespace Seraphim
             vitals.SpendSpirit(settings.radianceSpiritCost);
             readyAt=Time.time+settings.pulseCooldown;
             CastCount++;
+            enemies.Game.Audio?.Play(SoundCue.Radiance,transform.position);
             pulse.ring.gameObject.SetActive(true);
             pulse.ring.transform.position = transform.position + Vector3.up * .12f;
             pulse.age = 0;
@@ -90,6 +91,11 @@ namespace Seraphim
             }
         }
 
+        public void ResetForRun()
+        {
+            readyAt=0; CastCount=0; sparks.Stop(true,ParticleSystemStopBehavior.StopEmittingAndClear);
+            foreach (var pulse in pulses) { pulse.ring.gameObject.SetActive(false); pulse.hit.Clear(); }
+        }
         void OnDestroy() { foreach (var pulse in pulses) if (pulse.ring != null) Destroy(pulse.ring.gameObject); }
     }
 }

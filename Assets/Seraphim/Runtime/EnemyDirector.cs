@@ -23,7 +23,9 @@ namespace Seraphim
         public IReadOnlyList<DemonEnemy> Enemies => pool;
         public int ActiveCount { get { var count=0; foreach (var enemy in pool) if (enemy.IsAlive) count++; return count; } }
         public int ActiveSpecialAttacks { get { var count=0; foreach (var enemy in pool) if (enemy.IsAlive && enemy.Offense.SpecialActive) count++; return count; } }
-        public int PoolCapacity => (Game.settings.enemyLimit+4)*3;
+        public int PopulationLimit => Game.Attract!=null && Game.Attract.IsRunning?Game.settings.menuEnemyLimit:Game.settings.enemyLimit;
+        public int SpecialAttackLimit => Game.Attract!=null && Game.Attract.IsRunning?8:Game.settings.maxConcurrentSpecialAttacks;
+        public int PoolCapacity => (PopulationLimit+4)*3;
 
         public void Initialize(SanctuaryGame game,bool spawn)
         {
@@ -49,7 +51,7 @@ namespace Seraphim
         }
         public DemonEnemy SpawnRandom(DemonKind? preferred=null,int wave=0)
         {
-            if (ActiveCount>=Game.settings.enemyLimit) return null;
+            if (ActiveCount>=PopulationLimit) return null;
             for (var attempt=0;attempt<30;attempt++)
             {
                 var angle=(float)random.NextDouble()*Mathf.PI*2;
@@ -65,25 +67,36 @@ namespace Seraphim
         }
         public DemonEnemy SpawnAt(Vector3 point,DemonKind kind,bool passive=false,int wave=0)
         {
-            if (Game==null || ActiveCount>=Game.settings.enemyLimit || !NavMesh.SamplePosition(point,out var sample,.8f,NavMesh.AllAreas)) return null;
+            if (Game==null || ActiveCount>=PopulationLimit || !NavMesh.SamplePosition(point,out var sample,.8f,NavMesh.AllAreas)) return null;
             DemonEnemy enemy=null;
             foreach (var item in pool) if (!item.gameObject.activeSelf && item.Kind==kind) { enemy=item; break; }
             if (enemy==null)
             {
                 var sameKind=0;
                 foreach (var item in pool) if (item.Kind==kind) sameKind++;
-                if (sameKind>=Game.settings.enemyLimit+4) return null;
+                if (sameKind>=PopulationLimit+4) return null;
                 enemy=new GameObject("Demon · "+kind).AddComponent<DemonEnemy>(); enemy.transform.SetParent(transform,false);
                 enemy.Initialize(this,kind); pool.Add(enemy);
             }
             return enemy.Activate(sample.position,++serial,passive,wave)?enemy:null;
         }
         public void DespawnAll() { foreach (var enemy in pool) enemy.ReturnToPool(); }
+        public void TrimShowcasePool()
+        {
+            var retained=new int[3];
+            for (var i=pool.Count-1;i>=0;i--)
+            {
+                var enemy=pool[i];
+                if (++retained[(int)enemy.Kind]<=8) continue;
+                pool.RemoveAt(i); Destroy(enemy.gameObject);
+            }
+        }
         public void RecordDamage(float amount) { TotalDamage+=amount; }
         public void ResetScore() { Score=0; KillCount=0; }
         public void RecordKill(DemonEnemy enemy)
         {
             KillCount++; Score+=100+(int)enemy.Kind*25+Mathf.Max(0,enemy.WaveNumber-1)*10;
+            Game.Audio?.Play(SoundCue.Banish,enemy.transform.position);
             Game.Drops.SpawnPair(enemy.transform.position); Game.Waves.RecordSlay(enemy);
         }
         public DemonEnemy Nearest(Vector3 origin,float range,HashSet<int> excluded=null)

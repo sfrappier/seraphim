@@ -59,7 +59,7 @@ namespace Seraphim.Editor
         {
             PlayerSettings.companyName = "Seraphim";
             PlayerSettings.productName = "Seraphim";
-            PlayerSettings.bundleVersion = "0.6.0";
+            PlayerSettings.bundleVersion = "0.7.0";
             PlayerSettings.colorSpace = ColorSpace.Linear;
             PlayerSettings.defaultScreenWidth = 1600;
             PlayerSettings.defaultScreenHeight = 900;
@@ -278,6 +278,8 @@ namespace Seraphim.Editor
                 throw new BuildFailedException("Life, Spirit, or Word of God configuration is invalid.");
             if (game.settings.ultimateDuration!=15 || game.settings.pulseCooldown>.75f || game.settings.enemyLimit>32 || game.settings.enemyLimit<1)
                 throw new BuildFailedException("Pulse duration, Radiance cooldown, or demon population configuration is invalid.");
+            if (game.settings.menuEnemyLimit<32 || game.settings.menuEnemyLimit>128)
+                throw new BuildFailedException("Main-menu showcase population must remain bounded between 32 and 128.");
             if (game.models.marble==null || game.models.marble.mainTexture==null || game.models.cathedralWood==null
                 || game.settings.waveCount!=10 || game.settings.cathedralSize.x<80 || game.settings.cathedralSize.y<100)
                 throw new BuildFailedException("Cathedral textures, dimensions, or ten-wave scenario are missing.");
@@ -303,6 +305,21 @@ namespace Seraphim.Editor
             if (inputPackage==null) throw new BuildFailedException("Input System package provenance is missing.");
             File.Copy(Path.Combine(inputPackage.resolvedPath,"LICENSE.md"),Path.Combine(outputDirectory,"Licenses","UnityInputSystem-LICENSE.md"),true);
             File.Copy("THIRD_PARTY_NOTICES.txt",Path.Combine(outputDirectory,"THIRD_PARTY_NOTICES.txt"),true);
+            var localMusic=Path.GetFullPath("LocalAudio/seraphim-theme.ogg");
+            var musicDestination=Path.Combine(outputDirectory,"Music","seraphim-theme.ogg");
+            if (File.Exists(localMusic))
+            {
+                Directory.CreateDirectory(Path.GetDirectoryName(musicDestination)); File.Copy(localMusic,musicDestination,true);
+                if (File.Exists("LocalAudio/source.json")) File.Copy("LocalAudio/source.json",Path.Combine(outputDirectory,"Music","source.json"),true);
+                Debug.Log("SERAPHIM_MUSIC: licensed local loop packaged; audio remains excluded from source control.");
+            }
+            else
+            {
+                if (File.Exists(musicDestination)) File.Delete(musicDestination);
+                var staleReceipt=Path.Combine(outputDirectory,"Music","source.json");
+                if (File.Exists(staleReceipt)) File.Delete(staleReceipt);
+                Debug.Log("SERAPHIM_MUSIC: clean-checkout original soundtrack fallback enabled.");
+            }
             Debug.Log($"SERAPHIM_BUILD: {output}; {report.summary.totalSize} bytes; {report.summary.totalTime}.");
         }
     }

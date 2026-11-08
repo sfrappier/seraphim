@@ -8,6 +8,11 @@ namespace Seraphim
         public Transform crystal;
         public Light beacon;
         public LineRenderer ring;
+        public void ResetAttunement()
+        {
+            IsAttuned=false; beacon.color=new Color(.25f,.7f,1); beacon.intensity=2;
+            ring.startColor=ring.endColor=Color.white;
+        }
 
         public void Attune()
         {

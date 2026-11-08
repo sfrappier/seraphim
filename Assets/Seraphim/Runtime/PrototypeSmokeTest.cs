@@ -17,6 +17,8 @@ namespace Seraphim
             public string engine;
             public float avatarHeight;
             public string[] detectedGamepads;
+            public string music;
+            public float musicSeconds;
             public string[] passed;
             public string[] failures;
         }
@@ -42,11 +44,16 @@ namespace Seraphim
             game.Player.InputEnabled = false;
             game.Skills.InputEnabled=false;
             game.Gamepads.InputEnabled=false;
+            game.FrontEnd.InputEnabled=false;
             yield return new WaitForSeconds(1);
             var hardware=new List<string>();
             foreach (var pad in UnityEngine.InputSystem.Gamepad.all) hardware.Add(pad.displayName+" ["+pad.layout+"]");
             detectedGamepads=hardware.ToArray();
             Debug.Log("SERAPHIM_GAMEPADS: "+string.Join(", ",detectedGamepads));
+            if (Array.Exists(Environment.GetCommandLineArgs(),a=>a=="-seraphim-front-end-only"))
+            {
+                yield return FrontEndChecks(); SaveReport(); yield break;
+            }
             if (Array.Exists(Environment.GetCommandLineArgs(),a=>a=="-seraphim-difficulty-only"))
             {
                 yield return DifficultyChecks(); SaveReport(); yield break;
@@ -199,6 +206,7 @@ namespace Seraphim
             yield return ScenarioChecks();
             yield return ControllerChecks();
             yield return DifficultyChecks();
+            yield return FrontEndChecks();
             SaveReport();
         }
 
@@ -211,7 +219,8 @@ namespace Seraphim
                 if (!hardware.Contains(description)) hardware.Add(description);
             }
             detectedGamepads=hardware.ToArray();
-            var report = new Report { success=failures.Count==0,engine=Application.unityVersion,avatarHeight=avatarHeight,detectedGamepads=detectedGamepads,passed=passed.ToArray(),failures=failures.ToArray() };
+            var report = new Report { success=failures.Count==0,engine=Application.unityVersion,avatarHeight=avatarHeight,detectedGamepads=detectedGamepads,
+                music=game.Audio.MusicCredit,musicSeconds=game.Audio.MusicReady?game.Audio.MusicSource.clip.length:0,passed=passed.ToArray(),failures=failures.ToArray() };
             File.WriteAllText(Path.Combine(output,"results.json"),JsonUtility.ToJson(report,true));
             Debug.Log($"SERAPHIM_SMOKE: {passed.Count} passed; {failures.Count} failed. Results: {output}");
             Application.Quit(report.success?0:1);

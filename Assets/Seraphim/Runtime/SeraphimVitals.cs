@@ -6,6 +6,8 @@ namespace Seraphim
     {
         SanctuarySettings settings;
         float protectedUntil;
+        SanctuaryAudio audio;
+        public bool PresentationMode { get; set; }
         public float Life { get; private set; }
         public float Spirit { get; private set; }
         public float MaxLife => settings.maxLife;
@@ -13,9 +15,10 @@ namespace Seraphim
         public float LifeFraction => Life/MaxLife;
         public float SpiritFraction => Spirit/MaxSpirit;
 
-        public void Initialize(SanctuarySettings config)
+        public void Initialize(SanctuarySettings config,SanctuaryAudio sound=null)
         {
             settings=config;
+            audio=sound;
             Life=MaxLife;
             Spirit=MaxSpirit;
         }
@@ -23,12 +26,18 @@ namespace Seraphim
         public bool SpendSpirit(float amount)
         {
             if (amount<0 || Spirit<amount) return false;
+            if (PresentationMode) return true;
             Spirit-=amount;
             return true;
         }
         public void RestoreSpirit(float amount) { Spirit=Mathf.Clamp(Spirit+Mathf.Max(0,amount),0,MaxSpirit); }
         public void RestoreLife(float amount) { Life=Mathf.Clamp(Life+Mathf.Max(0,amount),0,MaxLife); }
-        public void TakeDamage(float amount) { if (Time.time>=protectedUntil) Life=Mathf.Clamp(Life-Mathf.Max(0,amount),0,MaxLife); }
+        public void TakeDamage(float amount)
+        {
+            if (PresentationMode || Time.time<protectedUntil) return;
+            var before=Life; Life=Mathf.Clamp(Life-Mathf.Max(0,amount),0,MaxLife);
+            if (Life<before) audio?.Play(SoundCue.Hurt,transform.position);
+        }
         public void Revive() { Life=MaxLife; Spirit=MaxSpirit; protectedUntil=Time.time+4; }
         void Update() { if (settings!=null) RestoreSpirit(settings.spiritRegeneration*Time.deltaTime); }
     }

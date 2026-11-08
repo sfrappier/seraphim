@@ -47,6 +47,7 @@ namespace Seraphim
         {
             if (State!=EncounterState.Resting || game.Enemies.ActiveCount>0) return;
             Wave++; Spawned=Slain=0; State=EncounterState.Fighting; nextSpawn=waveStarted=now??Time.time;
+            game.Audio?.Play(SoundCue.Wave);
         }
         public void RecordSlay(DemonEnemy enemy)
         {
@@ -73,7 +74,7 @@ namespace Seraphim
             if (State!=EncounterState.Fighting) return;
             if (Slain>=Total && Spawned>=Total && game.Enemies.ActiveCount==0)
             {
-                if (Wave>=game.settings.waveCount) State=EncounterState.Victory;
+                if (Wave>=game.settings.waveCount) { State=EncounterState.Victory; game.Audio?.Play(SoundCue.Victory); }
                 else
                 {
                     State=EncounterState.Resting; restUntil=now+game.settings.waveRestSeconds;

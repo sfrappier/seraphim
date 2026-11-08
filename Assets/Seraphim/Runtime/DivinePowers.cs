@@ -65,6 +65,7 @@ namespace Seraphim
         {
             if (index<0 || index>2 || Remaining(index)>0 || !game.Vitals.SpendSpirit(Cost(index))) return false;
             readyAt[index]=Time.time+Cooldown(index);
+            game.Audio?.Play(index==0?SoundCue.Spear:index==1?SoundCue.Lightning:SoundCue.Fire,transform.position);
             if (index==0) CastLance(aim);
             else if (index==1) CastChain(aim);
             else CastInferno();
@@ -199,6 +200,15 @@ namespace Seraphim
                     if (count>0) { wave.particles.Emit(count); wave.emission-=count; }
                 }
             }
+        }
+        public void ResetForRun()
+        {
+            for (var i=0;i<readyAt.Length;i++) readyAt[i]=0;
+            foreach (var projectile in projectiles) projectile.ResetProjectile();
+            foreach (var bolt in bolts) bolt.outer.gameObject.SetActive(false);
+            foreach (var wave in waves) { wave.root.SetActive(false); wave.particles.Stop(true,ParticleSystemStopBehavior.StopEmittingAndClear); }
+            sparks.Stop(true,ParticleSystemStopBehavior.StopEmittingAndClear);
+            LanceCasts=ChainCasts=InfernoCasts=0;
         }
         void OnDestroy()
         {

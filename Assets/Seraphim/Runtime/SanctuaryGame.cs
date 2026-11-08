@@ -22,6 +22,9 @@ namespace Seraphim
         public WaveDirector Waves { get; private set; }
         public CelestialDrops Drops { get; private set; }
         public SeraphimGamepadInput Gamepads { get; private set; }
+        public SanctuaryAudio Audio { get; private set; }
+        public SeraphimFrontEnd FrontEnd { get; private set; }
+        public CathedralShowcase Attract { get; private set; }
         public readonly List<Rect> MapObstacles=new List<Rect>();
         public List<Waystone> Waystones { get; } = new List<Waystone>();
         public int AttunedCount => Waystones.FindAll(s => s.IsAttuned).Count;
@@ -35,6 +38,7 @@ namespace Seraphim
             if (settings == null || models == null) { Debug.LogError("Sanctuary content is missing. Run Tools/Build.ps1."); enabled = false; return; }
             Application.targetFrameRate = 120;
             QualitySettings.vSyncCount = 1;
+            Audio=gameObject.AddComponent<SanctuaryAudio>(); Audio.Initialize(this);
             BuildSanctuary();
             BuildNavigation();
             Enemies=new GameObject("Demon encounter").AddComponent<EnemyDirector>();
@@ -51,7 +55,10 @@ namespace Seraphim
             Hud.Initialize(this);
             var smoke=System.Array.Exists(System.Environment.GetCommandLineArgs(), a => a == "-seraphim-smoke");
             Enemies.Initialize(this,false);
-            if (!smoke) Waves.BeginScenario();
+            Attract=gameObject.AddComponent<CathedralShowcase>(); Attract.Initialize(this);
+            FrontEnd=gameObject.AddComponent<SeraphimFrontEnd>(); FrontEnd.Initialize(this);
+            var menuSmoke=System.Array.Exists(System.Environment.GetCommandLineArgs(),a=>a=="-seraphim-front-end-only");
+            if (!smoke || menuSmoke) FrontEnd.ShowMainMenu();
             if (smoke)
                 gameObject.AddComponent<PrototypeSmokeTest>().Initialize(this);
         }
@@ -141,7 +148,7 @@ namespace Seraphim
             var aura = SceneArt.Ring("Seraphim ground aura",player.transform,.6f,.025f,models.glowCyan);
             aura.transform.localPosition = Vector3.up*.05f;
             Vitals=player.AddComponent<SeraphimVitals>();
-            Vitals.Initialize(settings);
+            Vitals.Initialize(settings,Audio);
             Ability = player.AddComponent<CelestialAbility>();
             Ability.Initialize(settings,models.glowGold,models.celestialMote,Waystones,Vitals,Enemies);
             Ultimate=player.AddComponent<WordOfGodAbility>();
@@ -228,7 +235,15 @@ namespace Seraphim
             RenderSettings.sun = sun;
         }
 
-        void Update() { if (Input.GetKeyDown(KeyCode.Escape)) Application.Quit(); }
+        public void ResetPlayableWorld()
+        {
+            Waves.StopScenario(); Enemies.DespawnAll(); Drops.Clear();
+            Ability.ResetForRun(); Ultimate.ResetForRun(); Powers.ResetForRun();
+            Player.StopKeyboardMovement(); Player.Agent.ResetPath(); Player.Agent.Warp(settings.spawnPoint);
+            Vitals.PresentationMode=false; Vitals.RestoreLife(Vitals.MaxLife); Vitals.RestoreSpirit(Vitals.MaxSpirit);
+            foreach (var stone in Waystones) stone.ResetAttunement();
+            Audio.StopEffects();
+        }
         void OnDestroy()
         {
             if (navInstance.valid) navInstance.Remove();
