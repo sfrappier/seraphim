@@ -53,4 +53,12 @@ Unity is provided under Unity's applicable software terms, not this project's
 content licenses. Unity packages include their own LICENSE and notices files.
 The Unity Editor installer and its activation files are not distributed here.
 
+Unity Input System 1.20.1
+Publisher: Unity Technologies. Registry: https://packages.unity.com
+License: Unity Companion License for Unity-dependent projects.
+License text: https://unity3d.com/legal/licenses/unity_companion_license
+The package includes LICENSE.md; the Windows distribution carries a copy at
+Licenses/UnityInputSystem-LICENSE.md.
+Pinned registry archive and verified checksums: Tools/package-sources.json
+
 No Unity Asset Store or Mixamo assets are redistributed in this source tree.

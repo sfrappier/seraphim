@@ -1,0 +1,11 @@
+{
+  "name": "com.unity.inputsystem",
+  "installation": "Unity Package Manager; version pinned in Packages/manifest.json and Packages/packages-lock.json.",
+  "archiveSha1": "2436e68c60c469edbccef8f6b3c319b9441f4675",
+  "tarball": "https://download.packages.unity.com/com.unity.inputsystem/-/com.unity.inputsystem-1.20.1.tgz",
+  "license": "Unity Companion License",
+  "licenseUrl": "https://unity3d.com/legal/licenses/unity_companion_license",
+  "archiveSha256": "495af211eb550949924d57e1697ace77c623608271417e1629187854daad2ac6",
+  "registry": "https://packages.unity.com",
+  "version": "1.20.1"
+}

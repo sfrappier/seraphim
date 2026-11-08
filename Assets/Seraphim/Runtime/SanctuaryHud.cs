@@ -13,6 +13,8 @@ namespace Seraphim
         CelestialOrbGraphic life,spirit;
         readonly CelestialSkillGraphic[] icons=new CelestialSkillGraphic[6];
         readonly Text[] timers=new Text[6];
+        readonly Text[] padLabels=new Text[6];
+        Text controls,aimHint;
         Text lifeValue,spiritValue,objectiveText,ultimatePhase,combatStatus,buffStatus,waveStatus,pickupStatus;
         public CathedralMinimap Minimap { get; private set; }
         CanvasGroup ultimateBanner;
@@ -86,10 +88,10 @@ namespace Seraphim
             var headerImage=header.gameObject.AddComponent<Image>(); headerImage.color=new Color(.02f,.035f,.06f,.82f); headerImage.raycastTarget=false;
             Label(canvas.transform,"Title","SERAPHIM",new Vector2(0,1),new Vector2(230,-37),new Vector2(380,60),32,gold,true,TextAnchor.MiddleLeft);
             Label(canvas.transform,"Location","CATHEDRAL OF DAWN",new Vector2(0,1),new Vector2(217,-73),new Vector2(350,25),12,ivory,false,TextAnchor.MiddleLeft);
-            Label(canvas.transform,"Movement hint","WASD / MOUSE    ·    SCROLL TO ZOOM",new Vector2(0,1),new Vector2(262,-99),new Vector2(440,20),11,muted,false,TextAnchor.MiddleLeft);
+            Label(canvas.transform,"Movement hint","WASD / CLICK / LEFT STICK    ·    SCROLL TO ZOOM",new Vector2(0,1),new Vector2(262,-99),new Vector2(440,20),11,muted,false,TextAnchor.MiddleLeft);
             waveStatus=Label(canvas.transform,"Wave","",new Vector2(0,1),new Vector2(262,-124),new Vector2(440,22),14,gold,false,TextAnchor.MiddleLeft);
             combatStatus=Label(canvas.transform,"Encounter","",new Vector2(0,1),new Vector2(262,-149),new Vector2(440,22),13,ivory,false,TextAnchor.MiddleLeft);
-            Label(canvas.transform,"Aim hint","AIM SPEARS AND LIGHTNING WITH THE MOUSE",new Vector2(0,1),new Vector2(262,-173),new Vector2(440,20),10,muted,false,TextAnchor.MiddleLeft);
+            aimHint=Label(canvas.transform,"Aim hint","AIM SPEARS AND LIGHTNING WITH THE MOUSE",new Vector2(0,1),new Vector2(262,-173),new Vector2(440,20),10,muted,false,TextAnchor.MiddleLeft);
             pickupStatus=Label(canvas.transform,"Pickup","",new Vector2(0,1),new Vector2(262,-197),new Vector2(440,22),14,gold,false,TextAnchor.MiddleLeft);
             buffStatus=Label(canvas.transform,"Ascension duration","",new Vector2(.5f,1),new Vector2(0,-35),new Vector2(500,32),15,gold,true);
             mapPanel=Node(canvas.transform,"Minimap panel",new Vector2(1,1),new Vector2(-153,-176),new Vector2(270,310));
@@ -122,8 +124,9 @@ namespace Seraphim
                 var button=hit.gameObject.AddComponent<Button>(); button.targetGraphic=image; button.interactable=game.Skills.IsAssigned(i);
                 button.onClick.AddListener(()=>game.Skills.TryUse(slot));
                 Label(holder,"Key",(i+1).ToString(),new Vector2(.5f,.5f),new Vector2(-35,32),new Vector2(22,22),13,game.Skills.IsAssigned(i)?ivory:muted);
+                padLabels[i]=Label(holder,"Controller button","",new Vector2(.5f,.5f),new Vector2(9,32),new Vector2(76,19),9,gold);
                 Label(holder,"Skill name",game.Skills.Name(i),new Vector2(.5f,.5f),new Vector2(0,-58),new Vector2(112,22),12,game.Skills.IsAssigned(i)?ivory:muted);
-                Label(holder,"Cost",game.Skills.CostLabel(i),new Vector2(.5f,.5f),new Vector2(0,-33),new Vector2(96,16),9,i==1?gold:muted);
+                Label(holder,"Cost",game.Skills.CostLabel(i),new Vector2(.5f,.5f),new Vector2(0,-33),new Vector2(96,16),9,i==4?gold:muted);
                 timers[i]=Label(holder,"Cooldown","",new Vector2(.5f,.5f),Vector2.zero,new Vector2(90,40),24,ivory);
             }
             var left=Node(bottom,"Life orb",new Vector2(0,0),new Vector2(112,103),new Vector2(182,182));
@@ -134,7 +137,7 @@ namespace Seraphim
             spirit=right.gameObject.AddComponent<CelestialOrbGraphic>(); spirit.spirit=true; spirit.raycastTarget=false;
             Label(right,"Spirit label","SPIRIT",new Vector2(.5f,.5f),new Vector2(0,93),new Vector2(150,25),14,new Color(.64f,.85f,.96f),true);
             spiritValue=Label(right,"Spirit amount","",new Vector2(.5f,.5f),new Vector2(0,-88),new Vector2(150,25),14,ivory);
-            Label(bottom,"Control hint","1  RADIANCE     2  WORD OF GOD     3  LANCE     4  CHAIN     5  INFERNO",new Vector2(.5f,0),new Vector2(0,10),new Vector2(800,18),10,muted);
+            controls=Label(bottom,"Control hint","",new Vector2(.5f,0),new Vector2(0,10),new Vector2(900,18),10,muted);
         }
 
         void BuildUltimateBanner()
@@ -152,16 +155,19 @@ namespace Seraphim
             lifeValue.text=$"{Mathf.CeilToInt(game.Vitals.Life)} / {Mathf.CeilToInt(game.Vitals.MaxLife)}";
             spiritValue.text=$"{Mathf.CeilToInt(game.Vitals.Spirit)} / {Mathf.CeilToInt(game.Vitals.MaxSpirit)}";
             var wave=game.Waves;
-            objectiveText.text=wave.State==WaveDirector.EncounterState.Victory?"All ten waves defeated!\nPress R to play again":"Survive ten waves\nWaystones awakened   "+game.AttunedCount+" / 3";
+            objectiveText.text=wave.State==WaveDirector.EncounterState.Victory?"All ten waves defeated!\nR / Options / Start to replay":"Survive ten waves\nWaystones awakened   "+game.AttunedCount+" / 3";
             waveStatus.text=wave.State==WaveDirector.EncounterState.Victory?"VICTORY · CATHEDRAL DEFENDED":wave.State==WaveDirector.EncounterState.Resting?"WAVE "+(wave.Wave+1)+" / 10   IN "+Mathf.CeilToInt(wave.RestRemaining)+"s":wave.State==WaveDirector.EncounterState.Fighting?"WAVE "+wave.Wave+" / 10    ·    "+wave.Slain+" / "+wave.Total+" BANISHED":"THE CATHEDRAL AWAITS";
             combatStatus.text=Time.time-game.Enemies.LastRecoveryAt<3?"Grace restores you. This wave will retry.":"SCORE  "+game.Enemies.Score+"       DEMONS  "+game.Enemies.ActiveCount+" / "+(wave.State==WaveDirector.EncounterState.Fighting?wave.ConcurrentLimit:game.settings.enemyLimit);
             pickupStatus.text=Time.time-game.Drops.LastPickupAt<2?game.Drops.LastPickup:"";
             buffStatus.text=game.Ultimate.IsActive && game.Ultimate.Stage!=WordOfGodAbility.Phase.Charging?"WORD OF GOD  ·  "+game.Ultimate.ActiveRemaining.ToString("0.0")+"s":"";
+            controls.text=game.Gamepads.PreferController?game.Gamepads.ControlHint:"1  RADIANCE     2  LANCE     3  CHAIN     4  INFERNO     5  WORD OF GOD";
+            aimHint.text=game.Gamepads.PreferController?"RIGHT STICK AIM · AUTO-TARGET WHEN CENTERED":game.Gamepads.ConnectedCount>0?"MOUSE / RIGHT STICK AIM · "+game.Gamepads.ConnectedCount+" GAMEPAD(S) READY":"AIM SPEARS AND LIGHTNING WITH THE MOUSE";
             for (var i=0;i<icons.Length;i++)
             {
                 var remaining=game.Skills.Remaining(i);
                 icons[i].Cooldown=remaining/game.Skills.Duration(i);
                 timers[i].text=remaining<=0?"":remaining.ToString(remaining>=10?"0":"0.0");
+                padLabels[i].text=game.Gamepads.ConnectedCount>0 && game.Skills.IsAssigned(i)?game.Gamepads.BindingLabel(i):"";
             }
             ultimateBanner.alpha=game.Ultimate.IsActive?Mathf.Min(1,game.Ultimate.VisualPower*2)*Mathf.Clamp01(1-(game.Ultimate.Elapsed-2.2f)/.6f):0;
             ultimatePhase.text=game.Ultimate.Stage==WordOfGodAbility.Phase.Charging?"GATHERING THE LIGHT":"LET THERE BE LIGHT";

@@ -10,6 +10,7 @@ namespace Seraphim
         public Vector3 Destination { get; private set; }
         public bool HasDestination { get; private set; }
         public bool InputEnabled { get; set; } = true;
+        public SeraphimGamepadInput Gamepads { get; set; }
         public float Speed => keyboardControl ? keyboardSpeed : Agent != null ? Agent.velocity.magnitude : 0;
         public bool IsKeyboardMoving => keyboardControl;
         public bool IsAnimationPlaying(string state) => animationPlayer != null && animationPlayer.GetCurrentAnimatorStateInfo(0).IsName(state);
@@ -107,20 +108,29 @@ namespace Seraphim
             if (Agent.isOnNavMesh) { Agent.ResetPath(); Agent.velocity=Vector3.zero; }
         }
 
+        public void ApplyMovementInputs(Vector2 keys,Vector2 stick,float deltaTime)
+        {
+            // WASD wins simultaneous steering; never add two sources and boost speed.
+            var input=keys.sqrMagnitude>.01f?keys:stick;
+            if (keys.sqrMagnitude>.01f) Gamepads?.UseKeyboardMouse();
+            if (input.sqrMagnitude>.001f) MoveWithKeyboard(input,deltaTime);
+            else StopKeyboardMovement();
+        }
+
         void Update()
         {
             if (InputEnabled)
             {
                 var keys=new Vector2((Input.GetKey(KeyCode.D)?1:0)-(Input.GetKey(KeyCode.A)?1:0),
                     (Input.GetKey(KeyCode.W)?1:0)-(Input.GetKey(KeyCode.S)?1:0));
-                if (keys.sqrMagnitude>.01f) MoveWithKeyboard(keys,Time.deltaTime);
-                else
+                var stick=Gamepads!=null?Gamepads.Movement:Vector2.zero;
+                ApplyMovementInputs(keys,stick,Time.deltaTime);
+                if (keys.sqrMagnitude<=.01f && stick.sqrMagnitude<=.001f)
                 {
-                    StopKeyboardMovement();
                     if (Input.GetMouseButton(0) && Time.unscaledTime>=nextCommand)
                     {
                         nextCommand=Time.unscaledTime+.08f;
-                        MoveFromScreen(Input.mousePosition);
+                        if (MoveFromScreen(Input.mousePosition)) Gamepads?.UseKeyboardMouse();
                     }
                 }
             }

@@ -16,6 +16,7 @@ namespace Seraphim
             public bool success;
             public string engine;
             public float avatarHeight;
+            public string[] detectedGamepads;
             public string[] passed;
             public string[] failures;
         }
@@ -24,6 +25,7 @@ namespace Seraphim
         readonly List<string> failures = new List<string>();
         string output;
         float avatarHeight;
+        string[] detectedGamepads;
         public void Initialize(SanctuaryGame owner) { game = owner; }
         void OnEnable() { Application.logMessageReceived += ObserveLog; }
         void OnDisable() { Application.logMessageReceived -= ObserveLog; }
@@ -39,7 +41,16 @@ namespace Seraphim
             Directory.CreateDirectory(output);
             game.Player.InputEnabled = false;
             game.Skills.InputEnabled=false;
+            game.Gamepads.InputEnabled=false;
             yield return new WaitForSeconds(1);
+            var hardware=new List<string>();
+            foreach (var pad in UnityEngine.InputSystem.Gamepad.all) hardware.Add(pad.displayName+" ["+pad.layout+"]");
+            detectedGamepads=hardware.ToArray();
+            Debug.Log("SERAPHIM_GAMEPADS: "+string.Join(", ",detectedGamepads));
+            if (Array.Exists(Environment.GetCommandLineArgs(),a=>a=="-seraphim-controller-only"))
+            {
+                yield return ControllerChecks(); SaveReport(); yield break;
+            }
             if (Array.Exists(Environment.GetCommandLineArgs(),a=>a=="-seraphim-scenario-only"))
             {
                 yield return ScenarioChecks(); SaveReport(); yield break;
@@ -137,9 +148,9 @@ namespace Seraphim
             var originalMaterial=avatarRenderers[0].sharedMaterial;
             var originalVisualHeight=game.Player.transform.Find("Character visual").localPosition.y;
             var ultimateStarted=Time.time;
-            Check(game.Skills.TryUse(1),"Slot 2 casts Word of God");
+            Check(game.Skills.TryUse(4),"Slot 5 casts Word of God");
             Check(game.Ultimate.CooldownRemaining>29.8f && game.Ultimate.CooldownRemaining<=30,"Word of God starts a 30-second cooldown");
-            Check(!game.Skills.TryUse(1),"Ultimate cannot be spammed while recharging");
+            Check(!game.Skills.TryUse(4),"Ultimate cannot be spammed while recharging");
             yield return new WaitForSeconds(.65f);
             Check(game.Ultimate.Stage==WordOfGodAbility.Phase.Charging,"Ultimate has a visible charge transition");
             Check(game.Player.GetComponent<SeraphimWings>().Ascension>.2f && avatarRenderers[0].sharedMaterial!=originalMaterial,"Ultimate transforms the character and spreads its wings");
@@ -176,18 +187,26 @@ namespace Seraphim
             var rechargeDeadline=Time.realtimeSinceStartup+35;
             while (game.Ultimate.CooldownRemaining>0 && Time.realtimeSinceStartup<rechargeDeadline) yield return null;
             Check(game.Ultimate.CanCast && Time.time-ultimateStarted>=29.95f,"Ultimate becomes ready after the full 30 seconds");
-            Check(game.Skills.TryUse(1) && game.Ultimate.CastCount==2,"Ultimate effects can be reused after recharge");
+            Check(game.Skills.TryUse(4) && game.Ultimate.CastCount==2,"Ultimate effects can be reused after recharge");
             finishDeadline=Time.realtimeSinceStartup+game.settings.ultimateDuration+4;
             while (game.Ultimate.IsActive && Time.realtimeSinceStartup<finishDeadline) yield return null;
             Check(!game.Ultimate.IsActive && avatarRenderers[0].sharedMaterial==originalMaterial,"A second ultimate also restores the original character");
             yield return CombatChecks();
             yield return ScenarioChecks();
+            yield return ControllerChecks();
             SaveReport();
         }
 
         void SaveReport()
         {
-            var report = new Report { success=failures.Count==0,engine=Application.unityVersion,avatarHeight=avatarHeight,passed=passed.ToArray(),failures=failures.ToArray() };
+            var hardware=new List<string>(detectedGamepads??Array.Empty<string>());
+            foreach (var pad in UnityEngine.InputSystem.Gamepad.all)
+            {
+                var description=pad.displayName+" ["+pad.layout+"]";
+                if (!hardware.Contains(description)) hardware.Add(description);
+            }
+            detectedGamepads=hardware.ToArray();
+            var report = new Report { success=failures.Count==0,engine=Application.unityVersion,avatarHeight=avatarHeight,detectedGamepads=detectedGamepads,passed=passed.ToArray(),failures=failures.ToArray() };
             File.WriteAllText(Path.Combine(output,"results.json"),JsonUtility.ToJson(report,true));
             Debug.Log($"SERAPHIM_SMOKE: {passed.Count} passed; {failures.Count} failed. Results: {output}");
             Application.Quit(report.success?0:1);

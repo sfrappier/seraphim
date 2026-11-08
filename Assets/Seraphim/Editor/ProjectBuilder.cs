@@ -59,7 +59,7 @@ namespace Seraphim.Editor
         {
             PlayerSettings.companyName = "Seraphim";
             PlayerSettings.productName = "Seraphim";
-            PlayerSettings.bundleVersion = "0.4.0";
+            PlayerSettings.bundleVersion = "0.5.0";
             PlayerSettings.colorSpace = ColorSpace.Linear;
             PlayerSettings.defaultScreenWidth = 1600;
             PlayerSettings.defaultScreenHeight = 900;
@@ -72,7 +72,7 @@ namespace Seraphim.Editor
             EditorSettings.serializationMode = SerializationMode.ForceText;
             var playerSettings = new SerializedObject(AssetDatabase.LoadAllAssetsAtPath("ProjectSettings/ProjectSettings.asset")[0]);
             var input = playerSettings.FindProperty("activeInputHandler");
-            if (input != null) input.intValue = 0;
+            if (input != null) input.intValue = 2;
             playerSettings.ApplyModifiedPropertiesWithoutUndo();
             var tags = new SerializedObject(AssetDatabase.LoadAllAssetsAtPath("ProjectSettings/TagManager.asset")[0]);
             tags.FindProperty("layers").GetArrayElementAtIndex(8).stringValue = "Walkable";
@@ -299,6 +299,9 @@ namespace Seraphim.Editor
             var outputDirectory=Path.GetDirectoryName(output);
             Directory.CreateDirectory(Path.Combine(outputDirectory,"Licenses"));
             File.Copy("Assets/ThirdParty/CinzelDecorative/OFL.txt",Path.Combine(outputDirectory,"Licenses","CinzelDecorative-OFL.txt"),true);
+            var inputPackage=UnityEditor.PackageManager.PackageInfo.FindForAssembly(typeof(UnityEngine.InputSystem.Gamepad).Assembly);
+            if (inputPackage==null) throw new BuildFailedException("Input System package provenance is missing.");
+            File.Copy(Path.Combine(inputPackage.resolvedPath,"LICENSE.md"),Path.Combine(outputDirectory,"Licenses","UnityInputSystem-LICENSE.md"),true);
             File.Copy("THIRD_PARTY_NOTICES.txt",Path.Combine(outputDirectory,"THIRD_PARTY_NOTICES.txt"),true);
             Debug.Log($"SERAPHIM_BUILD: {output}; {report.summary.totalSize} bytes; {report.summary.totalTime}.");
         }

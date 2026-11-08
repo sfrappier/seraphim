@@ -46,7 +46,7 @@ namespace Seraphim
         void Update()
         {
             if (game==null) return;
-            if (State==EncounterState.Victory && Input.GetKeyDown(KeyCode.R)) BeginScenario();
+            if (State==EncounterState.Victory && (Input.GetKeyDown(KeyCode.R) || game.Gamepads.ReplayPressed)) BeginScenario();
             Tick(Time.time);
         }
         // Explicit clock keeps the encounter scheduler repeatable in player checks.

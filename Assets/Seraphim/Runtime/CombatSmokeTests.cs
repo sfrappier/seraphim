@@ -87,7 +87,7 @@ namespace Seraphim
             game.Player.Agent.Warp(new Vector3(-5,0,-8));
             var burning=game.Enemies.SpawnAt(new Vector3(-5,0,-4),DemonKind.ObsidianGuard,true);
             game.Vitals.RestoreSpirit(100);
-            Check(game.Skills.TryUse(4),"Slot 5 casts Seraphic Inferno");
+            Check(game.Skills.TryUse(3),"Slot 4 casts Seraphic Inferno");
             yield return new WaitForSeconds(.5f);
             Check(burning!=null && burning.Health<burning.MaxHealth && burning.IsBurning,"Expanding Inferno hits, knocks back, and ignites a demon");
             yield return Capture("10-seraphic-inferno.png");

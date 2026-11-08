@@ -21,6 +21,7 @@ namespace Seraphim
         public DivinePowers Powers { get; private set; }
         public WaveDirector Waves { get; private set; }
         public CelestialDrops Drops { get; private set; }
+        public SeraphimGamepadInput Gamepads { get; private set; }
         public readonly List<Rect> MapObstacles=new List<Rect>();
         public List<Waystone> Waystones { get; } = new List<Waystone>();
         public int AttunedCount => Waystones.FindAll(s => s.IsAttuned).Count;
@@ -42,6 +43,8 @@ namespace Seraphim
             BuildCamera();
             Skills=gameObject.AddComponent<SeraphimSkillBar>();
             Skills.Initialize(this);
+            Gamepads=gameObject.AddComponent<SeraphimGamepadInput>(); Gamepads.Initialize(this);
+            Player.Gamepads=Gamepads;
             Waves=gameObject.AddComponent<WaveDirector>(); Waves.Initialize(this);
             Drops=gameObject.AddComponent<CelestialDrops>(); Drops.Initialize(this);
             Hud=gameObject.AddComponent<SanctuaryHud>();
