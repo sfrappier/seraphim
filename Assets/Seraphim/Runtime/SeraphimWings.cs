@@ -11,6 +11,17 @@ namespace Seraphim
         Transform halo;
         public float Ascension { get; set; }
         public int WingCount => joints.Length;
+        public bool HasValidGeometry
+        {
+            get
+            {
+                if (featherMesh==null || featherMesh.vertexCount==0) return false;
+                foreach (var vertex in featherMesh.vertices)
+                    if (float.IsNaN(vertex.x) || float.IsNaN(vertex.y) || float.IsNaN(vertex.z)
+                        || float.IsInfinity(vertex.x) || float.IsInfinity(vertex.y) || float.IsInfinity(vertex.z)) return false;
+                return true;
+            }
+        }
 
         public void Initialize(PrototypeModels art, SeraphimMotor movement)
         {
@@ -63,12 +74,24 @@ namespace Seraphim
 
         static Mesh CreateFeather()
         {
-            var mesh = new Mesh { name = "Seraphim feather" };
-            mesh.vertices = new[] { new Vector3(0,0,0),new Vector3(-.48f,.3f,0),new Vector3(-.34f,.73f,0),
-                new Vector3(0,1,0),new Vector3(.34f,.73f,0),new Vector3(.48f,.3f,0),new Vector3(0,.52f,.055f) };
-            mesh.triangles = new[] {0,1,6,1,2,6,2,3,6,3,4,6,4,5,6,5,0,6,6,1,0,6,2,1,6,3,2,6,4,3,6,5,4,6,0,5};
-            mesh.RecalculateNormals();
-            mesh.RecalculateBounds();
+            const int rows=17;
+            var vertices=new Vector3[rows*3]; var uv=new Vector2[vertices.Length];
+            var triangles=new System.Collections.Generic.List<int>();
+            for (var row=0;row<rows;row++)
+            {
+                var t=row/(float)(rows-1);
+                var width=.4f*Mathf.Pow(Mathf.Max(0,Mathf.Sin(t*Mathf.PI)),.75f)*(.8f+t*.2f)+.006f;
+                for (var col=0;col<3;col++)
+                {
+                    var index=row*3+col;
+                    vertices[index]=new Vector3((col-1)*width+t*t*.065f,t,(col==1?.065f:0)*Mathf.Sin(t*Mathf.PI));
+                    uv[index]=new Vector2(col*.5f,t);
+                    if (row==rows-1 || col==2) continue;
+                    var a=index; var b=index+1; var c=index+3; var d=c+1;
+                    triangles.AddRange(new[]{a,c,b,b,c,d});
+                }
+            }
+            var mesh=CombatArt.DoubleSided("Sculpted seraphim feather",vertices,uv,triangles);
             return mesh;
         }
 

@@ -1,0 +1,20 @@
+{
+  "adaptation": "Original knight rig retained; Seraphim adds a celestial mantle, crown and six wings at runtime.",
+  "source": "https://github.com/KayKit-Game-Assets/KayKit-Character-Pack-Adventures-1.0",
+  "license": "CC0-1.0",
+  "files": [
+    {
+      "sha256": "5d250ccc5da020e6126bfa3839f83bd9a465a951ed223e4d13c08b1925e154d4",
+      "file": "knight_texture.png"
+    },
+    {
+      "sha256": "b25e35cc7eaaa3c7c103f10a4f41fde1cbd81936fede9aa9ae4efbd29d40ba1b",
+      "file": "Knight.fbx"
+    },
+    {
+      "sha256": "ae322141814056dda0deea7540d74c41d87aee1da319977cd1bd84ee5a923629",
+      "file": "LICENSE.txt"
+    }
+  ],
+  "revision": "672074b73ba276876a19e8816ecdc5241817ab47"
+}

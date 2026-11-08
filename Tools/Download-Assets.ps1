@@ -76,3 +76,5 @@ foreach ($file in @('CinzelDecorative-Regular.ttf','OFL.txt')) {
     Assert-AssetHash $target $key
 }
 Write-Host 'Cinzel Decorative HUD font and OFL license verified.'
+
+& "$PSScriptRoot\Download-CathedralAssets.ps1" -Refresh:$Refresh

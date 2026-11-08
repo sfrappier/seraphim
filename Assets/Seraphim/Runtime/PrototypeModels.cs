@@ -20,5 +20,10 @@ namespace Seraphim
         public Material glowCyan;
         public Material celestialMote;
         public Font hudDisplayFont;
+        public Material marble;
+        public Material cathedralStone;
+        public Material cathedralWood;
+        public Material vestment;
+        public Material angelArmor;
     }
 }

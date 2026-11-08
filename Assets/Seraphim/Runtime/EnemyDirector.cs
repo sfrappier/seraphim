@@ -17,6 +17,7 @@ namespace Seraphim
         public Mesh ConeMesh { get; private set; }
         public bool SpawnAutomatic { get; set; }
         public int KillCount { get; private set; }
+        public int Score { get; private set; }
         public float TotalDamage { get; private set; }
         public float LastRecoveryAt { get; private set; }=-10;
         public IReadOnlyList<DemonEnemy> Enemies => pool;
@@ -44,23 +45,23 @@ namespace Seraphim
         {
             for (var i=0;i<Mathf.Min(Game.settings.initialEnemies,Game.settings.enemyLimit);i++) SpawnRandom((DemonKind)(i%3));
         }
-        public DemonEnemy SpawnRandom(DemonKind? preferred=null)
+        public DemonEnemy SpawnRandom(DemonKind? preferred=null,int wave=0)
         {
             if (ActiveCount>=Game.settings.enemyLimit) return null;
             for (var attempt=0;attempt<30;attempt++)
             {
                 var angle=(float)random.NextDouble()*Mathf.PI*2;
-                var radius=9+(float)random.NextDouble()*8;
+                var radius=12+(float)random.NextDouble()*9;
                 var candidate=Game.Player.transform.position+new Vector3(Mathf.Cos(angle),0,Mathf.Sin(angle))*radius;
-                if (Mathf.Abs(candidate.x)>18.5f || Mathf.Abs(candidate.z)>16.5f) continue;
+                if (Mathf.Abs(candidate.x)>Game.settings.cathedralSize.x/2-3 || Mathf.Abs(candidate.z)>Game.settings.cathedralSize.y/2-3) continue;
                 if (!NavMesh.SamplePosition(candidate,out var sample,1,NavMesh.AllAreas)) continue;
                 var path=new NavMeshPath();
                 if (!NavMesh.CalculatePath(sample.position,Game.Player.transform.position,NavMesh.AllAreas,path) || path.status!=NavMeshPathStatus.PathComplete) continue;
-                return SpawnAt(sample.position,preferred??(DemonKind)random.Next(3));
+                return SpawnAt(sample.position,preferred??(DemonKind)random.Next(3),false,wave);
             }
             return null;
         }
-        public DemonEnemy SpawnAt(Vector3 point,DemonKind kind,bool passive=false)
+        public DemonEnemy SpawnAt(Vector3 point,DemonKind kind,bool passive=false,int wave=0)
         {
             if (Game==null || ActiveCount>=Game.settings.enemyLimit || !NavMesh.SamplePosition(point,out var sample,.8f,NavMesh.AllAreas)) return null;
             DemonEnemy enemy=null;
@@ -71,11 +72,16 @@ namespace Seraphim
                 enemy=new GameObject("Demon · "+kind).AddComponent<DemonEnemy>(); enemy.transform.SetParent(transform,false);
                 enemy.Initialize(this,kind); pool.Add(enemy);
             }
-            return enemy.Activate(sample.position,++serial,passive)?enemy:null;
+            return enemy.Activate(sample.position,++serial,passive,wave)?enemy:null;
         }
         public void DespawnAll() { foreach (var enemy in pool) enemy.ReturnToPool(); }
         public void RecordDamage(float amount) { TotalDamage+=amount; }
-        public void RecordKill() { KillCount++; }
+        public void ResetScore() { Score=0; KillCount=0; }
+        public void RecordKill(DemonEnemy enemy)
+        {
+            KillCount++; Score+=100+(int)enemy.Kind*25+Mathf.Max(0,enemy.WaveNumber-1)*10;
+            Game.Drops.SpawnPair(enemy.transform.position); Game.Waves.RecordSlay(enemy);
+        }
         public DemonEnemy Nearest(Vector3 origin,float range,HashSet<int> excluded=null)
         {
             DemonEnemy closest=null; var best=range*range;
@@ -129,6 +135,7 @@ namespace Seraphim
                 DespawnAll(); Game.Ultimate.Cancel(); Game.Player.StopKeyboardMovement();
                 Game.Player.Agent.ResetPath(); Game.Player.Agent.Warp(Game.settings.spawnPoint);
                 Game.Vitals.Revive(); LastRecoveryAt=Time.time; nextSpawn=Time.time+4;
+                Game.Drops.Clear(); Game.Waves.Recover();
             }
             if (!SpawnAutomatic || Time.time<nextSpawn) return;
             nextSpawn=Time.time+Game.settings.enemySpawnInterval*(.85f+(float)random.NextDouble()*.3f);

@@ -9,11 +9,12 @@ namespace Seraphim
         static SanctuaryHud instance;
         SanctuaryGame game;
         Canvas canvas;
-        RectTransform bottom,objective;
+        RectTransform bottom,objective,mapPanel,headerPanel;
         CelestialOrbGraphic life,spirit;
         readonly CelestialSkillGraphic[] icons=new CelestialSkillGraphic[6];
         readonly Text[] timers=new Text[6];
-        Text lifeValue,spiritValue,objectiveText,ultimatePhase,combatStatus,buffStatus;
+        Text lifeValue,spiritValue,objectiveText,ultimatePhase,combatStatus,buffStatus,waveStatus,pickupStatus;
+        public CathedralMinimap Minimap { get; private set; }
         CanvasGroup ultimateBanner;
         Font displayFont,bodyFont;
         float nextRefresh;
@@ -29,7 +30,9 @@ namespace Seraphim
             if (instance==null || instance.canvas==null) return false;
             var camera=instance.canvas.worldCamera;
             return RectTransformUtility.RectangleContainsScreenPoint(instance.bottom,position,camera)
-                || RectTransformUtility.RectangleContainsScreenPoint(instance.objective,position,camera);
+                || RectTransformUtility.RectangleContainsScreenPoint(instance.objective,position,camera)
+                || RectTransformUtility.RectangleContainsScreenPoint(instance.mapPanel,position,camera)
+                || RectTransformUtility.RectangleContainsScreenPoint(instance.headerPanel,position,camera);
         }
 
         public void Initialize(SanctuaryGame owner)
@@ -78,16 +81,27 @@ namespace Seraphim
 
         void BuildHeader()
         {
+            var header=Node(canvas.transform,"Readout backdrop",new Vector2(0,1),new Vector2(230,-112),new Vector2(444,218));
+            headerPanel=header;
+            var headerImage=header.gameObject.AddComponent<Image>(); headerImage.color=new Color(.02f,.035f,.06f,.82f); headerImage.raycastTarget=false;
             Label(canvas.transform,"Title","SERAPHIM",new Vector2(0,1),new Vector2(230,-37),new Vector2(380,60),32,gold,true,TextAnchor.MiddleLeft);
-            Label(canvas.transform,"Location","SANCTUARY OF DAWN",new Vector2(0,1),new Vector2(217,-73),new Vector2(350,25),12,ivory,false,TextAnchor.MiddleLeft);
+            Label(canvas.transform,"Location","CATHEDRAL OF DAWN",new Vector2(0,1),new Vector2(217,-73),new Vector2(350,25),12,ivory,false,TextAnchor.MiddleLeft);
             Label(canvas.transform,"Movement hint","WASD / MOUSE    ·    SCROLL TO ZOOM",new Vector2(0,1),new Vector2(262,-99),new Vector2(440,20),11,muted,false,TextAnchor.MiddleLeft);
-            combatStatus=Label(canvas.transform,"Encounter","",new Vector2(0,1),new Vector2(262,-124),new Vector2(440,22),13,ivory,false,TextAnchor.MiddleLeft);
-            Label(canvas.transform,"Aim hint","AIM SPEARS AND LIGHTNING WITH THE MOUSE",new Vector2(0,1),new Vector2(262,-147),new Vector2(440,20),10,muted,false,TextAnchor.MiddleLeft);
+            waveStatus=Label(canvas.transform,"Wave","",new Vector2(0,1),new Vector2(262,-124),new Vector2(440,22),14,gold,false,TextAnchor.MiddleLeft);
+            combatStatus=Label(canvas.transform,"Encounter","",new Vector2(0,1),new Vector2(262,-149),new Vector2(440,22),13,ivory,false,TextAnchor.MiddleLeft);
+            Label(canvas.transform,"Aim hint","AIM SPEARS AND LIGHTNING WITH THE MOUSE",new Vector2(0,1),new Vector2(262,-173),new Vector2(440,20),10,muted,false,TextAnchor.MiddleLeft);
+            pickupStatus=Label(canvas.transform,"Pickup","",new Vector2(0,1),new Vector2(262,-197),new Vector2(440,22),14,gold,false,TextAnchor.MiddleLeft);
             buffStatus=Label(canvas.transform,"Ascension duration","",new Vector2(.5f,1),new Vector2(0,-35),new Vector2(500,32),15,gold,true);
-            objective=Node(canvas.transform,"Quest",new Vector2(1,1),new Vector2(-197,-57),new Vector2(350,90));
+            mapPanel=Node(canvas.transform,"Minimap panel",new Vector2(1,1),new Vector2(-153,-176),new Vector2(270,310));
+            var mapBackdrop=mapPanel.gameObject.AddComponent<Image>(); mapBackdrop.color=new Color(.02f,.035f,.06f,.9f); mapBackdrop.raycastTarget=false;
+            Label(mapPanel,"Map title","CATHEDRAL OF DAWN",new Vector2(.5f,1),new Vector2(0,-12),new Vector2(260,24),12,gold,true);
+            var map=Node(mapPanel,"Landscape and combatants",new Vector2(.5f,.5f),new Vector2(0,-2),new Vector2(244,254));
+            Minimap=map.gameObject.AddComponent<CathedralMinimap>(); Minimap.Initialize(game);
+            Label(mapPanel,"Map legend","N ↑   ·   YOU ◆   ·   DEMONS ●",new Vector2(.5f,0),new Vector2(0,10),new Vector2(260,22),10,muted);
+            objective=Node(canvas.transform,"Quest",new Vector2(1,1),new Vector2(-153,-372),new Vector2(270,72));
             var panel=objective.gameObject.AddComponent<Image>(); panel.color=new Color(.025f,.045f,.067f,.84f); panel.raycastTarget=false;
-            Label(objective,"Quest title","THE FIRST LIGHT",new Vector2(.5f,.5f),new Vector2(0,22),new Vector2(320,25),14,gold,true);
-            objectiveText=Label(objective,"Quest progress","",new Vector2(.5f,.5f),new Vector2(0,-10),new Vector2(320,35),14,ivory);
+            Label(objective,"Quest title","DEFEND THE CATHEDRAL",new Vector2(.5f,.5f),new Vector2(0,19),new Vector2(260,25),12,gold,true);
+            objectiveText=Label(objective,"Quest progress","",new Vector2(.5f,.5f),new Vector2(0,-12),new Vector2(260,35),12,ivory);
         }
 
         void BuildBottom()
@@ -137,8 +151,11 @@ namespace Seraphim
             life.Fraction=game.Vitals.LifeFraction; spirit.Fraction=game.Vitals.SpiritFraction;
             lifeValue.text=$"{Mathf.CeilToInt(game.Vitals.Life)} / {Mathf.CeilToInt(game.Vitals.MaxLife)}";
             spiritValue.text=$"{Mathf.CeilToInt(game.Vitals.Spirit)} / {Mathf.CeilToInt(game.Vitals.MaxSpirit)}";
-            objectiveText.text=game.AttunedCount==3?"The sanctuary awakens":"Awaken the waystones     "+game.AttunedCount+" / 3";
-            combatStatus.text=Time.time-game.Enemies.LastRecoveryAt<3?"Grace restores you. The demons disperse.":"DEMONS  "+game.Enemies.ActiveCount+" / "+game.settings.enemyLimit+"       BANISHED  "+game.Enemies.KillCount;
+            var wave=game.Waves;
+            objectiveText.text=wave.State==WaveDirector.EncounterState.Victory?"All ten waves defeated!\nPress R to play again":"Survive ten waves\nWaystones awakened   "+game.AttunedCount+" / 3";
+            waveStatus.text=wave.State==WaveDirector.EncounterState.Victory?"VICTORY · CATHEDRAL DEFENDED":wave.State==WaveDirector.EncounterState.Resting?"WAVE "+(wave.Wave+1)+" / 10   IN "+Mathf.CeilToInt(wave.RestRemaining)+"s":wave.State==WaveDirector.EncounterState.Fighting?"WAVE "+wave.Wave+" / 10    ·    "+wave.Slain+" / "+wave.Total+" BANISHED":"THE CATHEDRAL AWAITS";
+            combatStatus.text=Time.time-game.Enemies.LastRecoveryAt<3?"Grace restores you. This wave will retry.":"SCORE  "+game.Enemies.Score+"       DEMONS  "+game.Enemies.ActiveCount+" / "+(wave.State==WaveDirector.EncounterState.Fighting?wave.ConcurrentLimit:game.settings.enemyLimit);
+            pickupStatus.text=Time.time-game.Drops.LastPickupAt<2?game.Drops.LastPickup:"";
             buffStatus.text=game.Ultimate.IsActive && game.Ultimate.Stage!=WordOfGodAbility.Phase.Charging?"WORD OF GOD  ·  "+game.Ultimate.ActiveRemaining.ToString("0.0")+"s":"";
             for (var i=0;i<icons.Length;i++)
             {

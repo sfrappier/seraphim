@@ -40,6 +40,10 @@ namespace Seraphim
             game.Player.InputEnabled = false;
             game.Skills.InputEnabled=false;
             yield return new WaitForSeconds(1);
+            if (Array.Exists(Environment.GetCommandLineArgs(),a=>a=="-seraphim-scenario-only"))
+            {
+                yield return ScenarioChecks(); SaveReport(); yield break;
+            }
             if (Array.Exists(Environment.GetCommandLineArgs(),a=>a=="-seraphim-combat-only"))
             {
                 yield return CombatChecks();
@@ -177,6 +181,7 @@ namespace Seraphim
             while (game.Ultimate.IsActive && Time.realtimeSinceStartup<finishDeadline) yield return null;
             Check(!game.Ultimate.IsActive && avatarRenderers[0].sharedMaterial==originalMaterial,"A second ultimate also restores the original character");
             yield return CombatChecks();
+            yield return ScenarioChecks();
             SaveReport();
         }
 

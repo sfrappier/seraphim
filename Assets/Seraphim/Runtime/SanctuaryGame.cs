@@ -19,6 +19,9 @@ namespace Seraphim
         public SanctuaryHud Hud { get; private set; }
         public EnemyDirector Enemies { get; private set; }
         public DivinePowers Powers { get; private set; }
+        public WaveDirector Waves { get; private set; }
+        public CelestialDrops Drops { get; private set; }
+        public readonly List<Rect> MapObstacles=new List<Rect>();
         public List<Waystone> Waystones { get; } = new List<Waystone>();
         public int AttunedCount => Waystones.FindAll(s => s.IsAttuned).Count;
         readonly List<NavMeshBuildSource> navSources = new List<NavMeshBuildSource>();
@@ -39,104 +42,25 @@ namespace Seraphim
             BuildCamera();
             Skills=gameObject.AddComponent<SeraphimSkillBar>();
             Skills.Initialize(this);
+            Waves=gameObject.AddComponent<WaveDirector>(); Waves.Initialize(this);
+            Drops=gameObject.AddComponent<CelestialDrops>(); Drops.Initialize(this);
             Hud=gameObject.AddComponent<SanctuaryHud>();
             Hud.Initialize(this);
             var smoke=System.Array.Exists(System.Environment.GetCommandLineArgs(), a => a == "-seraphim-smoke");
-            Enemies.Initialize(this,!smoke);
+            Enemies.Initialize(this,false);
+            if (!smoke) Waves.BeginScenario();
             if (smoke)
                 gameObject.AddComponent<PrototypeSmokeTest>().Initialize(this);
         }
 
         void BuildSanctuary()
         {
-            architecture = new GameObject("Sanctuary architecture").transform;
-            var random = new System.Random(settings.worldSeed);
-            var ground = SceneArt.Shape(PrimitiveType.Cube, "Walkable sanctuary ground", architecture,
-                new Vector3(0,-.28f,0), new Vector3(42,.5f,38), models.darkStone, true);
-            ground.layer = 8;
-            AddNavBox(new Vector3(0,-.28f,0), new Vector3(42,.5f,38), 0);
-            var tileMaterials = new Material[5];
-            for (var i = 0; i < tileMaterials.Length; i++)
-            {
-                tileMaterials[i] = new Material(models.stone);
-                tileMaterials[i].color = Color.Lerp(new Color(.32f,.37f,.43f), new Color(.6f,.62f,.63f), i/4f);
-            }
-            for (var x = -10; x <= 10; x++)
-            for (var z = -9; z <= 9; z++)
-            {
-                SceneArt.Shape(PrimitiveType.Cube, "Stone paving", architecture, new Vector3(x*1.95f,-.055f,z*1.95f),
-                    new Vector3(1.9f,.12f,1.9f), tileMaterials[random.Next(tileMaterials.Length)]);
-            }
-            for (var i = 0; i < 2; i++)
-            {
-                var x = i == 0 ? -20.6f : 20.6f;
-                SceneArt.Shape(PrimitiveType.Cube, "Sanctuary edge", architecture, new Vector3(x,.15f,0), new Vector3(.3f,.4f,37), models.gold);
-                SceneArt.Shape(PrimitiveType.Cube, "Boundary parapet", architecture, new Vector3(x,1.1f,0), new Vector3(.65f,2.2f,38), models.darkStone);
-                AddNavBox(new Vector3(x,1.1f,0),new Vector3(.65f,2.2f,38),1);
-            }
-            foreach (var x in new[] {-9f,9f})
-            foreach (var z in new[] {-12f,-5f,3f,11f}) Pillar(new Vector3(x,0,z));
-
-            ObstacleBox("Central altar", new Vector3(0,.55f,3), new Vector3(3.6f,1.1f,3.6f), models.darkStone);
-            SceneArt.Shape(PrimitiveType.Cube,"Altar cap",architecture,new Vector3(0,1.15f,3),new Vector3(4,.15f,4),models.gold);
-            var altarRing = SceneArt.Ring("Altar sigil",architecture,1.45f,.035f,models.glowCyan);
-            altarRing.transform.localPosition = new Vector3(0,1.25f,3);
-            var relic = SceneArt.Shape(PrimitiveType.Cube,"Suspended relic",architecture,new Vector3(0,2.1f,3),Vector3.one*.7f,models.gold);
-            relic.transform.localRotation = Quaternion.Euler(45,25,45);
-            SceneArt.PointLight("Altar light",architecture,new Vector3(0,3,3),new Color(.3f,.7f,1),4,9);
-
-            if (models.dungeonGate != null)
-            {
-                var gate = Instantiate(models.dungeonGate, architecture);
-                gate.name = "Kenney sanctuary gateway";
-                NormalizeModel(gate, 8.5f, false);
-                gate.transform.localPosition += new Vector3(0,0,16);
-                foreach (var renderer in gate.GetComponentsInChildren<Renderer>()) renderer.sharedMaterial = models.stone;
-                AddNavBox(new Vector3(-3.6f,2,16),new Vector3(1.2f,4,1.4f),1);
-                AddNavBox(new Vector3(3.6f,2,16),new Vector3(1.2f,4,1.4f),1);
-            }
-            else
-            {
-                Pillar(new Vector3(-4,0,16)); Pillar(new Vector3(4,0,16));
-                SceneArt.Shape(PrimitiveType.Cube,"Gate lintel",architecture,new Vector3(0,5.2f,16),new Vector3(9,.65f,.8f),models.ivory);
-            }
-            var portal = SceneArt.Ring("Dawn gate",null,2.1f,.1f,models.glowGold);
-            portal.transform.position = new Vector3(0,2.35f,16);
-            portal.transform.rotation = Quaternion.Euler(90,0,0);
-            SceneArt.PointLight("Gateway light",architecture,new Vector3(0,2,15),new Color(1,.65f,.25f),5,10);
-
-            for (var i = 0; i < settings.decorativeRubble; i++)
-            {
-                var x = (i % 2 == 0 ? -1 : 1) * (15 + (float)random.NextDouble()*3.5f);
-                var z = (float)random.NextDouble()*32-16;
-                var rock = SceneArt.Shape(PrimitiveType.Cube,"Weathered masonry",architecture,new Vector3(x,.18f,z),
-                    new Vector3(.3f+(float)random.NextDouble(),.3f,.4f+(float)random.NextDouble()),models.darkStone);
-                rock.transform.localRotation = Quaternion.Euler(0,random.Next(360),random.Next(-12,12));
-            }
-            CreateWaystone(new Vector3(-13,0,6),"Mercy");
-            CreateWaystone(new Vector3(12,0,6),"Courage");
-            CreateWaystone(new Vector3(0,0,-13),"Hope");
-            StaticBatchingUtility.Combine(architecture.gameObject);
+            architecture=CathedralBuilder.Build(models,settings,AddNavBox,CreateWaystone).transform;
         }
-
-        void Pillar(Vector3 point)
-        {
-            ObstacleBox("Pillar foundation", point + Vector3.up*.18f,new Vector3(2,.36f,2),models.darkStone);
-            SceneArt.Shape(PrimitiveType.Cylinder,"Ivory column",architecture,point+Vector3.up*2.1f,new Vector3(1.15f,1.9f,1.15f),models.ivory);
-            SceneArt.Shape(PrimitiveType.Cube,"Capital",architecture,point+Vector3.up*4,new Vector3(1.7f,.3f,1.7f),models.stone);
-            SceneArt.Shape(PrimitiveType.Cylinder,"Gilded collar",architecture,point+Vector3.up*.5f,new Vector3(1.25f,.08f,1.25f),models.gold);
-            AddNavBox(point+Vector3.up*2,new Vector3(1.3f,4,1.3f),1);
-        }
-
-        void ObstacleBox(string name, Vector3 center, Vector3 size, Material material)
-        {
-            SceneArt.Shape(PrimitiveType.Cube,name,architecture,center,size,material,true);
-            AddNavBox(center,size,1);
-        }
-
         void AddNavBox(Vector3 center, Vector3 size, int area)
         {
             navSources.Add(new NavMeshBuildSource { shape=NavMeshBuildSourceShape.Box,transform=Matrix4x4.TRS(center,Quaternion.identity,Vector3.one),size=size,area=area });
+            if (area==1) MapObstacles.Add(new Rect(center.x-size.x/2,center.z-size.z/2,size.x,size.z));
         }
 
         void CreateWaystone(Vector3 point, string name)
@@ -161,7 +85,7 @@ namespace Seraphim
             config.agentClimb = .35f;
             config.overrideVoxelSize = true;
             config.voxelSize = .12f;
-            navData = NavMeshBuilder.BuildNavMeshData(config,navSources,new Bounds(Vector3.zero,new Vector3(46,16,44)),Vector3.zero,Quaternion.identity);
+            navData = NavMeshBuilder.BuildNavMeshData(config,navSources,new Bounds(Vector3.zero,new Vector3(settings.cathedralSize.x+4,24,settings.cathedralSize.y+4)),Vector3.zero,Quaternion.identity);
             if (navData == null) throw new System.InvalidOperationException("Sanctuary navigation could not be built.");
             navInstance = NavMesh.AddNavMeshData(navData);
         }
@@ -181,7 +105,7 @@ namespace Seraphim
                 var normalizedAvatar = new GameObject("Normalized avatar");
                 normalizedAvatar.transform.SetParent(visual,false);
                 var avatar = Instantiate(models.character,normalizedAvatar.transform);
-                var bodyMaterial = new Material(models.ivory);
+                var bodyMaterial = new Material(models.angelArmor);
                 if (models.characterTexture != null)
                 {
                     bodyMaterial.SetTexture("_BaseMap",models.characterTexture);
@@ -209,6 +133,7 @@ namespace Seraphim
             else SceneArt.Shape(PrimitiveType.Capsule,"Placeholder armor",visual,Vector3.up*.9f,new Vector3(.65f,.9f,.65f),models.ivory);
             Player = player.AddComponent<SeraphimMotor>();
             Player.Initialize(settings,anim,models.glowGold);
+            player.AddComponent<AngelicVestments>().Initialize(anim,models);
             player.AddComponent<SeraphimWings>().Initialize(models,Player);
             var aura = SceneArt.Ring("Seraphim ground aura",player.transform,.6f,.025f,models.glowCyan);
             aura.transform.localPosition = Vector3.up*.05f;

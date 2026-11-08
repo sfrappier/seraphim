@@ -66,7 +66,8 @@ namespace Seraphim
         {
             if (enemy==null || !enemy.gameObject.activeInHierarchy || canvas==null || Camera.main==null) { Hide(); return; }
             var point=Camera.main.WorldToScreenPoint(enemy.transform.position+Vector3.up*enemy.BarHeight);
-            var visible=point.z>0 && point.x>-60 && point.x<Screen.width+60 && point.y<Screen.height+40 && point.y>210*Screen.width/1600f;
+            var visible=point.z>0 && point.x>-60 && point.x<Screen.width+60 && point.y<Screen.height+40 && point.y>210*Screen.width/1600f
+                && !SanctuaryHud.BlocksScreenPoint(new Vector2(point.x,point.y));
             root.gameObject.SetActive(visible);
             if (!visible) return;
             // Camera-space Canvas transforms are synchronized for rendering,

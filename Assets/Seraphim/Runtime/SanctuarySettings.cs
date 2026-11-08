@@ -48,5 +48,12 @@ namespace Seraphim
         [Range(1,12)] public int enemyLimit = 8;
         public int initialEnemies = 5;
         public float enemySpawnInterval = 3.5f;
+        [Header("Cathedral scenario")]
+        public Vector2 cathedralSize = new Vector2(84,112);
+        public int waveCount = 10;
+        public float waveRestSeconds = 7;
+        public float waveSpawnInterval = 1.8f;
+        public float lifeDropRestore = 12;
+        public float spiritDropRestore = 18;
     }
 }

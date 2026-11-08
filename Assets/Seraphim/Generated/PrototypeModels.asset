@@ -12,13 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6ed364365ca241d49ba2ee65c27dceb8, type: 3}
   m_Name: PrototypeModels
   m_EditorClassIdentifier: Assembly-CSharp::Seraphim.PrototypeModels
-  character: {fileID: 919132149155446097, guid: fd6107b59a9852142b0666f20ff556d7, type: 3}
+  character: {fileID: 919132149155446097, guid: ee10560f9d9e41f4f82a93dc81423875, type: 3}
   dungeonGate: {fileID: 919132149155446097, guid: b41390941eb3f4b41b1943f957f7fb55, type: 3}
   idle: {fileID: 7400000, guid: 2059c33517c048546a1deadb7aa24b2e, type: 2}
   run: {fileID: 7400000, guid: 1b5ddec71f543bf4fba106d755ade5ac, type: 2}
   animatorController: {fileID: 9100000, guid: 5d72bbfa013af3349a355913ec0212d2, type: 2}
-  humanoidAvatar: {fileID: 9000000, guid: fd6107b59a9852142b0666f20ff556d7, type: 3}
-  characterTexture: {fileID: 0}
+  humanoidAvatar: {fileID: 9000000, guid: ee10560f9d9e41f4f82a93dc81423875, type: 3}
+  characterTexture: {fileID: 2800000, guid: 03a8f20a07d3520418e719f14e5f20a1, type: 3}
   stone: {fileID: 2100000, guid: 3201d3aac65bbf7488ee9d31fe00a0c1, type: 2}
   ivory: {fileID: 2100000, guid: 7c1799d6cca2ed148a115a686edd0735, type: 2}
   darkStone: {fileID: 2100000, guid: 566999b838eac1c4e9ae4cc025f76db7, type: 2}
@@ -28,3 +28,8 @@ MonoBehaviour:
   glowCyan: {fileID: 2100000, guid: 2df82a38717069740ad0b7ae62f9b5a2, type: 2}
   celestialMote: {fileID: 2100000, guid: 3790fea92850f064a8b83e8941ca6902, type: 2}
   hudDisplayFont: {fileID: 12800000, guid: 12471109227680f47aa7858da2471123, type: 3}
+  marble: {fileID: 2100000, guid: e8322227e2e2d9a4cafd45a72ec337cf, type: 2}
+  cathedralStone: {fileID: 2100000, guid: c59cb0afa76e7034e95437d9b3b3888d, type: 2}
+  cathedralWood: {fileID: 2100000, guid: 5a5b9eceb09954a4099327da96eb9704, type: 2}
+  vestment: {fileID: 2100000, guid: 4fc42b457c217ef4bb38249de9c94b8f, type: 2}
+  angelArmor: {fileID: 2100000, guid: 3be257d74a214d44fab58529ba924da9, type: 2}

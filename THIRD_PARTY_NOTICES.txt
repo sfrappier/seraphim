@@ -21,6 +21,24 @@ Copyright/attribution: Poly Haven and the asset's credited contributors.
 
 CC0 text: https://creativecommons.org/publicdomain/zero/1.0/legalcode
 
+KayKit: Adventurers Character Pack 1.0 — Knight
+Creator: Kay Lousberg, https://kaylousberg.com
+Source: https://github.com/KayKit-Game-Assets/KayKit-Character-Pack-Adventures-1.0
+Publisher revision: 672074b73ba276876a19e8816ecdc5241817ab47
+License: Creative Commons Zero (CC0 1.0 Universal)
+Included license, checksums, and provenance: Assets/ThirdParty/CC0/KayKitAngel/
+Seraphim uses the original humanoid rig with its own animation controller,
+ivory palette shader, crown, mantle, surcoat, and six animated wings.
+
+Poly Haven: Cathedral material sets
+Sources: https://polyhaven.com/a/marble_01
+         https://polyhaven.com/a/stone_brick_wall_001
+         https://polyhaven.com/a/wood_table_001
+Maps used: 2K diffuse and OpenGL normal maps for all three materials.
+License: Creative Commons Zero (CC0 1.0 Universal)
+License statement: https://polyhaven.com/license
+Exact download URLs and SHA-256 receipts: Assets/ThirdParty/CC0/CathedralTextures/source.json
+
 Cinzel Decorative Regular (HUD display font)
 Copyright (c) 2012 Natanael Gama (info@ndiscovered.com).
 Reserved Font Name: Cinzel.

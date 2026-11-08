@@ -47,3 +47,9 @@ MonoBehaviour:
   enemyLimit: 8
   initialEnemies: 5
   enemySpawnInterval: 3.5
+  cathedralSize: {x: 84, y: 112}
+  waveCount: 10
+  waveRestSeconds: 7
+  waveSpawnInterval: 1.8
+  lifeDropRestore: 12
+  spiritDropRestore: 18

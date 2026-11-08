@@ -40,7 +40,7 @@ namespace Seraphim
         public bool IsActive { get; private set; }
         public float VisualPower { get; private set; }
         public Phase Stage { get; private set; }
-        public float CooldownRemaining => Mathf.Max(0,readyAt-Time.time);
+        public float CooldownRemaining => Mathf.Clamp(readyAt-Time.time,0,settings.ultimateCooldown);
         public bool CanCast => !IsActive && CooldownRemaining<=0;
         public float ChargeProgress => IsActive?Mathf.Clamp01((Time.time-startedAt)/ChargeTime):0;
         public float ActiveRemaining => IsActive?Mathf.Clamp(startedAt+ChargeTime+settings.ultimateDuration-Time.time,0,settings.ultimateDuration):0;

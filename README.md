@@ -4,7 +4,7 @@ A Windows-first, 3D overhead action-adventure about a six-winged angel. The game
 
 This repository is the Unity project root. On this computer it lives at `F:\Temp\Apps\seraphim`.
 
-[Sanctuary and HUD](Docs/images/sanctuary.png) · [Demon encounter](Docs/images/demons.png) · [Word of God](Docs/images/word-of-god.png) · [Lance of Dawn](Docs/images/lance-of-dawn.png) · [Chain of Heaven](Docs/images/chain-of-heaven.png) · [Seraphic Inferno](Docs/images/seraphic-inferno.png) · [Recorded validation results](Docs/validation.json)
+[Cathedral overview](Docs/images/cathedral-overview.png) · [Angelic character](Docs/images/angel-portrait.png) · [Waves and minimap](Docs/images/cathedral-wave.png) · [Restoration drops](Docs/images/restoration-orbs.png) · [Word of God](Docs/images/word-of-god.png) · [Recorded validation results](Docs/validation.json)
 
 The previews are camera renders from the exported Windows player, including its native angelic HUD.
 
@@ -16,9 +16,12 @@ Double-click **Play Seraphim.cmd** after a successful build. The executable is `
 - Scroll to zoom the overhead camera.
 - Use **1–5** for the powers below. Aim spears and lightning with the mouse. Space and the right mouse button also cast Radiance.
 - Spirit regenerates at 12 per second. The bottom HUD places Life on the left and Spirit on the right, with clickable numbered skills and cooldowns in the center. Slot 6 remains available for a future skill. Clicking the HUD cannot issue a movement command; aimed skills cast from their HUD buttons select a nearby demon.
-- Five demons appear at the start. Further demons spawn at random navigable positions around you roughly every 3.5 seconds, up to **eight living enemies**. Cinder Imps, winged Ash Stalkers, and armored Obsidian Guards have different health and movement speeds. Their overhead bars show remaining health, recent damage, and floating damage numbers.
-- Demons chase and attack gently. They disperse into light when defeated. If Life reaches zero, you return to the starting point with full resources, brief protection, and the nearby demons cleared.
-- Awaken all three waystones to complete this small exploration objective.
+- Defend the cathedral through **ten waves**, with 6 demons in the first wave and 24 in the last: **150 total**. The first wave allows three living enemies at once; the limit rises gradually to **eight**. The spawn interval falls from 1.8 to 0.65 seconds, while health, speed, and melee damage increase modestly. Seven-second rests between waves restore some Life and Spirit.
+- Cinder Imps, winged Ash Stalkers, and armored Obsidian Guards have different health and movement speeds. Their overhead bars show remaining health, recent damage, and floating damage numbers. Each defeat awards **100/125/150 points**, plus 10 per wave after the first. Demons disperse into light without blood or gore.
+- Every demon drops a **Life orb (+12)** and a **Spirit orb (+18)**. Walk near a drop to attract and collect it. Orbs stay available while the matching resource is full, expire after 45 seconds, and use a pool capped at 48. Nearby walls and pews block attraction.
+- The **top-right minimap** shows the cathedral floor plan, obstacles, a gold player arrow, cyan waystones, and **red enemy dots**. Its north-up orientation is fixed. Clicking it does not move the character.
+- If Life reaches zero, you return to the starting point with full resources and brief protection. The current wave restarts after a rest, retaining earned points. After defeating wave 10, press **R** to replay with a fresh score and full resources. Score is per session and is not saved yet.
+- Awaken the three waystones as an optional exploration objective while defending the cathedral.
 - Press Escape to exit.
 
 | Key | Power | Cooldown | Spirit | Effect |
@@ -29,7 +32,9 @@ Double-click **Play Seraphim.cmd** after a successful build. The executable is `
 | 4 | Chain of Heaven | 3 s | 18 | Cyan lightning jumps through up to four demons and stuns them briefly. First hit deals 36 damage, with 10% less per jump. Aim at the first demon. |
 | 5 | Seraphic Inferno | 4.5 s | 22 | Expanding white-gold flame corona; 35 damage, knockback, and three additional burn ticks of 8 damage. |
 
-This build focuses on navigation, camera, animation, five playable powers, resources, and an introductory combat encounter. Classes, equipment, pets, saving, campaign generation, and multiplayer are future milestones. The character uses an existing animated model with custom procedural wings; the demons use original animated geometry. Both remain prototype art. There is no blood or gore.
+The sanctuary is now an **84 × 112 meter cathedral**, nearly six times the original floor area. Its cutaway architecture includes a nave, side aisles, Gothic ribs, clustered columns, wooden pews, candelabra, lancet windows, a rose window, memorials, and a raised high altar. Three CC0 2K texture sets provide marble, masonry, and oak, with world-scaled UVs and normal maps.
+
+The playable angel uses KayKit's rigged Knight as an armored base, an ivory palette shader, bone-mounted celestial vestments, a crown, and six animated wings with sculpted feathers. The body and demons remain stylized prototype art. This is a playable wave scenario; classes, equipment, pets, saving, campaign generation, and multiplayer are future milestones.
 
 ## Build again
 
@@ -59,7 +64,7 @@ The prototype's CC0 assets and OFL-licensed display font are included in the rep
 .\Tools\Download-Assets.ps1
 ```
 
-The downloader uses the original publishers, caches archives locally, and verifies pinned SHA-256 values in `Tools/asset-lock.json`. A changed upstream archive intentionally fails verification until its update is reviewed. Sources and licenses are recorded alongside the assets and in `THIRD_PARTY_NOTICES.txt`. The build includes the font's full OFL license in the Windows distribution.
+The downloader uses the original publishers, caches archives locally, and verifies pinned SHA-256 values in `Tools/asset-lock.json`. Cathedral assets additionally use the pinned publisher revision and file hashes in `Assets/ThirdParty/CC0/KayKitAngel/source.json` and `CathedralTextures/source.json`; run `Tools/Download-CathedralAssets.ps1` to verify or reacquire just those dependencies. A changed upstream file intentionally fails verification until its update is reviewed. Sources and licenses are recorded alongside the assets and in `THIRD_PARTY_NOTICES.txt`. The build includes the font's full OFL license in the Windows distribution.
 
 The Windows MSIX distribution of Unity Hub can place activation in its isolated per-user cache. The build helper makes that same user's existing signed license files available to the standalone Editor without modifying their contents. Licenses stay outside this repository.
 
@@ -71,21 +76,25 @@ The Windows MSIX distribution of Unity Hub can place activation in its isolated 
 .\Tools\Smoke-Test.ps1
 ```
 
-Build already includes validation; a normal change only needs Build followed by Smoke-Test. The player test exercises click and WASD movement, control handoffs, diagonal speed, obstacle boundaries, HUD click blocking, Spirit spending/regeneration, character animation, and waystone activation. It checks the ultimate's traveling aura, fifteen pulses, transformation, restoration, full 30-second recharge, and reuse. Combat checks cover random spawning, the population cap, health bars, damage, demon reuse, piercing spears, chained lightning, burn ticks, melee attacks, and recovery after defeat. Allow roughly 75–100 seconds for the full player checks. Screenshots include the HUD and each power. Results go to `Builds/Windows/SmokeTests/`, with the runtime log at `Logs/player-smoke.log`.
+Build already includes validation; a normal change only needs Build followed by Smoke-Test. The player test exercises click and WASD movement, control handoffs, diagonal speed, obstacle boundaries, HUD click blocking, Spirit spending/regeneration, character animation, and waystone activation. It checks the ultimate's traveling aura, fifteen pulses, transformation, restoration, full 30-second recharge, and reuse. Combat checks cover spawning, population caps, health bars, damage, demon reuse, spears, lightning, burn ticks, melee attacks, and recovery after defeat. Cathedral checks cover the model and textures, navigation through the expanded world, minimap behavior, drop collection, scoring, all ten waves, victory, replay, and recovery quotas. Allow roughly 100–150 seconds for the full player checks. Screenshots include the HUD, each power, and cathedral previews. Results go to `Builds/Windows/SmokeTests/`, with the runtime log at `Logs/player-smoke.log`.
 
 For a focused combat iteration, use `.\Tools\Smoke-Test.ps1 -CombatOnly`. This skips baseline movement and the long ultimate recharge sequence; run the full test before releasing gameplay changes. The smoke-test launch uses isolated encounters instead of the normal automatic encounter so damage and cooldown checks are repeatable.
+
+Use `.\Tools\Smoke-Test.ps1 -ScenarioOnly` for focused cathedral, drop, minimap, and wave checks. The ten-wave scheduler is exercised with an advancing test clock and lethal test hits; the remaining combat checks use normal ability damage. Automated screenshots are actual GPU renders from the exported player, including two preview camera angles. These checks do not replace a human balance playtest or a frame-rate benchmark.
 
 ## Make changes
 
 - `Assets/Seraphim/Generated/SanctuarySettings.asset`: movement speed, acceleration, camera, seed, resource regeneration, ability tuning, and enemy population. In the editor, select it in the Project window and edit the Inspector.
 - `Assets/Seraphim/Runtime/`: gameplay and world assembly.
 - `EnemyDirector.cs`, `DemonEnemy.cs`, and `DemonHealthBar.cs`: spawning, damage/status effects, demon behavior, and overhead readouts. Demons and spell effects are reused through bounded pools.
+- `WaveDirector.cs`: ten-wave quotas, spawn pacing, concurrency limits, intermissions, victory, and retries. `CelestialDrops.cs` owns pooled restoration drops; `CathedralMinimap.cs` draws the same obstacle definitions used to build navigation.
+- `CathedralBuilder.cs`: cathedral geometry, world-scaled surfaces, lighting props, collision, and minimap placement definitions. `AngelicVestments.cs` and `SeraphimWings.cs` own the angel additions.
 - `DivinePowers.cs` and `DivineProjectile.cs`: the three new powers, cursor aiming, and swept projectile hits. `CelestialAbility.cs` and `WordOfGodAbility.cs` own the two pulse powers.
 - `Assets/Seraphim/Shaders/`: celestial effect shader.
 - `Assets/Seraphim/Editor/`: asset import rules and the repeatable project/build setup.
 - `Assets/Seraphim/Scenes/Sanctuary.unity`: bootstrap scene and its content references.
 
-The layout is currently authored, with seeded decorative variation. This is not yet a procedural campaign generator. Keep major paths and quest anchors deliberate when expanding it into modular regions.
+The cathedral layout is currently authored; demon positions vary between runs. This is not yet a procedural campaign generator. Keep major paths and quest anchors deliberate when expanding it into modular regions.
 
 Build preparation preserves existing settings, materials, and the bootstrap scene. Do not delete their `.meta` files: Unity uses those identifiers to connect assets.
 

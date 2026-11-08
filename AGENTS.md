@@ -11,3 +11,4 @@
 - Keep movement, abilities, presentation, and content definitions separate. Expand systems through small playable milestones rather than implementing every planned RPG feature at once.
 - The HUD uses native Unity UI in camera space. Keep Life left, Spirit right, numbered skill slots in the center, and HUD clicks isolated from world movement. Preserve the 30-second Word of God cooldown and restore temporary character/camera effects after casting.
 - Word of God follows the player and pulses for 15 active seconds after charging. Keep all five combat powers playable, enemy spawning bounded, and damage/status effects and overhead health bars consistent when pooled demons are reused.
+- Keep the ten-wave cathedral scenario, score, bounded restoration drops, and north-up minimap coherent. Navigation, spawn bounds, and map landscape share cathedral dimensions and obstacle definitions. Defeat retries the current quota; victory stops spawning and permits replay.

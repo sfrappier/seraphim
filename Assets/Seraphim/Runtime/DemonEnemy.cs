@@ -19,6 +19,8 @@ namespace Seraphim
         public bool IsAlive { get; private set; }
         public bool Passive { get; set; }
         public int TargetId { get; private set; }
+        public int WaveNumber { get; private set; }
+        float baseHealth,baseSpeed,damageMultiplier=1;
         public DemonKind Kind { get; private set; }
         public float Health { get; private set; }
         public float MaxHealth { get; private set; }
@@ -34,9 +36,11 @@ namespace Seraphim
         {
             director=owner; Kind=kind;
             MaxHealth=kind==DemonKind.CinderImp?42:kind==DemonKind.AshStalker?32:60;
+            baseHealth=MaxHealth;
             agent=gameObject.AddComponent<NavMeshAgent>();
             agent.radius=.38f; agent.height=1.8f; agent.speed=kind==DemonKind.AshStalker?3.2f:kind==DemonKind.ObsidianGuard?2:2.6f;
             agent.acceleration=12; agent.angularSpeed=360; agent.stoppingDistance=1.35f;
+            baseSpeed=agent.speed;
             agent.avoidancePriority=35+(int)kind*8;
             gameObject.layer=9;
             targetCollider=gameObject.AddComponent<CapsuleCollider>();
@@ -84,8 +88,11 @@ namespace Seraphim
             spawnRing=SceneArt.Ring("Demon arrival",transform,.8f,.045f,director.Game.models.glowGold,48);
             spawnRing.transform.localPosition=Vector3.up*.05f;
         }
-        public bool Activate(Vector3 point,int id,bool passive)
+        public bool Activate(Vector3 point,int id,bool passive,int wave=0)
         {
+            WaveNumber=wave;
+            var level=Mathf.Max(0,wave-1);
+            MaxHealth=baseHealth*(1+level*.035f); agent.speed=baseSpeed*(1+level*.012f); damageMultiplier=1+level*.045f;
             TargetId=id; Health=MaxHealth; IsAlive=true; Passive=passive;
             deathAt=0; appearedAt=Time.time; nextPath=0; nextAttack=Time.time+1.3f;
             burnUntil=stunUntil=flashUntil=0;
@@ -111,7 +118,7 @@ namespace Seraphim
             if (Health<=0)
             {
                 IsAlive=false; deathAt=Time.time; targetCollider.enabled=false; if (agent.enabled) agent.enabled=false;
-                sparks.Emit(45); director.RecordKill(); return;
+                sparks.Emit(45); director.RecordKill(this); return;
             }
             if (push>0 && agent.enabled && agent.isOnNavMesh)
             {
@@ -162,7 +169,7 @@ namespace Seraphim
                 if (distance<1.9f && Time.time>=nextAttack && Time.time>=stunUntil)
                 {
                     nextAttack=Time.time+1.7f;
-                    director.Game.Vitals.TakeDamage(Kind==DemonKind.ObsidianGuard?4:2);
+                    director.Game.Vitals.TakeDamage((Kind==DemonKind.ObsidianGuard?4:2)*damageMultiplier);
                     sparks.Emit(5);
                 }
             }

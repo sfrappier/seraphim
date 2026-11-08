@@ -17,7 +17,7 @@ namespace Seraphim.Editor
     {
         const string Generated = "Assets/Seraphim/Generated";
         const string ScenePath = "Assets/Seraphim/Scenes/Sanctuary.unity";
-        const string CharacterPath = "Assets/ThirdParty/CC0/KenneyCharacters/Model/characterMedium.fbx";
+        const string CharacterPath = "Assets/ThirdParty/CC0/KayKitAngel/Knight.fbx";
 
         [MenuItem("Seraphim/Prepare sanctuary")]
         public static void Prepare()
@@ -59,7 +59,7 @@ namespace Seraphim.Editor
         {
             PlayerSettings.companyName = "Seraphim";
             PlayerSettings.productName = "Seraphim";
-            PlayerSettings.bundleVersion = "0.3.0";
+            PlayerSettings.bundleVersion = "0.4.0";
             PlayerSettings.colorSpace = ColorSpace.Linear;
             PlayerSettings.defaultScreenWidth = 1600;
             PlayerSettings.defaultScreenHeight = 900;
@@ -119,6 +119,7 @@ namespace Seraphim.Editor
             }
             var catalog = GetOrCreate<PrototypeModels>(Generated+"/PrototypeModels.asset");
             catalog.character = AssetDatabase.LoadAssetAtPath<GameObject>(CharacterPath);
+            catalog.characterTexture=AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/ThirdParty/CC0/KayKitAngel/knight_texture.png");
             catalog.humanoidAvatar = AssetDatabase.LoadAllAssetsAtPath(CharacterPath).OfType<Avatar>().FirstOrDefault(a => a.isValid && a.isHuman);
             catalog.dungeonGate = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/ThirdParty/CC0/KenneyDungeon/Models/FBX format/gate.fbx");
             catalog.idle = Animation("idle","Idle");
@@ -139,9 +140,30 @@ namespace Seraphim.Editor
             catalog.glowCyan = Glow("Cyan radiance",new Color(.25f,1.3f,2.3f,1));
             catalog.celestialMote=Glow("Celestial motes",new Color(3,2.2f,1,1),"Seraphim/Celestial Mote");
             catalog.hudDisplayFont=AssetDatabase.LoadAssetAtPath<Font>("Assets/ThirdParty/CinzelDecorative/CinzelDecorative-Regular.ttf");
+            catalog.marble=CathedralMaterial("Cathedral marble","marble_01",new Color(.88f,.89f,.86f),.5f);
+            catalog.cathedralStone=CathedralMaterial("Cathedral limestone","stone_brick_wall_001",new Color(.68f,.7f,.73f),.22f);
+            catalog.cathedralWood=CathedralMaterial("Cathedral oak","wood_table_001",new Color(.42f,.25f,.13f),.32f);
+            catalog.vestment=Lit("Celestial vestment",new Color(.9f,.94f,1),.12f,.3f);
+            catalog.angelArmor=AssetDatabase.LoadAssetAtPath<Material>(Generated+"/Seraphim armor.mat");
+            if (catalog.angelArmor==null)
+            {
+                catalog.angelArmor=new Material(Shader.Find("Seraphim/Celestial Armor"));
+                AssetDatabase.CreateAsset(catalog.angelArmor,Generated+"/Seraphim armor.mat");
+            }
+            catalog.angelArmor.SetTexture("_BaseMap",catalog.characterTexture); EditorUtility.SetDirty(catalog.angelArmor);
             EditorUtility.SetDirty(catalog.stone);
             EditorUtility.SetDirty(catalog);
             return catalog;
+        }
+
+        static Material CathedralMaterial(string name,string texture,Color color,float smoothness)
+        {
+            var mat=Lit(name,color,.05f,smoothness);
+            var folder="Assets/ThirdParty/CC0/CathedralTextures/"+texture;
+            mat.SetTexture("_BaseMap",AssetDatabase.LoadAssetAtPath<Texture2D>(folder+"_diff_2k.jpg"));
+            mat.SetTexture("_BumpMap",AssetDatabase.LoadAssetAtPath<Texture2D>(folder+"_nor_gl_2k.jpg"));
+            mat.SetFloat("_BumpScale",.55f); mat.EnableKeyword("_NORMALMAP");
+            EditorUtility.SetDirty(mat); return mat;
         }
 
         static AnimationClip Animation(string source,string name)
@@ -256,7 +278,10 @@ namespace Seraphim.Editor
                 throw new BuildFailedException("Life, Spirit, or Word of God configuration is invalid.");
             if (game.settings.ultimateDuration!=15 || game.settings.pulseCooldown>.75f || game.settings.enemyLimit>12 || game.settings.enemyLimit<1)
                 throw new BuildFailedException("Pulse duration, Radiance cooldown, or demon population configuration is invalid.");
-            var shaders = new[] {Shader.Find("Universal Render Pipeline/Lit"),Shader.Find("Seraphim/Celestial Glow"),Shader.Find("Seraphim/Celestial Mote"),Shader.Find("UI/Default")};
+            if (game.models.marble==null || game.models.marble.mainTexture==null || game.models.cathedralWood==null
+                || game.settings.waveCount!=10 || game.settings.cathedralSize.x<80 || game.settings.cathedralSize.y<100)
+                throw new BuildFailedException("Cathedral textures, dimensions, or ten-wave scenario are missing.");
+            var shaders = new[] {Shader.Find("Universal Render Pipeline/Lit"),Shader.Find("Seraphim/Celestial Glow"),Shader.Find("Seraphim/Celestial Mote"),Shader.Find("Seraphim/Celestial Armor"),Shader.Find("UI/Default")};
             if (shaders.Any(s => s == null || UnityEditor.ShaderUtil.ShaderHasError(s))) throw new BuildFailedException("A required shader failed to compile.");
             Debug.Log("SERAPHIM_VALIDATION: scene, settings, imported models, animations, shaders and renderer passed.");
         }

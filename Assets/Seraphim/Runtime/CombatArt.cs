@@ -7,6 +7,20 @@ namespace Seraphim
 
     internal static class CombatArt
     {
+        public static Mesh DoubleSided(string name,Vector3[] front,Vector2[] frontUv,System.Collections.Generic.List<int> indices)
+        {
+            var count=front.Length; var vertices=new Vector3[count*2]; var uv=new Vector2[count*2];
+            System.Array.Copy(front,vertices,count); System.Array.Copy(front,0,vertices,count,count);
+            System.Array.Copy(frontUv,uv,count); System.Array.Copy(frontUv,0,uv,count,count);
+            var triangles=new int[indices.Count*2];
+            for (var i=0;i<indices.Count;i+=3)
+            {
+                triangles[i]=indices[i]; triangles[i+1]=indices[i+1]; triangles[i+2]=indices[i+2];
+                triangles[indices.Count+i]=indices[i]+count; triangles[indices.Count+i+1]=indices[i+2]+count; triangles[indices.Count+i+2]=indices[i+1]+count;
+            }
+            var mesh=new Mesh {name=name,vertices=vertices,uv=uv,triangles=triangles};
+            mesh.RecalculateNormals(); mesh.RecalculateBounds(); return mesh;
+        }
         public static Mesh CreateCone()
         {
             const int sides=8;
