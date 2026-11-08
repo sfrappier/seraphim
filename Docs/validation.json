@@ -1,0 +1,29 @@
+{
+    "success": true,
+    "engine": "6000.3.28f1",
+    "avatarHeight": 1.79952073097229,
+    "passed": [
+        "Player spawns on navigation mesh",
+        "Six animated wings exist",
+        "Overhead camera initialized",
+        "Three waystones generated",
+        "Downloaded character and animation clips assigned",
+        "Animated character keeps its intended scale",
+        "Character animation preserves upright proportions",
+        "Animated character stays aligned with wings and navigation",
+        "Humanoid idle animation is playing",
+        "Rendered gameplay is visible in 01-sanctuary.png",
+        "Screen click raycast accepts reachable destination",
+        "Player arrives at requested destination",
+        "Player physically moves through world",
+        "Navigation routes around central altar",
+        "Waystone destination is reachable",
+        "Player reaches waystone",
+        "Radiance can be cast",
+        "Ability cooldown prevents immediate recast",
+        "Radiance attunes nearby waystone",
+        "Rendered gameplay is visible in 02-radiance.png",
+        "Gameplay screenshot captured"
+    ],
+    "failures": []
+}

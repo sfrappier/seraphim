@@ -1,0 +1,33 @@
+# Unity generated files
+/Library/
+/Temp/
+/Obj/
+/Logs/
+/UserSettings/
+/Builds/
+/MemoryCaptures/
+/Recordings/
+/.cache/
+/.vs/
+/.idea/
+*.csproj
+*.sln
+*.slnx
+*.user
+*.pidb
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
+*.log
+# Asset Store packages must not be redistributed as raw source in this public repo.
+/Assets/ThirdParty/AssetStore/
+*.unitypackage
+# Machine-local tool configuration and credentials
+/Tools/local.json
+*.ulf
+*.alf
+*.pfx
+*.pem
+.env
+.env.*

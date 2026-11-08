@@ -1,0 +1,29 @@
+SERAPHIM - THIRD-PARTY CONTENT
+
+Kenney: Modular Dungeon Kit
+Source: https://kenney.nl/assets/modular-dungeon-kit
+License: Creative Commons Zero (CC0 1.0 Universal)
+Included license: Assets/ThirdParty/CC0/KenneyDungeon/License.txt
+Copyright/attribution: Kenney (www.kenney.nl). Attribution is appreciated, not required.
+
+Kenney: Animated Characters Protagonists
+Source: https://kenney.nl/assets/animated-characters-1
+License: Creative Commons Zero (CC0 1.0 Universal)
+Included license: Assets/ThirdParty/CC0/KenneyCharacters/License.txt
+Copyright/attribution: Kenney (www.kenney.nl). Attribution is appreciated, not required.
+
+Poly Haven: Stone Brick Wall 001
+Source: https://polyhaven.com/a/stone_brick_wall_001
+Maps used: 1K diffuse and OpenGL normal map.
+License: Creative Commons Zero (CC0 1.0 Universal)
+License statement: https://polyhaven.com/license
+Copyright/attribution: Poly Haven and the asset's credited contributors.
+
+CC0 text: https://creativecommons.org/publicdomain/zero/1.0/legalcode
+
+Unity Engine and Universal Render Pipeline
+Unity is provided under Unity's applicable software terms, not this project's
+content licenses. Unity packages include their own LICENSE and notices files.
+The Unity Editor installer and its activation files are not distributed here.
+
+No Unity Asset Store or Mixamo assets are redistributed in this source tree.

@@ -1,0 +1,19 @@
+[
+  {
+    "name": "KenneyDungeon",
+    "source": "https://kenney.nl/assets/modular-dungeon-kit",
+    "license": "CC0-1.0",
+    "archiveSha256": "dd0aa6776db8912283cdca60161dee6a8839bbda3558eba2ea501419eb5b4623"
+  },
+  {
+    "name": "KenneyCharacters",
+    "source": "https://kenney.nl/assets/animated-characters-1",
+    "license": "CC0-1.0",
+    "archiveSha256": "ec3787de70fa2200256848d74201b10f6b6c3126594e9857bf989753312c2b84"
+  },
+  {
+    "name": "PolyHavenStone",
+    "source": "https://polyhaven.com/a/stone_brick_wall_001",
+    "license": "CC0-1.0"
+  }
+]

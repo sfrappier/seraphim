@@ -1,0 +1,22 @@
+using UnityEngine;
+
+namespace Seraphim
+{
+    public sealed class PrototypeModels : ScriptableObject
+    {
+        public GameObject character;
+        public GameObject dungeonGate;
+        public AnimationClip idle;
+        public AnimationClip run;
+        public RuntimeAnimatorController animatorController;
+        public Avatar humanoidAvatar;
+        public Texture2D characterTexture;
+        public Material stone;
+        public Material ivory;
+        public Material darkStone;
+        public Material gold;
+        public Material cyan;
+        public Material glowGold;
+        public Material glowCyan;
+    }
+}

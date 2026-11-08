@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6ed364365ca241d49ba2ee65c27dceb8, type: 3}
+  m_Name: PrototypeModels
+  m_EditorClassIdentifier: Assembly-CSharp::Seraphim.PrototypeModels
+  character: {fileID: 919132149155446097, guid: fd6107b59a9852142b0666f20ff556d7, type: 3}
+  dungeonGate: {fileID: 919132149155446097, guid: b41390941eb3f4b41b1943f957f7fb55, type: 3}
+  idle: {fileID: 7400000, guid: 2059c33517c048546a1deadb7aa24b2e, type: 2}
+  run: {fileID: 7400000, guid: 1b5ddec71f543bf4fba106d755ade5ac, type: 2}
+  animatorController: {fileID: 9100000, guid: 5d72bbfa013af3349a355913ec0212d2, type: 2}
+  humanoidAvatar: {fileID: 9000000, guid: fd6107b59a9852142b0666f20ff556d7, type: 3}
+  characterTexture: {fileID: 0}
+  stone: {fileID: 2100000, guid: 3201d3aac65bbf7488ee9d31fe00a0c1, type: 2}
+  ivory: {fileID: 2100000, guid: 7c1799d6cca2ed148a115a686edd0735, type: 2}
+  darkStone: {fileID: 2100000, guid: 566999b838eac1c4e9ae4cc025f76db7, type: 2}
+  gold: {fileID: 2100000, guid: 563f4a9a4535d3b4fa0a6d369e381b46, type: 2}
+  cyan: {fileID: 2100000, guid: 4bc90838188a4c64192e75ef6f8ec211, type: 2}
+  glowGold: {fileID: 2100000, guid: 7b66c5d46d3772c4699c8b6f3c5ca978, type: 2}
+  glowCyan: {fileID: 2100000, guid: 2df82a38717069740ad0b7ae62f9b5a2, type: 2}
