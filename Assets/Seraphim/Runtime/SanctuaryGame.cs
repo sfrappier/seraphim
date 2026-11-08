@@ -17,6 +17,8 @@ namespace Seraphim
         public SeraphimVitals Vitals { get; private set; }
         public SeraphimSkillBar Skills { get; private set; }
         public SanctuaryHud Hud { get; private set; }
+        public EnemyDirector Enemies { get; private set; }
+        public DivinePowers Powers { get; private set; }
         public List<Waystone> Waystones { get; } = new List<Waystone>();
         public int AttunedCount => Waystones.FindAll(s => s.IsAttuned).Count;
         readonly List<NavMeshBuildSource> navSources = new List<NavMeshBuildSource>();
@@ -31,13 +33,17 @@ namespace Seraphim
             QualitySettings.vSyncCount = 1;
             BuildSanctuary();
             BuildNavigation();
+            Enemies=new GameObject("Demon encounter").AddComponent<EnemyDirector>();
+            Enemies.transform.SetParent(transform,false);
             BuildPlayer();
             BuildCamera();
             Skills=gameObject.AddComponent<SeraphimSkillBar>();
             Skills.Initialize(this);
             Hud=gameObject.AddComponent<SanctuaryHud>();
             Hud.Initialize(this);
-            if (System.Array.Exists(System.Environment.GetCommandLineArgs(), a => a == "-seraphim-smoke"))
+            var smoke=System.Array.Exists(System.Environment.GetCommandLineArgs(), a => a == "-seraphim-smoke");
+            Enemies.Initialize(this,!smoke);
+            if (smoke)
                 gameObject.AddComponent<PrototypeSmokeTest>().Initialize(this);
         }
 
@@ -209,9 +215,10 @@ namespace Seraphim
             Vitals=player.AddComponent<SeraphimVitals>();
             Vitals.Initialize(settings);
             Ability = player.AddComponent<CelestialAbility>();
-            Ability.Initialize(settings,models.glowGold,models.celestialMote,Waystones,Vitals);
+            Ability.Initialize(settings,models.glowGold,models.celestialMote,Waystones,Vitals,Enemies);
             Ultimate=player.AddComponent<WordOfGodAbility>();
-            Ultimate.Initialize(settings,models,Vitals,Waystones);
+            Ultimate.Initialize(settings,models,Vitals,Waystones,Enemies);
+            Powers=player.AddComponent<DivinePowers>(); Powers.Initialize(this);
         }
 
         internal static void NormalizeModel(GameObject model, float targetSize, bool byHeight)

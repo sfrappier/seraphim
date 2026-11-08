@@ -22,12 +22,28 @@ MonoBehaviour:
   maxCameraDistance: 29
   worldSeed: 1407
   decorativeRubble: 28
-  pulseCooldown: 2.5
+  pulseCooldown: 0.6
   pulseRadius: 7
   maxLife: 100
   maxSpirit: 100
-  spiritRegeneration: 8
-  radianceSpiritCost: 15
+  spiritRegeneration: 12
+  radianceSpiritCost: 6
   ultimateCooldown: 30
   ultimateRadius: 18
   ultimateParticles: 1100
+  ultimateDuration: 15
+  ultimatePulseInterval: 1
+  ultimateDamage: 16
+  radianceDamage: 24
+  lanceCooldown: 1.8
+  lanceCost: 12
+  lanceDamage: 55
+  chainCooldown: 3
+  chainCost: 18
+  chainDamage: 36
+  infernoCooldown: 4.5
+  infernoCost: 22
+  infernoDamage: 35
+  enemyLimit: 8
+  initialEnemies: 5
+  enemySpawnInterval: 3.5

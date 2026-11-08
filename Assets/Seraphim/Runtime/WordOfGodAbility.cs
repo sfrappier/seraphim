@@ -9,7 +9,7 @@ namespace Seraphim
     {
         public enum Phase { Ready,Charging,Revelation,Ascended,Fading }
         const float ChargeTime=1;
-        const float VisualDuration=5.2f;
+        const float FadeTime=.8f;
         SanctuarySettings settings;
         SeraphimVitals vitals;
         SeraphimWings wings;
@@ -32,17 +32,24 @@ namespace Seraphim
         Mesh beamMesh;
         float readyAt,startedAt;
         bool revealed;
+        EnemyDirector enemies;
+        float nextPulseAt;
         float chargeEmission,risingEmission;
         public int CastCount { get; private set; }
+        public int PulseCount { get; private set; }
         public bool IsActive { get; private set; }
         public float VisualPower { get; private set; }
         public Phase Stage { get; private set; }
         public float CooldownRemaining => Mathf.Max(0,readyAt-Time.time);
         public bool CanCast => !IsActive && CooldownRemaining<=0;
         public float ChargeProgress => IsActive?Mathf.Clamp01((Time.time-startedAt)/ChargeTime):0;
+        public float ActiveRemaining => IsActive?Mathf.Clamp(startedAt+ChargeTime+settings.ultimateDuration-Time.time,0,settings.ultimateDuration):0;
+        public float Elapsed => IsActive?Time.time-startedAt:0;
+        public Vector3 EffectPosition => effectRoot!=null?effectRoot.transform.position:transform.position;
 
-        public void Initialize(SanctuarySettings config,PrototypeModels art,SeraphimVitals resources,List<Waystone> waystones)
+        public void Initialize(SanctuarySettings config,PrototypeModels art,SeraphimVitals resources,List<Waystone> waystones,EnemyDirector director)
         {
+            enemies=director;
             settings=config;
             vitals=resources;
             stones=waystones;
@@ -157,6 +164,7 @@ namespace Seraphim
             startedAt=Time.time;
             IsActive=true;
             revealed=false;
+            PulseCount=0;
             chargeEmission=risingEmission=0;
             Stage=Phase.Charging;
             CastCount++;
@@ -183,25 +191,38 @@ namespace Seraphim
             var camera=Camera.main.GetComponent<SanctuaryCamera>();
             if (camera!=null) camera.Impact();
             audioSource.PlayOneShot(chord);
+            Pulse();
+            nextPulseAt=startedAt+ChargeTime+settings.ultimatePulseInterval;
+        }
+
+        void Pulse()
+        {
+            PulseCount++;
+            enemies.Radial(transform.position,settings.ultimateRadius,settings.ultimateDamage,DivineDamage.WordOfGod,null,.35f,.15f);
+            if (PulseCount>1) burstMotes.Emit(100);
+            foreach (var stone in stones) if (Vector3.Distance(transform.position,stone.transform.position)<=settings.ultimateRadius) stone.Attune();
         }
 
         void Update()
         {
             if (!IsActive) return;
             var age=Time.time-startedAt;
-            if (age>=VisualDuration) { RestoreForm(); return; }
+            var activeEnd=ChargeTime+settings.ultimateDuration;
+            if (age>=activeEnd+FadeTime) { RestoreForm(); return; }
             var charge=Mathf.Clamp01(age/ChargeTime);
             var after=Mathf.Max(0,age-ChargeTime);
             if (!revealed && age>=ChargeTime) Reveal();
-            Stage=age<ChargeTime?Phase.Charging:age<1.45f?Phase.Revelation:age<3.8f?Phase.Ascended:Phase.Fading;
-            VisualPower=age<ChargeTime?Mathf.SmoothStep(0,.65f,charge):Mathf.SmoothStep(1,0,Mathf.Clamp01((age-3.8f)/1.4f));
-            if (!revealed) effectRoot.transform.position=transform.position;
+            if (revealed) while (Time.time>=nextPulseAt && nextPulseAt<startedAt+activeEnd-.01f) { Pulse(); nextPulseAt+=settings.ultimatePulseInterval; }
+            Stage=age<ChargeTime?Phase.Charging:age<1.45f?Phase.Revelation:age<activeEnd?Phase.Ascended:Phase.Fading;
+            VisualPower=age<ChargeTime?Mathf.SmoothStep(0,.65f,charge):Mathf.SmoothStep(1,0,Mathf.Clamp01((age-activeEnd)/FadeTime));
+            effectRoot.transform.position=transform.position;
             wings.Ascension=VisualPower;
             visual.localPosition=originalVisualPosition+Vector3.up*(VisualPower*.42f);
             ascendedMaterial.SetColor("_EmissionColor",new Color(1,.72f,.28f)*(1+VisualPower*4));
             chargeSphere.gameObject.SetActive(!revealed);
             chargeSphere.localScale=Vector3.one*(.2f+charge*.8f);
-            var revealFade=revealed?Mathf.Clamp01(1-after/4.2f):charge*.15f;
+            var rhythm=.65f+.35f*Mathf.Cos(after*Mathf.PI*2/settings.ultimatePulseInterval);
+            var revealFade=revealed?VisualPower*rhythm:charge*.15f;
             beam.localScale=new Vector3(Mathf.Lerp(.1f,1.3f,VisualPower),revealed?1:charge*.65f,Mathf.Lerp(.1f,1.3f,VisualPower));
             var flash=revealed?Mathf.Exp(-after*5):0;
             heavenLight.intensity=VisualPower*10+flash*14;
@@ -211,8 +232,9 @@ namespace Seraphim
             if (followCamera!=null) followCamera.DivinePower=VisualPower;
             for (var i=0;i<rings.Count;i++)
             {
-                var radius=i<2 ? Mathf.Lerp(.8f,5.2f,charge) : revealed?Mathf.Lerp(1,settings.ultimateRadius,Mathf.Clamp01(after/(1.1f+(i-2)*.35f))):.3f;
-                var alpha=i<2 ? VisualPower*.8f : revealed?Mathf.Clamp01(1-after/(1.1f+(i-2)*.35f)):.0f;
+                var wave=Mathf.Repeat(after/settings.ultimatePulseInterval+(i-2)/3f,1);
+                var radius=i<2 ? Mathf.Lerp(.8f,5.2f,charge) : revealed?Mathf.Lerp(1,settings.ultimateRadius,wave):.3f;
+                var alpha=i<2 ? VisualPower*.8f : revealed?(1-wave)*VisualPower*.7f:0;
                 rings[i].transform.localScale=Vector3.one*radius;
                 rings[i].transform.localRotation=Quaternion.Euler(0,(i%2==0?1:-1)*age*20,0);
                 rings[i].startColor=rings[i].endColor=new Color(1,1,1,alpha);
@@ -224,13 +246,20 @@ namespace Seraphim
                 var count=Mathf.FloorToInt(chargeEmission);
                 if (count>0) { chargeMotes.Emit(count); chargeEmission-=count; }
             }
-            if (revealed && age<3.8f)
+            if (revealed && age<activeEnd)
             {
-                risingEmission+=Time.deltaTime*180;
+                risingEmission+=Time.deltaTime*100;
                 var count=Mathf.FloorToInt(risingEmission);
                 if (count>0) { ascendingMotes.Emit(count); risingEmission-=count; }
             }
         }
+
+        void LateUpdate()
+        {
+            if (IsActive) effectRoot.transform.position=transform.position;
+        }
+
+        public void Cancel() { if (IsActive) RestoreForm(); }
 
         void RestoreForm()
         {

@@ -9,7 +9,7 @@ using UnityEngine.Rendering.Universal;
 
 namespace Seraphim
 {
-    public sealed class PrototypeSmokeTest : MonoBehaviour
+    public sealed partial class PrototypeSmokeTest : MonoBehaviour
     {
         [Serializable] sealed class Report
         {
@@ -40,6 +40,12 @@ namespace Seraphim
             game.Player.InputEnabled = false;
             game.Skills.InputEnabled=false;
             yield return new WaitForSeconds(1);
+            if (Array.Exists(Environment.GetCommandLineArgs(),a=>a=="-seraphim-combat-only"))
+            {
+                yield return CombatChecks();
+                SaveReport();
+                yield break;
+            }
             Check(game.Player.Agent.isOnNavMesh,"Player spawns on navigation mesh");
             Check(game.Player.GetComponent<SeraphimWings>().WingCount == 6,"Six animated wings exist");
             Check(Camera.main != null && Camera.main.transform.position.y>8,"Overhead camera initialized");
@@ -61,12 +67,13 @@ namespace Seraphim
             Check(game.Hud.HudCanvas.worldCamera==Camera.main,"HUD renders with the gameplay camera");
             Check(SanctuaryHud.BlocksScreenPoint(new Vector2(Screen.width*.5f,60))
                 && !game.Player.MoveFromScreen(new Vector2(Screen.width*.5f,60)),"HUD clicks cannot issue movement commands");
-            Check(!game.Skills.TryUse(4),"Unassigned skill slots cannot cast");
+            Check(!game.Skills.TryUse(5),"Unassigned skill slots cannot cast");
             var keyboardStart=game.Player.transform.position;
             Check(game.Player.MoveTo(keyboardStart+Vector3.right*5),"Click destination accepted before WASD takeover");
             var keyboardUntil=Time.time+.55f;
             while (Time.time<keyboardUntil) { game.Player.MoveWithKeyboard(Vector2.up,Time.deltaTime); yield return null; }
             var straightDistance=Vector3.Distance(keyboardStart,game.Player.transform.position);
+            Debug.Log($"SERAPHIM_KEYBOARD: distance={straightDistance:F2}; frame={Time.deltaTime:F3}s; speed={game.Player.Agent.speed:F2}");
             Check(straightDistance>2,"WASD steering physically moves the character");
             Check(game.Player.IsKeyboardMoving && !game.Player.HasDestination,"WASD cancels the previous click path");
             var flatForward=Camera.main.transform.forward; flatForward.y=0; flatForward.Normalize();
@@ -140,21 +147,41 @@ namespace Seraphim
             Check(game.Player.transform.Find("Character visual").localPosition.y>originalVisualHeight+.3f
                 && Camera.main.GetComponent<SanctuaryCamera>().DivinePower>.9f,"Ascended form levitates and changes the camera presentation");
             yield return Capture("04-word-of-god.png");
-            var finishDeadline=Time.realtimeSinceStartup+7;
+            var travelingStart=game.Player.transform.position;
+            var movingUntil=Time.time+1.2f;
+            while (Time.time<movingUntil) { game.Player.MoveWithKeyboard(Vector2.right,Time.deltaTime); yield return null; }
+            game.Player.StopKeyboardMovement(); yield return null;
+            yield return new WaitForEndOfFrame();
+            Debug.Log($"SERAPHIM_MOVING_AURA: distance={Vector3.Distance(travelingStart,game.Player.transform.position):F2}; offset={Vector3.Distance(game.Ultimate.EffectPosition,game.Player.transform.position):F3}");
+            Check(Vector3.Distance(travelingStart,game.Player.transform.position)>4
+                && Vector3.Distance(game.Ultimate.EffectPosition,game.Player.transform.position)<.35f,"Word of God travels with the moving seraphim");
+            var pulseTarget=game.Enemies.SpawnAt(new Vector3(17,0,-15),DemonKind.ObsidianGuard,true);
+            Check(pulseTarget!=null && Vector3.Distance(pulseTarget.transform.position,travelingStart)>game.settings.ultimateRadius,"A demon can enter the aura beyond its original casting position");
+            yield return new WaitForSeconds(1.15f);
+            Check(pulseTarget!=null && pulseTarget.Health<pulseTarget.MaxHealth && pulseTarget.LastDamageSource==DivineDamage.WordOfGod,"Traveling ultimate pulses damage demons at the new location");
+            Check(game.Ultimate.IsActive && game.Ultimate.PulseCount>=3,"Ultimate repeatedly pulses while the cooldown is running");
+            var finishDeadline=Time.realtimeSinceStartup+game.settings.ultimateDuration+4;
             while (game.Ultimate.IsActive && Time.realtimeSinceStartup<finishDeadline) yield return null;
             Check(!game.Ultimate.IsActive && avatarRenderers[0].sharedMaterial==originalMaterial
                 && game.Player.GetComponent<SeraphimWings>().Ascension==0,"Ultimate restores the original character materials and wings");
             Check(Mathf.Abs(game.Player.transform.Find("Character visual").localPosition.y-originalVisualHeight)<.01f
                 && Camera.main.GetComponent<SanctuaryCamera>().DivinePower==0,"Levitating model and camera return to normal");
-            Check(!game.Ultimate.CanCast && game.Ultimate.CooldownRemaining>20,"Ending the visual effect does not bypass the cooldown");
+            Check(!game.Ultimate.CanCast && game.Ultimate.CooldownRemaining>10,"Ending the visual effect does not bypass the cooldown");
+            Check(game.Ultimate.PulseCount==15 && Time.time-ultimateStarted>=16,"Ultimate delivers fifteen pulses over fifteen active seconds");
             yield return Capture("05-ultimate-recovery.png");
             var rechargeDeadline=Time.realtimeSinceStartup+35;
             while (game.Ultimate.CooldownRemaining>0 && Time.realtimeSinceStartup<rechargeDeadline) yield return null;
             Check(game.Ultimate.CanCast && Time.time-ultimateStarted>=29.95f,"Ultimate becomes ready after the full 30 seconds");
             Check(game.Skills.TryUse(1) && game.Ultimate.CastCount==2,"Ultimate effects can be reused after recharge");
-            finishDeadline=Time.realtimeSinceStartup+7;
+            finishDeadline=Time.realtimeSinceStartup+game.settings.ultimateDuration+4;
             while (game.Ultimate.IsActive && Time.realtimeSinceStartup<finishDeadline) yield return null;
             Check(!game.Ultimate.IsActive && avatarRenderers[0].sharedMaterial==originalMaterial,"A second ultimate also restores the original character");
+            yield return CombatChecks();
+            SaveReport();
+        }
+
+        void SaveReport()
+        {
             var report = new Report { success=failures.Count==0,engine=Application.unityVersion,avatarHeight=avatarHeight,passed=passed.ToArray(),failures=failures.ToArray() };
             File.WriteAllText(Path.Combine(output,"results.json"),JsonUtility.ToJson(report,true));
             Debug.Log($"SERAPHIM_SMOKE: {passed.Count} passed; {failures.Count} failed. Results: {output}");

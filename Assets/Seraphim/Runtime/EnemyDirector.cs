@@ -1,0 +1,145 @@
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.AI;
+
+namespace Seraphim
+{
+    public sealed class EnemyDirector : MonoBehaviour
+    {
+        readonly List<DemonEnemy> pool=new List<DemonEnemy>();
+        System.Random random;
+        int serial;
+        float nextSpawn;
+        public SanctuaryGame Game { get; private set; }
+        public Material[] BodyMaterials { get; private set; }
+        public Material[] EyeMaterials { get; private set; }
+        public Material HornMaterial { get; private set; }
+        public Mesh ConeMesh { get; private set; }
+        public bool SpawnAutomatic { get; set; }
+        public int KillCount { get; private set; }
+        public float TotalDamage { get; private set; }
+        public float LastRecoveryAt { get; private set; }=-10;
+        public IReadOnlyList<DemonEnemy> Enemies => pool;
+        public int ActiveCount { get { var count=0; foreach (var enemy in pool) if (enemy.IsAlive) count++; return count; } }
+
+        public void Initialize(SanctuaryGame game,bool spawn)
+        {
+            Game=game; random=new System.Random(); ConeMesh=CombatArt.CreateCone();
+            BodyMaterials=new Material[3]; EyeMaterials=new Material[3];
+            var tones=new[]{new Color(.18f,.08f,.075f),new Color(.13f,.08f,.23f),new Color(.09f,.13f,.16f)};
+            var eyes=new[]{new Color(3,.7f,.12f),new Color(1.6f,.3f,3),new Color(3,1.5f,.15f)};
+            for (var i=0;i<3;i++)
+            {
+                BodyMaterials[i]=new Material(game.models.ivory) {name="Demon obsidian "+i};
+                BodyMaterials[i].SetColor("_BaseColor",tones[i]); BodyMaterials[i].SetFloat("_Metallic",.3f);
+                BodyMaterials[i].EnableKeyword("_EMISSION"); BodyMaterials[i].SetColor("_EmissionColor",tones[i]*.25f);
+                EyeMaterials[i]=new Material(game.models.celestialMote); EyeMaterials[i].SetColor("_BaseColor",eyes[i]);
+            }
+            HornMaterial=new Material(game.models.ivory); HornMaterial.SetColor("_BaseColor",new Color(.32f,.29f,.25f));
+            SpawnAutomatic=spawn;
+            if (spawn) Populate();
+            nextSpawn=Time.time+game.settings.enemySpawnInterval;
+        }
+        public void Populate()
+        {
+            for (var i=0;i<Mathf.Min(Game.settings.initialEnemies,Game.settings.enemyLimit);i++) SpawnRandom((DemonKind)(i%3));
+        }
+        public DemonEnemy SpawnRandom(DemonKind? preferred=null)
+        {
+            if (ActiveCount>=Game.settings.enemyLimit) return null;
+            for (var attempt=0;attempt<30;attempt++)
+            {
+                var angle=(float)random.NextDouble()*Mathf.PI*2;
+                var radius=9+(float)random.NextDouble()*8;
+                var candidate=Game.Player.transform.position+new Vector3(Mathf.Cos(angle),0,Mathf.Sin(angle))*radius;
+                if (Mathf.Abs(candidate.x)>18.5f || Mathf.Abs(candidate.z)>16.5f) continue;
+                if (!NavMesh.SamplePosition(candidate,out var sample,1,NavMesh.AllAreas)) continue;
+                var path=new NavMeshPath();
+                if (!NavMesh.CalculatePath(sample.position,Game.Player.transform.position,NavMesh.AllAreas,path) || path.status!=NavMeshPathStatus.PathComplete) continue;
+                return SpawnAt(sample.position,preferred??(DemonKind)random.Next(3));
+            }
+            return null;
+        }
+        public DemonEnemy SpawnAt(Vector3 point,DemonKind kind,bool passive=false)
+        {
+            if (Game==null || ActiveCount>=Game.settings.enemyLimit || !NavMesh.SamplePosition(point,out var sample,.8f,NavMesh.AllAreas)) return null;
+            DemonEnemy enemy=null;
+            foreach (var item in pool) if (!item.gameObject.activeSelf && item.Kind==kind) { enemy=item; break; }
+            if (enemy==null)
+            {
+                if (pool.Count>=Game.settings.enemyLimit+6) return null;
+                enemy=new GameObject("Demon · "+kind).AddComponent<DemonEnemy>(); enemy.transform.SetParent(transform,false);
+                enemy.Initialize(this,kind); pool.Add(enemy);
+            }
+            return enemy.Activate(sample.position,++serial,passive)?enemy:null;
+        }
+        public void DespawnAll() { foreach (var enemy in pool) enemy.ReturnToPool(); }
+        public void RecordDamage(float amount) { TotalDamage+=amount; }
+        public void RecordKill() { KillCount++; }
+        public DemonEnemy Nearest(Vector3 origin,float range,HashSet<int> excluded=null)
+        {
+            DemonEnemy closest=null; var best=range*range;
+            foreach (var enemy in pool)
+            {
+                if (!enemy.IsAlive || (excluded!=null && excluded.Contains(enemy.TargetId))) continue;
+                var distance=(enemy.transform.position-origin).sqrMagnitude;
+                if (distance<best) { best=distance; closest=enemy; }
+            }
+            return closest;
+        }
+        public DemonEnemy AimTarget(Vector3 origin,Vector3 aim,float range)
+        {
+            DemonEnemy closest=null; var best=float.MaxValue;
+            foreach (var enemy in pool)
+            {
+                if (!enemy.IsAlive || Vector3.Distance(origin,enemy.transform.position)>range) continue;
+                var distance=(enemy.transform.position-aim).sqrMagnitude;
+                if (distance<best) { closest=enemy; best=distance; }
+            }
+            return closest;
+        }
+        public int Radial(Vector3 origin,float radius,float damage,DivineDamage source,HashSet<int> hit=null,float push=0,float stun=0,float burn=0)
+        {
+            var count=0;
+            foreach (var enemy in pool)
+            {
+                if (!enemy.IsAlive || (hit!=null && hit.Contains(enemy.TargetId))) continue;
+                var offset=enemy.transform.position-origin; offset.y=0;
+                if (offset.sqrMagnitude>(radius+.35f)*(radius+.35f)) continue;
+                hit?.Add(enemy.TargetId);
+                enemy.Hit(damage,source,origin,push,stun,burn); count++;
+            }
+            return count;
+        }
+        public int Segment(Vector3 from,Vector3 to,float radius,float damage,HashSet<int> hit)
+        {
+            var count=0;
+            foreach (var enemy in pool)
+            {
+                if (!enemy.IsAlive || hit.Contains(enemy.TargetId) || CombatArt.SegmentDistance(enemy.transform.position,from,to)>radius+.35f) continue;
+                hit.Add(enemy.TargetId); enemy.Hit(damage,DivineDamage.Lance,from,1.2f,.18f); count++;
+            }
+            return count;
+        }
+        void Update()
+        {
+            if (Game==null) return;
+            if (Game.Vitals.Life<=0)
+            {
+                DespawnAll(); Game.Ultimate.Cancel(); Game.Player.StopKeyboardMovement();
+                Game.Player.Agent.ResetPath(); Game.Player.Agent.Warp(Game.settings.spawnPoint);
+                Game.Vitals.Revive(); LastRecoveryAt=Time.time; nextSpawn=Time.time+4;
+            }
+            if (!SpawnAutomatic || Time.time<nextSpawn) return;
+            nextSpawn=Time.time+Game.settings.enemySpawnInterval*(.85f+(float)random.NextDouble()*.3f);
+            SpawnRandom();
+        }
+        void OnDestroy()
+        {
+            if (BodyMaterials!=null) foreach (var mat in BodyMaterials) Destroy(mat);
+            if (EyeMaterials!=null) foreach (var mat in EyeMaterials) Destroy(mat);
+            if (HornMaterial!=null) Destroy(HornMaterial);
+            if (ConeMesh!=null) Destroy(ConeMesh);
+        }
+    }
+}

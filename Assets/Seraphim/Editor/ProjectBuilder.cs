@@ -59,7 +59,7 @@ namespace Seraphim.Editor
         {
             PlayerSettings.companyName = "Seraphim";
             PlayerSettings.productName = "Seraphim";
-            PlayerSettings.bundleVersion = "0.2.0";
+            PlayerSettings.bundleVersion = "0.3.0";
             PlayerSettings.colorSpace = ColorSpace.Linear;
             PlayerSettings.defaultScreenWidth = 1600;
             PlayerSettings.defaultScreenHeight = 900;
@@ -76,6 +76,7 @@ namespace Seraphim.Editor
             playerSettings.ApplyModifiedPropertiesWithoutUndo();
             var tags = new SerializedObject(AssetDatabase.LoadAllAssetsAtPath("ProjectSettings/TagManager.asset")[0]);
             tags.FindProperty("layers").GetArrayElementAtIndex(8).stringValue = "Walkable";
+            tags.FindProperty("layers").GetArrayElementAtIndex(9).stringValue = "Demon";
             tags.ApplyModifiedPropertiesWithoutUndo();
         }
 
@@ -253,6 +254,8 @@ namespace Seraphim.Editor
             if (game.models.hudDisplayFont==null || game.models.celestialMote==null) throw new BuildFailedException("HUD font or particle material is missing.");
             if (game.settings.ultimateCooldown!=30 || game.settings.maxSpirit<=0 || game.settings.maxLife<=0)
                 throw new BuildFailedException("Life, Spirit, or Word of God configuration is invalid.");
+            if (game.settings.ultimateDuration!=15 || game.settings.pulseCooldown>.75f || game.settings.enemyLimit>12 || game.settings.enemyLimit<1)
+                throw new BuildFailedException("Pulse duration, Radiance cooldown, or demon population configuration is invalid.");
             var shaders = new[] {Shader.Find("Universal Render Pipeline/Lit"),Shader.Find("Seraphim/Celestial Glow"),Shader.Find("Seraphim/Celestial Mote"),Shader.Find("UI/Default")};
             if (shaders.Any(s => s == null || UnityEditor.ShaderUtil.ShaderHasError(s))) throw new BuildFailedException("A required shader failed to compile.");
             Debug.Log("SERAPHIM_VALIDATION: scene, settings, imported models, animations, shaders and renderer passed.");

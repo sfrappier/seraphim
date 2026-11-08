@@ -9,6 +9,7 @@ namespace Seraphim
         {
             public LineRenderer ring;
             public float age;
+            public readonly HashSet<int> hit=new HashSet<int>();
         }
         readonly List<Pulse> pulses = new List<Pulse>();
         readonly List<Waystone> stones = new List<Waystone>();
@@ -17,11 +18,13 @@ namespace Seraphim
         ParticleSystem sparks;
         float readyAt;
         SeraphimVitals vitals;
+        EnemyDirector enemies;
         public int CastCount { get; private set; }
         public float CooldownRemaining => Mathf.Max(0, readyAt - Time.time);
 
-        public void Initialize(SanctuarySettings config, Material effect,Material particleMaterial,List<Waystone> waystones,SeraphimVitals resources)
+        public void Initialize(SanctuarySettings config, Material effect,Material particleMaterial,List<Waystone> waystones,SeraphimVitals resources,EnemyDirector director)
         {
+            enemies=director;
             vitals=resources;
             settings = config;
             glow = effect;
@@ -66,6 +69,7 @@ namespace Seraphim
             pulse.ring.gameObject.SetActive(true);
             pulse.ring.transform.position = transform.position + Vector3.up * .12f;
             pulse.age = 0;
+            pulse.hit.Clear();
             sparks.Emit(120);
             foreach (var stone in stones)
                 if (Vector3.Distance(transform.position, stone.transform.position) <= settings.pulseRadius) stone.Attune();
@@ -80,6 +84,7 @@ namespace Seraphim
                 pulse.age += Time.deltaTime;
                 var t = pulse.age / .85f;
                 pulse.ring.transform.localScale = Vector3.one * Mathf.Lerp(.3f, settings.pulseRadius, t);
+                enemies.Radial(pulse.ring.transform.position,Mathf.Lerp(.3f,settings.pulseRadius,Mathf.Clamp01(t)),settings.radianceDamage,DivineDamage.Radiance,pulse.hit,.7f,.12f);
                 pulse.ring.startColor = pulse.ring.endColor = new Color(1,.85f,.4f, Mathf.Clamp01(1-t));
                 if (t >= 1) pulse.ring.gameObject.SetActive(false);
             }

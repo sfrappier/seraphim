@@ -80,7 +80,9 @@ namespace Seraphim
             HasDestination=false;
             markerLife=0;
             var before=transform.position;
-            var movement=direction*Agent.speed*Mathf.Min(deltaTime,.1f);
+            // Sweep the complete frame displacement so heavy effects do not
+            // slow keyboard movement when a frame takes more than 100 ms.
+            var movement=direction*Agent.speed*deltaTime;
             if (Agent.Raycast(before+movement,out var edge))
             {
                 movement=edge.position-before;
@@ -88,7 +90,7 @@ namespace Seraphim
                 if (movement.magnitude>.025f) movement-=movement.normalized*.025f;
                 else movement=Vector3.zero;
                 // Slide along the boundary while respecting the baked agent radius.
-                var slide=Vector3.ProjectOnPlane(direction,edge.normal)*Agent.speed*Mathf.Min(deltaTime,.1f);
+                var slide=Vector3.ProjectOnPlane(direction,edge.normal)*Agent.speed*deltaTime;
                 if (slide.sqrMagnitude>movement.sqrMagnitude && !Agent.Raycast(before+slide,out _)) movement=slide;
             }
             Agent.Move(movement);

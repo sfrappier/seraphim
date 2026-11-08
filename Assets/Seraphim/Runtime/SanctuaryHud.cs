@@ -13,7 +13,7 @@ namespace Seraphim
         CelestialOrbGraphic life,spirit;
         readonly CelestialSkillGraphic[] icons=new CelestialSkillGraphic[6];
         readonly Text[] timers=new Text[6];
-        Text lifeValue,spiritValue,objectiveText,ultimatePhase;
+        Text lifeValue,spiritValue,objectiveText,ultimatePhase,combatStatus,buffStatus;
         CanvasGroup ultimateBanner;
         Font displayFont,bodyFont;
         float nextRefresh;
@@ -81,6 +81,9 @@ namespace Seraphim
             Label(canvas.transform,"Title","SERAPHIM",new Vector2(0,1),new Vector2(230,-37),new Vector2(380,60),32,gold,true,TextAnchor.MiddleLeft);
             Label(canvas.transform,"Location","SANCTUARY OF DAWN",new Vector2(0,1),new Vector2(217,-73),new Vector2(350,25),12,ivory,false,TextAnchor.MiddleLeft);
             Label(canvas.transform,"Movement hint","WASD / MOUSE    ·    SCROLL TO ZOOM",new Vector2(0,1),new Vector2(262,-99),new Vector2(440,20),11,muted,false,TextAnchor.MiddleLeft);
+            combatStatus=Label(canvas.transform,"Encounter","",new Vector2(0,1),new Vector2(262,-124),new Vector2(440,22),13,ivory,false,TextAnchor.MiddleLeft);
+            Label(canvas.transform,"Aim hint","AIM SPEARS AND LIGHTNING WITH THE MOUSE",new Vector2(0,1),new Vector2(262,-147),new Vector2(440,20),10,muted,false,TextAnchor.MiddleLeft);
+            buffStatus=Label(canvas.transform,"Ascension duration","",new Vector2(.5f,1),new Vector2(0,-35),new Vector2(500,32),15,gold,true);
             objective=Node(canvas.transform,"Quest",new Vector2(1,1),new Vector2(-197,-57),new Vector2(350,90));
             var panel=objective.gameObject.AddComponent<Image>(); panel.color=new Color(.025f,.045f,.067f,.84f); panel.raycastTarget=false;
             Label(objective,"Quest title","THE FIRST LIGHT",new Vector2(.5f,.5f),new Vector2(0,22),new Vector2(320,25),14,gold,true);
@@ -104,9 +107,9 @@ namespace Seraphim
                 var image=hit.gameObject.AddComponent<Image>(); image.color=new Color(1,1,1,.005f);
                 var button=hit.gameObject.AddComponent<Button>(); button.targetGraphic=image; button.interactable=game.Skills.IsAssigned(i);
                 button.onClick.AddListener(()=>game.Skills.TryUse(slot));
-                Label(holder,"Key",(i+1).ToString(),new Vector2(.5f,.5f),new Vector2(-35,32),new Vector2(22,22),13,i<2?ivory:muted);
-                Label(holder,"Skill name",game.Skills.Name(i),new Vector2(.5f,.5f),new Vector2(0,-58),new Vector2(112,22),12,i<2?ivory:muted);
-                Label(holder,"Cost",i==0?"15 SPIRIT":i==1?"ULTIMATE":"—",new Vector2(.5f,.5f),new Vector2(0,-33),new Vector2(96,16),9,i==1?gold:muted);
+                Label(holder,"Key",(i+1).ToString(),new Vector2(.5f,.5f),new Vector2(-35,32),new Vector2(22,22),13,game.Skills.IsAssigned(i)?ivory:muted);
+                Label(holder,"Skill name",game.Skills.Name(i),new Vector2(.5f,.5f),new Vector2(0,-58),new Vector2(112,22),12,game.Skills.IsAssigned(i)?ivory:muted);
+                Label(holder,"Cost",game.Skills.CostLabel(i),new Vector2(.5f,.5f),new Vector2(0,-33),new Vector2(96,16),9,i==1?gold:muted);
                 timers[i]=Label(holder,"Cooldown","",new Vector2(.5f,.5f),Vector2.zero,new Vector2(90,40),24,ivory);
             }
             var left=Node(bottom,"Life orb",new Vector2(0,0),new Vector2(112,103),new Vector2(182,182));
@@ -117,7 +120,7 @@ namespace Seraphim
             spirit=right.gameObject.AddComponent<CelestialOrbGraphic>(); spirit.spirit=true; spirit.raycastTarget=false;
             Label(right,"Spirit label","SPIRIT",new Vector2(.5f,.5f),new Vector2(0,93),new Vector2(150,25),14,new Color(.64f,.85f,.96f),true);
             spiritValue=Label(right,"Spirit amount","",new Vector2(.5f,.5f),new Vector2(0,-88),new Vector2(150,25),14,ivory);
-            Label(bottom,"Control hint","1  RADIANCE  /  SPACE  /  RMB          2  WORD OF GOD",new Vector2(.5f,0),new Vector2(0,10),new Vector2(800,18),10,muted);
+            Label(bottom,"Control hint","1  RADIANCE     2  WORD OF GOD     3  LANCE     4  CHAIN     5  INFERNO",new Vector2(.5f,0),new Vector2(0,10),new Vector2(800,18),10,muted);
         }
 
         void BuildUltimateBanner()
@@ -135,13 +138,15 @@ namespace Seraphim
             lifeValue.text=$"{Mathf.CeilToInt(game.Vitals.Life)} / {Mathf.CeilToInt(game.Vitals.MaxLife)}";
             spiritValue.text=$"{Mathf.CeilToInt(game.Vitals.Spirit)} / {Mathf.CeilToInt(game.Vitals.MaxSpirit)}";
             objectiveText.text=game.AttunedCount==3?"The sanctuary awakens":"Awaken the waystones     "+game.AttunedCount+" / 3";
+            combatStatus.text=Time.time-game.Enemies.LastRecoveryAt<3?"Grace restores you. The demons disperse.":"DEMONS  "+game.Enemies.ActiveCount+" / "+game.settings.enemyLimit+"       BANISHED  "+game.Enemies.KillCount;
+            buffStatus.text=game.Ultimate.IsActive && game.Ultimate.Stage!=WordOfGodAbility.Phase.Charging?"WORD OF GOD  ·  "+game.Ultimate.ActiveRemaining.ToString("0.0")+"s":"";
             for (var i=0;i<icons.Length;i++)
             {
                 var remaining=game.Skills.Remaining(i);
                 icons[i].Cooldown=remaining/game.Skills.Duration(i);
                 timers[i].text=remaining<=0?"":remaining.ToString(remaining>=10?"0":"0.0");
             }
-            ultimateBanner.alpha=game.Ultimate.IsActive?Mathf.Min(1,game.Ultimate.VisualPower*2):0;
+            ultimateBanner.alpha=game.Ultimate.IsActive?Mathf.Min(1,game.Ultimate.VisualPower*2)*Mathf.Clamp01(1-(game.Ultimate.Elapsed-2.2f)/.6f):0;
             ultimatePhase.text=game.Ultimate.Stage==WordOfGodAbility.Phase.Charging?"GATHERING THE LIGHT":"LET THERE BE LIGHT";
         }
         void Update()
