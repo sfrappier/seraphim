@@ -38,6 +38,7 @@ namespace Seraphim
             output = Path.Combine(Application.dataPath,"..","SmokeTests");
             Directory.CreateDirectory(output);
             game.Player.InputEnabled = false;
+            game.Skills.InputEnabled=false;
             yield return new WaitForSeconds(1);
             Check(game.Player.Agent.isOnNavMesh,"Player spawns on navigation mesh");
             Check(game.Player.GetComponent<SeraphimWings>().WingCount == 6,"Six animated wings exist");
@@ -56,6 +57,39 @@ namespace Seraphim
                 Debug.Log("SERAPHIM_AVATAR_BOUNDS: "+bounds);
             }
             yield return Capture("01-sanctuary.png");
+            Check(game.Hud.HasResourceOrbs && game.Hud.SkillSlotCount==6,"Angelic HUD has Life and Spirit orbs and six numbered slots");
+            Check(game.Hud.HudCanvas.worldCamera==Camera.main,"HUD renders with the gameplay camera");
+            Check(SanctuaryHud.BlocksScreenPoint(new Vector2(Screen.width*.5f,60))
+                && !game.Player.MoveFromScreen(new Vector2(Screen.width*.5f,60)),"HUD clicks cannot issue movement commands");
+            Check(!game.Skills.TryUse(4),"Unassigned skill slots cannot cast");
+            var keyboardStart=game.Player.transform.position;
+            Check(game.Player.MoveTo(keyboardStart+Vector3.right*5),"Click destination accepted before WASD takeover");
+            var keyboardUntil=Time.time+.55f;
+            while (Time.time<keyboardUntil) { game.Player.MoveWithKeyboard(Vector2.up,Time.deltaTime); yield return null; }
+            var straightDistance=Vector3.Distance(keyboardStart,game.Player.transform.position);
+            Check(straightDistance>2,"WASD steering physically moves the character");
+            Check(game.Player.IsKeyboardMoving && !game.Player.HasDestination,"WASD cancels the previous click path");
+            var flatForward=Camera.main.transform.forward; flatForward.y=0; flatForward.Normalize();
+            Check(Vector3.Dot((game.Player.transform.position-keyboardStart).normalized,flatForward)>.95f,"W moves toward the top of the camera view");
+            var diagonalStart=game.Player.transform.position;
+            keyboardUntil=Time.time+.55f;
+            while (Time.time<keyboardUntil) { game.Player.MoveWithKeyboard(Vector2.one,Time.deltaTime); yield return null; }
+            var diagonalDistance=Vector3.Distance(diagonalStart,game.Player.transform.position);
+            Check(diagonalDistance<straightDistance*1.15f && diagonalDistance>straightDistance*.8f,"Diagonal WASD movement has no speed boost");
+            game.Player.StopKeyboardMovement();
+            var releasedAt=game.Player.transform.position;
+            yield return new WaitForSeconds(.25f);
+            Check(Vector3.Distance(releasedAt,game.Player.transform.position)<.12f,"Releasing WASD stops movement without resuming the old path");
+            game.Player.Agent.Warp(new Vector3(0,0,-1));
+            yield return null;
+            var right=Vector3.Cross(Vector3.up,flatForward);
+            var againstAltar=new Vector2(Vector3.Dot(Vector3.forward,right),Vector3.Dot(Vector3.forward,flatForward));
+            keyboardUntil=Time.time+.8f;
+            while (Time.time<keyboardUntil) { game.Player.MoveWithKeyboard(againstAltar,Time.deltaTime); yield return null; }
+            Check(game.Player.transform.position.z<1.1f && NavMesh.SamplePosition(game.Player.transform.position,out _,.15f,NavMesh.AllAreas),"WASD respects the altar and stays on navigable ground");
+            game.Player.StopKeyboardMovement();
+            game.Player.Agent.Warp(game.settings.spawnPoint);
+            yield return new WaitForSeconds(.6f);
             var start = game.Player.transform.position;
             var destination = new Vector3(6,0,-1);
             Check(game.Player.MoveFromScreen(Camera.main.WorldToScreenPoint(destination)),"Screen click raycast accepts reachable destination");
@@ -72,13 +106,55 @@ namespace Seraphim
             deadline = Time.realtimeSinceStartup+12;
             while (Vector3.Distance(game.Player.transform.position,nearStone)>.6f && Time.realtimeSinceStartup<deadline) yield return null;
             Check(Vector3.Distance(game.Player.transform.position,nearStone)<.6f,"Player reaches waystone");
-            Check(game.Ability.Cast(),"Radiance can be cast");
+            var spiritBefore=game.Vitals.Spirit;
+            Check(game.Skills.TryUse(0),"Slot 1 casts Radiance");
+            Check(Mathf.Abs(game.Vitals.Spirit-(spiritBefore-game.settings.radianceSpiritCost))<.1f,"Radiance spends Spirit");
             Check(!game.Ability.Cast(),"Ability cooldown prevents immediate recast");
             Check(stone.IsAttuned && game.AttunedCount==1,"Radiance attunes nearby waystone");
             yield return new WaitForSeconds(.18f);
             yield return Capture("02-radiance.png");
             yield return new WaitForSeconds(.7f);
             Check(File.Exists(Path.Combine(output,"01-sanctuary.png")),"Gameplay screenshot captured");
+            Check(game.Vitals.Spirit>spiritBefore-game.settings.radianceSpiritCost+4,"Spirit regenerates after casting");
+            game.Player.Agent.ResetPath();
+            game.Player.Agent.Warp(new Vector3(0,0,-4));
+            yield return new WaitForSeconds(.6f);
+            game.Vitals.TakeDamage(40);
+            game.Vitals.SpendSpirit(35);
+            var lifeBeforeUltimate=game.Vitals.Life;
+            var spiritBeforeUltimate=game.Vitals.Spirit;
+            var originalMaterial=avatarRenderers[0].sharedMaterial;
+            var originalVisualHeight=game.Player.transform.Find("Character visual").localPosition.y;
+            var ultimateStarted=Time.time;
+            Check(game.Skills.TryUse(1),"Slot 2 casts Word of God");
+            Check(game.Ultimate.CooldownRemaining>29.8f && game.Ultimate.CooldownRemaining<=30,"Word of God starts a 30-second cooldown");
+            Check(!game.Skills.TryUse(1),"Ultimate cannot be spammed while recharging");
+            yield return new WaitForSeconds(.65f);
+            Check(game.Ultimate.Stage==WordOfGodAbility.Phase.Charging,"Ultimate has a visible charge transition");
+            Check(game.Player.GetComponent<SeraphimWings>().Ascension>.2f && avatarRenderers[0].sharedMaterial!=originalMaterial,"Ultimate transforms the character and spreads its wings");
+            yield return Capture("03-word-of-god-charge.png");
+            yield return new WaitForSeconds(.65f);
+            Check(game.AttunedCount==3,"Word of God awakens waystones across its larger radius");
+            Check(Mathf.Abs(game.Vitals.Life-Mathf.Min(game.Vitals.MaxLife,lifeBeforeUltimate+25))<.1f
+                && game.Vitals.Spirit>spiritBeforeUltimate+30,"Ultimate restores Life and Spirit at revelation");
+            Check(game.Player.transform.Find("Character visual").localPosition.y>originalVisualHeight+.3f
+                && Camera.main.GetComponent<SanctuaryCamera>().DivinePower>.9f,"Ascended form levitates and changes the camera presentation");
+            yield return Capture("04-word-of-god.png");
+            var finishDeadline=Time.realtimeSinceStartup+7;
+            while (game.Ultimate.IsActive && Time.realtimeSinceStartup<finishDeadline) yield return null;
+            Check(!game.Ultimate.IsActive && avatarRenderers[0].sharedMaterial==originalMaterial
+                && game.Player.GetComponent<SeraphimWings>().Ascension==0,"Ultimate restores the original character materials and wings");
+            Check(Mathf.Abs(game.Player.transform.Find("Character visual").localPosition.y-originalVisualHeight)<.01f
+                && Camera.main.GetComponent<SanctuaryCamera>().DivinePower==0,"Levitating model and camera return to normal");
+            Check(!game.Ultimate.CanCast && game.Ultimate.CooldownRemaining>20,"Ending the visual effect does not bypass the cooldown");
+            yield return Capture("05-ultimate-recovery.png");
+            var rechargeDeadline=Time.realtimeSinceStartup+35;
+            while (game.Ultimate.CooldownRemaining>0 && Time.realtimeSinceStartup<rechargeDeadline) yield return null;
+            Check(game.Ultimate.CanCast && Time.time-ultimateStarted>=29.95f,"Ultimate becomes ready after the full 30 seconds");
+            Check(game.Skills.TryUse(1) && game.Ultimate.CastCount==2,"Ultimate effects can be reused after recharge");
+            finishDeadline=Time.realtimeSinceStartup+7;
+            while (game.Ultimate.IsActive && Time.realtimeSinceStartup<finishDeadline) yield return null;
+            Check(!game.Ultimate.IsActive && avatarRenderers[0].sharedMaterial==originalMaterial,"A second ultimate also restores the original character");
             var report = new Report { success=failures.Count==0,engine=Application.unityVersion,avatarHeight=avatarHeight,passed=passed.ToArray(),failures=failures.ToArray() };
             File.WriteAllText(Path.Combine(output,"results.json"),JsonUtility.ToJson(report,true));
             Debug.Log($"SERAPHIM_SMOKE: {passed.Count} passed; {failures.Count} failed. Results: {output}");

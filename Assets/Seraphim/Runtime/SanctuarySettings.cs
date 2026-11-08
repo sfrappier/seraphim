@@ -21,5 +21,14 @@ namespace Seraphim
         [Header("Light ability")]
         public float pulseCooldown = 2.5f;
         public float pulseRadius = 7;
+        [Header("Life and Spirit")]
+        public float maxLife = 100;
+        public float maxSpirit = 100;
+        public float spiritRegeneration = 8;
+        public float radianceSpiritCost = 15;
+        [Header("Word of God")]
+        public float ultimateCooldown = 30;
+        public float ultimateRadius = 18;
+        [Range(100, 1600)] public int ultimateParticles = 1100;
     }
 }

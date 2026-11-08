@@ -24,3 +24,10 @@ MonoBehaviour:
   decorativeRubble: 28
   pulseCooldown: 2.5
   pulseRadius: 7
+  maxLife: 100
+  maxSpirit: 100
+  spiritRegeneration: 8
+  radianceSpiritCost: 15
+  ultimateCooldown: 30
+  ultimateRadius: 18
+  ultimateParticles: 1100

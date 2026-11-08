@@ -8,6 +8,8 @@ namespace Seraphim
         readonly Quaternion[] rest = new Quaternion[6];
         SeraphimMotor motor;
         Mesh featherMesh;
+        Transform halo;
+        public float Ascension { get; set; }
         public int WingCount => joints.Length;
 
         public void Initialize(PrototypeModels art, SeraphimMotor movement)
@@ -36,9 +38,9 @@ namespace Seraphim
                     part.AddComponent<MeshRenderer>().sharedMaterial = art.ivory;
                 }
             }
-            var halo = SceneArt.Ring("Halo", transform, .32f, .045f, art.glowGold, 64);
-            halo.transform.localPosition = new Vector3(0, 2.15f, 0);
-            halo.transform.localRotation = Quaternion.Euler(18, 0, 0);
+            halo = SceneArt.Ring("Halo", transform, .32f, .045f, art.glowGold, 64).transform;
+            halo.localPosition = new Vector3(0, 2.15f, 0);
+            halo.localRotation = Quaternion.Euler(18, 0, 0);
             SceneArt.PointLight("Celestial glow", transform, Vector3.up * 1.2f, new Color(.6f,.8f,1), 1.2f, 3.5f);
         }
 
@@ -49,9 +51,14 @@ namespace Seraphim
             for (var i = 0; i < joints.Length; i++)
             {
                 var sign = i % 2 == 0 ? -1 : 1;
+                var tier=i/2;
+                joints[i].localPosition=new Vector3(sign*.14f,1.38f-tier*.25f+Ascension*.4f,-.17f);
+                joints[i].localScale=Vector3.one*(1+Ascension*.55f);
                 joints[i].localRotation = rest[i] * Quaternion.Euler(Mathf.Sin(Time.time * speed + i / 2f) * 5,
-                    sign * Mathf.Sin(Time.time * speed + i / 2f) * (moving ? 14 : 6), 0);
+                    sign * (Mathf.Sin(Time.time * speed + i / 2f) * (moving ? 14 : 6)+Ascension*25),sign*Ascension*12);
             }
+            halo.localPosition=new Vector3(0,2.15f+Ascension*.6f,0);
+            halo.localScale=Vector3.one*(1+Ascension*.8f);
         }
 
         static Mesh CreateFeather()

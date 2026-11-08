@@ -26,3 +26,5 @@ MonoBehaviour:
   cyan: {fileID: 2100000, guid: 4bc90838188a4c64192e75ef6f8ec211, type: 2}
   glowGold: {fileID: 2100000, guid: 7b66c5d46d3772c4699c8b6f3c5ca978, type: 2}
   glowCyan: {fileID: 2100000, guid: 2df82a38717069740ad0b7ae62f9b5a2, type: 2}
+  celestialMote: {fileID: 2100000, guid: 3790fea92850f064a8b83e8941ca6902, type: 2}
+  hudDisplayFont: {fileID: 12800000, guid: 12471109227680f47aa7858da2471123, type: 3}

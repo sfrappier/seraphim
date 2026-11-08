@@ -16,11 +16,13 @@ namespace Seraphim
         Material glow;
         ParticleSystem sparks;
         float readyAt;
+        SeraphimVitals vitals;
         public int CastCount { get; private set; }
         public float CooldownRemaining => Mathf.Max(0, readyAt - Time.time);
 
-        public void Initialize(SanctuarySettings config, Material effect, List<Waystone> waystones)
+        public void Initialize(SanctuarySettings config, Material effect,Material particleMaterial,List<Waystone> waystones,SeraphimVitals resources)
         {
+            vitals=resources;
             settings = config;
             glow = effect;
             stones.AddRange(waystones);
@@ -44,14 +46,13 @@ namespace Seraphim
             var shape = sparks.shape;
             shape.shapeType = ParticleSystemShapeType.Sphere;
             shape.radius = .4f;
-            sparks.GetComponent<ParticleSystemRenderer>().sharedMaterial = glow;
+            sparks.GetComponent<ParticleSystemRenderer>().sharedMaterial = particleMaterial;
         }
 
         public bool Cast()
         {
             if (Time.time < readyAt) return false;
-            readyAt = Time.time + settings.pulseCooldown;
-            CastCount++;
+            if (vitals.Spirit<settings.radianceSpiritCost) return false;
             var pulse = pulses.Find(p => !p.ring.gameObject.activeSelf);
             if (pulse == null)
             {
@@ -59,6 +60,9 @@ namespace Seraphim
                 pulse = new Pulse { ring = SceneArt.Ring("Radiance", null, 1, .12f, glow) };
                 pulses.Add(pulse);
             }
+            vitals.SpendSpirit(settings.radianceSpiritCost);
+            readyAt=Time.time+settings.pulseCooldown;
+            CastCount++;
             pulse.ring.gameObject.SetActive(true);
             pulse.ring.transform.position = transform.position + Vector3.up * .12f;
             pulse.age = 0;
@@ -70,7 +74,6 @@ namespace Seraphim
 
         void Update()
         {
-            if (Input.GetKeyDown(KeyCode.Space) || Input.GetMouseButtonDown(1)) Cast();
             foreach (var pulse in pulses)
             {
                 if (!pulse.ring.gameObject.activeSelf) continue;

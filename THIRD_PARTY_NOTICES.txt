@@ -21,6 +21,15 @@ Copyright/attribution: Poly Haven and the asset's credited contributors.
 
 CC0 text: https://creativecommons.org/publicdomain/zero/1.0/legalcode
 
+Cinzel Decorative Regular (HUD display font)
+Copyright (c) 2012 Natanael Gama (info@ndiscovered.com).
+Reserved Font Name: Cinzel.
+Source: https://github.com/google/fonts/tree/main/ofl/cinzeldecorative
+License: SIL Open Font License 1.1 (OFL-1.1).
+Unmodified font and full license: Assets/ThirdParty/CinzelDecorative/
+Windows distribution license: Licenses/CinzelDecorative-OFL.txt
+Publisher revision and font checksum: Assets/ThirdParty/CinzelDecorative/source.json
+
 Unity Engine and Universal Render Pipeline
 Unity is provided under Unity's applicable software terms, not this project's
 content licenses. Unity packages include their own LICENSE and notices files.

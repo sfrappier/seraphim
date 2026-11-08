@@ -59,7 +59,7 @@ namespace Seraphim.Editor
         {
             PlayerSettings.companyName = "Seraphim";
             PlayerSettings.productName = "Seraphim";
-            PlayerSettings.bundleVersion = "0.1.0";
+            PlayerSettings.bundleVersion = "0.2.0";
             PlayerSettings.colorSpace = ColorSpace.Linear;
             PlayerSettings.defaultScreenWidth = 1600;
             PlayerSettings.defaultScreenHeight = 900;
@@ -136,6 +136,8 @@ namespace Seraphim.Editor
             catalog.cyan = Lit("Cyan crystal",new Color(.15f,.6f,.85f),.35f,.7f,new Color(.1f,1.4f,2));
             catalog.glowGold = Glow("Gold radiance",new Color(2.8f,1.65f,.4f,1));
             catalog.glowCyan = Glow("Cyan radiance",new Color(.25f,1.3f,2.3f,1));
+            catalog.celestialMote=Glow("Celestial motes",new Color(3,2.2f,1,1),"Seraphim/Celestial Mote");
+            catalog.hudDisplayFont=AssetDatabase.LoadAssetAtPath<Font>("Assets/ThirdParty/CinzelDecorative/CinzelDecorative-Regular.ttf");
             EditorUtility.SetDirty(catalog.stone);
             EditorUtility.SetDirty(catalog);
             return catalog;
@@ -204,12 +206,12 @@ namespace Seraphim.Editor
             AssetDatabase.CreateAsset(material,path);
             return material;
         }
-        static Material Glow(string name,Color color)
+        static Material Glow(string name,Color color,string shader="Seraphim/Celestial Glow")
         {
             var path = Generated+"/"+name+".mat";
             var material = AssetDatabase.LoadAssetAtPath<Material>(path);
             if (material != null) return material;
-            material = new Material(Shader.Find("Seraphim/Celestial Glow")) {name=name};
+            material = new Material(Shader.Find(shader)) {name=name};
             material.SetColor("_BaseColor",color);
             AssetDatabase.CreateAsset(material,path);
             return material;
@@ -248,7 +250,10 @@ namespace Seraphim.Editor
             var avatar = game.models.humanoidAvatar;
             if (avatar==null || !avatar.isValid || !avatar.isHuman || game.models.animatorController==null)
                 throw new BuildFailedException("Humanoid character rig or animation controller is invalid.");
-            var shaders = new[] {Shader.Find("Universal Render Pipeline/Lit"),Shader.Find("Seraphim/Celestial Glow")};
+            if (game.models.hudDisplayFont==null || game.models.celestialMote==null) throw new BuildFailedException("HUD font or particle material is missing.");
+            if (game.settings.ultimateCooldown!=30 || game.settings.maxSpirit<=0 || game.settings.maxLife<=0)
+                throw new BuildFailedException("Life, Spirit, or Word of God configuration is invalid.");
+            var shaders = new[] {Shader.Find("Universal Render Pipeline/Lit"),Shader.Find("Seraphim/Celestial Glow"),Shader.Find("Seraphim/Celestial Mote"),Shader.Find("UI/Default")};
             if (shaders.Any(s => s == null || UnityEditor.ShaderUtil.ShaderHasError(s))) throw new BuildFailedException("A required shader failed to compile.");
             Debug.Log("SERAPHIM_VALIDATION: scene, settings, imported models, animations, shaders and renderer passed.");
         }
@@ -263,6 +268,10 @@ namespace Seraphim.Editor
                 scenes=new[] {ScenePath},locationPathName=output,target=BuildTarget.StandaloneWindows64,options=BuildOptions.None
             });
             if (report.summary.result != BuildResult.Succeeded) throw new BuildFailedException("Windows build failed: "+report.summary.result);
+            var outputDirectory=Path.GetDirectoryName(output);
+            Directory.CreateDirectory(Path.Combine(outputDirectory,"Licenses"));
+            File.Copy("Assets/ThirdParty/CinzelDecorative/OFL.txt",Path.Combine(outputDirectory,"Licenses","CinzelDecorative-OFL.txt"),true);
+            File.Copy("THIRD_PARTY_NOTICES.txt",Path.Combine(outputDirectory,"THIRD_PARTY_NOTICES.txt"),true);
             Debug.Log($"SERAPHIM_BUILD: {output}; {report.summary.totalSize} bytes; {report.summary.totalTime}.");
         }
     }

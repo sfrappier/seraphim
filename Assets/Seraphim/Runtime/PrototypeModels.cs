@@ -18,5 +18,7 @@ namespace Seraphim
         public Material cyan;
         public Material glowGold;
         public Material glowCyan;
+        public Material celestialMote;
+        public Font hudDisplayFont;
     }
 }

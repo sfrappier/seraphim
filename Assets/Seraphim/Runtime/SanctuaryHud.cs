@@ -1,64 +1,154 @@
 using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 namespace Seraphim
 {
     public sealed class SanctuaryHud : MonoBehaviour
     {
+        static SanctuaryHud instance;
         SanctuaryGame game;
-        GUIStyle title, subtitle, body, small, number;
-        readonly Color gold = new Color(.91f,.76f,.45f);
-        readonly Color ivory = new Color(.9f,.93f,.96f);
-        readonly Color muted = new Color(.56f,.65f,.73f);
-        public void Initialize(SanctuaryGame owner) { game = owner; }
+        Canvas canvas;
+        RectTransform bottom,objective;
+        CelestialOrbGraphic life,spirit;
+        readonly CelestialSkillGraphic[] icons=new CelestialSkillGraphic[6];
+        readonly Text[] timers=new Text[6];
+        Text lifeValue,spiritValue,objectiveText,ultimatePhase;
+        CanvasGroup ultimateBanner;
+        Font displayFont,bodyFont;
+        float nextRefresh;
+        readonly Color gold=new Color(.91f,.77f,.48f);
+        readonly Color ivory=new Color(.94f,.94f,.88f);
+        readonly Color muted=new Color(.52f,.62f,.7f);
+        public bool HasResourceOrbs => life!=null && spirit!=null;
+        public int SkillSlotCount => icons.Length;
+        public Canvas HudCanvas => canvas;
 
-        void InitializeStyles()
+        public static bool BlocksScreenPoint(Vector2 position)
         {
-            var font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-            title = Style(font,36,gold); title.fontStyle = FontStyle.Bold;
-            subtitle = Style(font,12,muted);
-            body = Style(font,17,ivory);
-            small = Style(font,13,muted);
-            number = Style(font,23,gold); number.alignment = TextAnchor.MiddleCenter;
+            if (instance==null || instance.canvas==null) return false;
+            var camera=instance.canvas.worldCamera;
+            return RectTransformUtility.RectangleContainsScreenPoint(instance.bottom,position,camera)
+                || RectTransformUtility.RectangleContainsScreenPoint(instance.objective,position,camera);
         }
-        static GUIStyle Style(Font font,int size,Color color)
+
+        public void Initialize(SanctuaryGame owner)
         {
-            var style = new GUIStyle(GUI.skin.label) { font=font,fontSize=size };
-            style.normal.textColor = color;
-            return style;
+            instance=this;
+            game=owner;
+            displayFont=game.models.hudDisplayFont;
+            bodyFont=Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            if (displayFont==null) displayFont=bodyFont;
+            canvas=new GameObject("Angelic HUD",typeof(RectTransform)).AddComponent<Canvas>();
+            canvas.transform.SetParent(transform,false);
+            canvas.renderMode=RenderMode.ScreenSpaceCamera;
+            canvas.worldCamera=Camera.main;
+            canvas.planeDistance=1;
+            canvas.sortingOrder=100;
+            var scaler=canvas.gameObject.AddComponent<CanvasScaler>();
+            scaler.uiScaleMode=CanvasScaler.ScaleMode.ScaleWithScreenSize;
+            scaler.referenceResolution=new Vector2(1600,900);
+            scaler.matchWidthOrHeight=0;
+            canvas.gameObject.AddComponent<GraphicRaycaster>();
+            if (FindFirstObjectByType<EventSystem>()==null)
+            {
+                var events=new GameObject("HUD input").AddComponent<EventSystem>();
+                events.transform.SetParent(transform,false);
+                events.sendNavigationEvents=false;
+                events.gameObject.AddComponent<StandaloneInputModule>();
+            }
+            BuildHeader(); BuildBottom(); BuildUltimateBanner(); Refresh();
         }
-        static void Block(Rect rect, Color color)
+
+        RectTransform Node(Transform parent,string name,Vector2 anchor,Vector2 position,Vector2 size)
         {
-            var previous = GUI.color; GUI.color = color; GUI.DrawTexture(rect,Texture2D.whiteTexture); GUI.color = previous;
+            var node=new GameObject(name,typeof(RectTransform)).GetComponent<RectTransform>();
+            node.SetParent(parent,false);
+            node.anchorMin=node.anchorMax=anchor; node.anchoredPosition=position; node.sizeDelta=size;
+            return node;
         }
-        void OnGUI()
+        Text Label(Transform parent,string name,string text,Vector2 anchor,Vector2 position,Vector2 size,int fontSize,Color color,bool heading=false,TextAnchor alignment=TextAnchor.MiddleCenter)
         {
-            if (game == null || game.Player == null) return;
-            if (title == null) InitializeStyles();
-            var scale = Mathf.Min(Screen.width/1600f,Screen.height/900f);
-            GUI.matrix = Matrix4x4.Scale(new Vector3(scale,scale,1));
-            var width = Screen.width/scale;
-            var height = Screen.height/scale;
-            Block(new Rect(0,0,width,112),new Color(.015f,.025f,.04f,.7f));
-            Block(new Rect(34,30,3,55),gold);
-            GUI.Label(new Rect(53,23,360,47),"S E R A P H I M",title);
-            GUI.Label(new Rect(56,76,400,22),"S A N C T U A R Y   /   T H E   F I R S T   L I G H T",subtitle);
-            GUI.Label(new Rect(width-300,34,270,30),"SANCTUARY OF DAWN",body);
-            GUI.Label(new Rect(width-300,65,270,24),"Windows prototype  ·  build 0.1",small);
-            Block(new Rect(35,139,340,98),new Color(.025f,.045f,.065f,.86f));
-            Block(new Rect(35,139,340,2),new Color(gold.r,gold.g,gold.b,.65f));
-            GUI.Label(new Rect(52,151,320,24),game.AttunedCount == 3 ? "THE SANCTUARY AWAKENS" : "AWAKEN THE WAYSTONES",body);
-            GUI.Label(new Rect(52,181,320,24),$"Radiance restores their light     {game.AttunedCount} / 3",small);
-            Block(new Rect(0,height-110,width,110),new Color(.012f,.023f,.036f,.91f));
-            Block(new Rect(0,height-110,width,1),new Color(gold.r,gold.g,gold.b,.35f));
-            GUI.Label(new Rect(36,height-86,400,25),"LMB / HOLD     Move through the sanctuary",small);
-            GUI.Label(new Rect(36,height-58,440,25),"SCROLL     Camera zoom        ESC     Exit",small);
-            Block(new Rect(width/2-40,height-94,80,68),new Color(.1f,.16f,.19f,.95f));
-            GUI.Label(new Rect(width/2-40,height-91,80,39),game.Ability.CooldownRemaining>0 ? game.Ability.CooldownRemaining.ToString("0.0") : "1",number);
-            GUI.Label(new Rect(width/2-29,height-52,80,24),"RADIANCE",subtitle);
-            GUI.Label(new Rect(width/2+62,height-82,330,25),"SPACE / RMB",body);
-            GUI.Label(new Rect(width/2+62,height-55,330,25),"Release a pulse of celestial light",small);
-            GUI.Label(new Rect(width-240,height-74,230,25),"SERAPH  /  DAWNKEEPER",subtitle);
-            GUI.matrix = Matrix4x4.identity;
+            var label=Node(parent,name,anchor,position,size).gameObject.AddComponent<Text>();
+            label.font=heading?displayFont:bodyFont; label.text=text; label.fontSize=fontSize; label.color=color; label.alignment=alignment;
+            label.raycastTarget=false; label.horizontalOverflow=HorizontalWrapMode.Overflow; label.verticalOverflow=VerticalWrapMode.Overflow; label.supportRichText=false;
+            var shadow=label.gameObject.AddComponent<Shadow>(); shadow.effectColor=new Color(0,0,0,.8f); shadow.effectDistance=new Vector2(0,-1);
+            return label;
         }
+
+        void BuildHeader()
+        {
+            Label(canvas.transform,"Title","SERAPHIM",new Vector2(0,1),new Vector2(230,-37),new Vector2(380,60),32,gold,true,TextAnchor.MiddleLeft);
+            Label(canvas.transform,"Location","SANCTUARY OF DAWN",new Vector2(0,1),new Vector2(217,-73),new Vector2(350,25),12,ivory,false,TextAnchor.MiddleLeft);
+            Label(canvas.transform,"Movement hint","WASD / MOUSE    ·    SCROLL TO ZOOM",new Vector2(0,1),new Vector2(262,-99),new Vector2(440,20),11,muted,false,TextAnchor.MiddleLeft);
+            objective=Node(canvas.transform,"Quest",new Vector2(1,1),new Vector2(-197,-57),new Vector2(350,90));
+            var panel=objective.gameObject.AddComponent<Image>(); panel.color=new Color(.025f,.045f,.067f,.84f); panel.raycastTarget=false;
+            Label(objective,"Quest title","THE FIRST LIGHT",new Vector2(.5f,.5f),new Vector2(0,22),new Vector2(320,25),14,gold,true);
+            objectiveText=Label(objective,"Quest progress","",new Vector2(.5f,.5f),new Vector2(0,-10),new Vector2(320,35),14,ivory);
+        }
+
+        void BuildBottom()
+        {
+            bottom=Node(canvas.transform,"Bottom HUD",new Vector2(.5f,0),new Vector2(0,103),new Vector2(1600,206));
+            bottom.anchorMin=new Vector2(0,0); bottom.anchorMax=new Vector2(1,0); bottom.sizeDelta=new Vector2(0,206);
+            var backdrop=bottom.gameObject.AddComponent<CelestialFrameGraphic>(); backdrop.fullWidth=true; backdrop.raycastTarget=false;
+            var plate=Node(bottom,"Gilded skill frame",new Vector2(.5f,0),new Vector2(0,92),new Vector2(790,167));
+            plate.gameObject.AddComponent<CelestialFrameGraphic>().raycastTarget=false;
+            Label(plate,"Class","D A W N K E E P E R",new Vector2(.5f,1),new Vector2(0,-18),new Vector2(350,20),10,gold);
+            for (var i=0;i<6;i++)
+            {
+                var slot=i;
+                var holder=Node(plate,"Skill "+(i+1),new Vector2(.5f,0),new Vector2((i-2.5f)*112,75),new Vector2(100,92));
+                icons[i]=holder.gameObject.AddComponent<CelestialSkillGraphic>(); icons[i].slot=i; icons[i].raycastTarget=false;
+                var hit=Node(holder,"Cast skill",new Vector2(.5f,.5f),Vector2.zero,new Vector2(100,92));
+                var image=hit.gameObject.AddComponent<Image>(); image.color=new Color(1,1,1,.005f);
+                var button=hit.gameObject.AddComponent<Button>(); button.targetGraphic=image; button.interactable=game.Skills.IsAssigned(i);
+                button.onClick.AddListener(()=>game.Skills.TryUse(slot));
+                Label(holder,"Key",(i+1).ToString(),new Vector2(.5f,.5f),new Vector2(-35,32),new Vector2(22,22),13,i<2?ivory:muted);
+                Label(holder,"Skill name",game.Skills.Name(i),new Vector2(.5f,.5f),new Vector2(0,-58),new Vector2(112,22),12,i<2?ivory:muted);
+                Label(holder,"Cost",i==0?"15 SPIRIT":i==1?"ULTIMATE":"—",new Vector2(.5f,.5f),new Vector2(0,-33),new Vector2(96,16),9,i==1?gold:muted);
+                timers[i]=Label(holder,"Cooldown","",new Vector2(.5f,.5f),Vector2.zero,new Vector2(90,40),24,ivory);
+            }
+            var left=Node(bottom,"Life orb",new Vector2(0,0),new Vector2(112,103),new Vector2(182,182));
+            life=left.gameObject.AddComponent<CelestialOrbGraphic>(); life.raycastTarget=false;
+            Label(left,"Life label","LIFE",new Vector2(.5f,.5f),new Vector2(0,93),new Vector2(150,25),14,gold,true);
+            lifeValue=Label(left,"Life amount","",new Vector2(.5f,.5f),new Vector2(0,-88),new Vector2(150,25),14,ivory);
+            var right=Node(bottom,"Spirit orb",new Vector2(1,0),new Vector2(-112,103),new Vector2(182,182));
+            spirit=right.gameObject.AddComponent<CelestialOrbGraphic>(); spirit.spirit=true; spirit.raycastTarget=false;
+            Label(right,"Spirit label","SPIRIT",new Vector2(.5f,.5f),new Vector2(0,93),new Vector2(150,25),14,new Color(.64f,.85f,.96f),true);
+            spiritValue=Label(right,"Spirit amount","",new Vector2(.5f,.5f),new Vector2(0,-88),new Vector2(150,25),14,ivory);
+            Label(bottom,"Control hint","1  RADIANCE  /  SPACE  /  RMB          2  WORD OF GOD",new Vector2(.5f,0),new Vector2(0,10),new Vector2(800,18),10,muted);
+        }
+
+        void BuildUltimateBanner()
+        {
+            var banner=Node(canvas.transform,"Word of God announcement",new Vector2(.5f,.75f),Vector2.zero,new Vector2(700,110));
+            ultimateBanner=banner.gameObject.AddComponent<CanvasGroup>();
+            ultimateBanner.blocksRaycasts=false; ultimateBanner.interactable=false; ultimateBanner.alpha=0;
+            Label(banner,"Ultimate title","WORD OF GOD",new Vector2(.5f,.5f),new Vector2(0,10),new Vector2(700,60),38,new Color(1,.92f,.67f),true);
+            ultimatePhase=Label(banner,"Ultimate phase","",new Vector2(.5f,.5f),new Vector2(0,-34),new Vector2(700,25),13,ivory);
+        }
+
+        void Refresh()
+        {
+            life.Fraction=game.Vitals.LifeFraction; spirit.Fraction=game.Vitals.SpiritFraction;
+            lifeValue.text=$"{Mathf.CeilToInt(game.Vitals.Life)} / {Mathf.CeilToInt(game.Vitals.MaxLife)}";
+            spiritValue.text=$"{Mathf.CeilToInt(game.Vitals.Spirit)} / {Mathf.CeilToInt(game.Vitals.MaxSpirit)}";
+            objectiveText.text=game.AttunedCount==3?"The sanctuary awakens":"Awaken the waystones     "+game.AttunedCount+" / 3";
+            for (var i=0;i<icons.Length;i++)
+            {
+                var remaining=game.Skills.Remaining(i);
+                icons[i].Cooldown=remaining/game.Skills.Duration(i);
+                timers[i].text=remaining<=0?"":remaining.ToString(remaining>=10?"0":"0.0");
+            }
+            ultimateBanner.alpha=game.Ultimate.IsActive?Mathf.Min(1,game.Ultimate.VisualPower*2):0;
+            ultimatePhase.text=game.Ultimate.Stage==WordOfGodAbility.Phase.Charging?"GATHERING THE LIGHT":"LET THERE BE LIGHT";
+        }
+        void Update()
+        {
+            if (game==null || Time.unscaledTime<nextRefresh) return;
+            nextRefresh=Time.unscaledTime+.05f; Refresh();
+        }
+        void OnDestroy() { if (instance==this) instance=null; }
     }
 }

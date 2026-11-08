@@ -1,4 +1,4 @@
-# Downloads creator-published CC0 assets; never scrapes authenticated Asset Store downloads.
+# Downloads creator-published CC0 assets and an OFL font; no authenticated Asset Store scraping.
 param([switch]$Refresh)
 . "$PSScriptRoot\Common.ps1"
 $cache = Join-Path $ProjectRoot '.cache\assets'
@@ -63,3 +63,16 @@ foreach ($map in @('Diffuse','nor_gl')) {
 $receipts += [PSCustomObject]@{name='PolyHavenStone';source='https://polyhaven.com/a/stone_brick_wall_001';license='CC0-1.0'}
 $receipts | ConvertTo-Json -Depth 4 | Set-Content -LiteralPath (Join-Path $thirdParty 'asset-sources.json') -Encoding utf8
 Write-Host 'Free prototype assets are ready.'
+
+$fontDirectory=Join-Path $ProjectRoot 'Assets\ThirdParty\CinzelDecorative'
+New-Item -ItemType Directory -Force -Path $fontDirectory | Out-Null
+$fontRevision='3dd78844021e948ceb633d1dcee3f7885561b5d9'
+foreach ($file in @('CinzelDecorative-Regular.ttf','OFL.txt')) {
+    $target=Join-Path $fontDirectory $file
+    if ($Refresh -or !(Test-Path -LiteralPath $target)) {
+        Invoke-WebRequest -Uri ("https://raw.githubusercontent.com/google/fonts/"+$fontRevision+"/ofl/cinzeldecorative/"+$file) -OutFile $target
+    }
+    $key=if ($file -eq 'OFL.txt') { 'CinzelDecorative-OFL.txt' } else { $file }
+    Assert-AssetHash $target $key
+}
+Write-Host 'Cinzel Decorative HUD font and OFL license verified.'

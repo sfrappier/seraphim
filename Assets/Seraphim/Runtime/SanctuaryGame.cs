@@ -13,6 +13,10 @@ namespace Seraphim
         public VolumeProfile atmosphere;
         public SeraphimMotor Player { get; private set; }
         public CelestialAbility Ability { get; private set; }
+        public WordOfGodAbility Ultimate { get; private set; }
+        public SeraphimVitals Vitals { get; private set; }
+        public SeraphimSkillBar Skills { get; private set; }
+        public SanctuaryHud Hud { get; private set; }
         public List<Waystone> Waystones { get; } = new List<Waystone>();
         public int AttunedCount => Waystones.FindAll(s => s.IsAttuned).Count;
         readonly List<NavMeshBuildSource> navSources = new List<NavMeshBuildSource>();
@@ -29,7 +33,10 @@ namespace Seraphim
             BuildNavigation();
             BuildPlayer();
             BuildCamera();
-            gameObject.AddComponent<SanctuaryHud>().Initialize(this);
+            Skills=gameObject.AddComponent<SeraphimSkillBar>();
+            Skills.Initialize(this);
+            Hud=gameObject.AddComponent<SanctuaryHud>();
+            Hud.Initialize(this);
             if (System.Array.Exists(System.Environment.GetCommandLineArgs(), a => a == "-seraphim-smoke"))
                 gameObject.AddComponent<PrototypeSmokeTest>().Initialize(this);
         }
@@ -199,8 +206,12 @@ namespace Seraphim
             player.AddComponent<SeraphimWings>().Initialize(models,Player);
             var aura = SceneArt.Ring("Seraphim ground aura",player.transform,.6f,.025f,models.glowCyan);
             aura.transform.localPosition = Vector3.up*.05f;
+            Vitals=player.AddComponent<SeraphimVitals>();
+            Vitals.Initialize(settings);
             Ability = player.AddComponent<CelestialAbility>();
-            Ability.Initialize(settings,models.glowGold,Waystones);
+            Ability.Initialize(settings,models.glowGold,models.celestialMote,Waystones,Vitals);
+            Ultimate=player.AddComponent<WordOfGodAbility>();
+            Ultimate.Initialize(settings,models,Vitals,Waystones);
         }
 
         internal static void NormalizeModel(GameObject model, float targetSize, bool byHeight)
