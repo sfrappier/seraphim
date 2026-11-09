@@ -84,6 +84,27 @@ Pinned registry archive and verified checksums: Tools/package-sources.json
 
 No Unity Asset Store or Mixamo assets are redistributed in this source tree.
 
+Optional local Asset Store presentation (Seraphim 0.11.0)
+Magic Effects FREE 1.6: Hovl Studio, product 247933
+  https://assetstore.unity.com/packages/vfx/particles/spells/magic-effects-free-247933
+General RPG SFX Pack 1.0: Nickr02, product 329076
+  https://assetstore.unity.com/packages/audio/sound-fx/general-rpg-sfx-pack-329076
+Small Sound Kit 1.0: Sound Works 12, product 300582
+  https://assetstore.unity.com/packages/audio/sound-fx/small-sound-kit-300582
+Particle Pack | Starter Assets 3.3: Unity Technologies, product 127325
+  https://assetstore.unity.com/packages/vfx/particles/particle-pack-starter-assets-127325
+All four official listings specify the Standard Unity Asset Store EULA:
+  https://unity.com/legal/as-terms
+The owner imported these packs. Original imports, adapted prefabs/materials and
+the local Resources presentation bank remain in ignored Assets/ThirdParty/AssetStore/.
+Local Windows players may embed selected samples/effects in the game; these raw
+assets are not published in this public repository. Source/version/license and
+1,623 original imported-file checksum records: Tools/presentation-sources.json.
+DownloadedPresentationBuilder maps sounds, converts effect materials to the
+project's URP shader, recolors the effects, removes demo/physics/audio components,
+and bounds particles/lights. Blood/gore content is not selected for the game.
+The public clean-checkout build retains Seraphim's original presentation fallback.
+
 Optional local soundtrack: Track Realm
 Title: Diablo 4 Inspired Dark Fantasy Music - Epic Angelic Choir & Cathedral
 Chants (2 Hours)

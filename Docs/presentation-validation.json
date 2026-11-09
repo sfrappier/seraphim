@@ -1,0 +1,25 @@
+{
+  "version": "0.11.0",
+  "editor": "6000.3.28f1",
+  "urp": "17.3.0",
+  "target": "Windows x64 / Direct3D 11",
+  "downloadedSoundCues": 23,
+  "downloadedEffectCues": 24,
+  "fullPlayerChecksPassed": 323,
+  "fullPlayerFailures": [],
+  "cleanExportBuiltWithoutAssetStorePacks": true,
+  "cleanPlayerFallbackPassed": true,
+  "fallbackMenuChecksPassed": 30,
+  "audioVoiceLimit": 20,
+  "activeImportedEffectLimit": 32,
+  "retainedImportedEffectLimit": 96,
+  "screenshotsInspected": [
+    "divine-effects",
+    "divine-revelation",
+    "knight-windup",
+    "knight-sweep",
+    "hellfire-fan",
+    "main-menu"
+  ],
+  "limits": "Automated runtime and rendering checks; not a human balance, audio-mix or frame-rate benchmark."
+}

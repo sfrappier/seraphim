@@ -108,7 +108,8 @@ namespace Seraphim.Editor
                     if (renderer is SkinnedMeshRenderer skin)
                     {
                         skin.updateWhenOffscreen=false; skin.quality=SkinQuality.Bone4;
-                        if (skin.bones.Length<3 || skin.bones.Any(b=>b==null)) throw new BuildFailedException("Character skin has missing bones: "+key+" / "+renderer.name);
+                        var rigidWeapon=renderer.name.StartsWith("InfernalSword",StringComparison.Ordinal);
+                        if (skin.bones.Length<(rigidWeapon?1:3) || skin.bones.Any(b=>b==null)) throw new BuildFailedException("Character skin has missing bones: "+key+" / "+renderer.name);
                     }
                 }
                 // Normalize once in the asset pipeline, rather than baking 96 meshes

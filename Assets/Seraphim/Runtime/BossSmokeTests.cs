@@ -53,6 +53,18 @@ namespace Seraphim
             Check(SanctuaryHud.BlocksScreenPoint(new Vector2(Screen.width*.5f,Screen.height-90)),"Boss health HUD cannot issue world movement");
             Check(game.Hud.Minimap.EnemyMarkerCount==1 && Camera.main.GetComponent<SanctuaryCamera>().BossZoom>0,"Minimap and wider camera track the boss encounter");
             yield return Capture("24-vorath.png");
+            var knight=boss.GetComponentInChildren<InfernalKnightAnimation>();
+            Check(knight!=null && knight.SwordTip!=null && knight.SwordHand!=null,"The boss has an articulated skeleton and a separate hand-bound sword");
+            BossFixture(new Vector3(-5,0,-14));
+            var bladeLength=knight.BladeLength;var hand=knight.SwordHand.position;
+            game.Boss.Cast(BossAttack.Slash);
+            yield return new WaitForSeconds(.75f);
+            Check(knight.AttackAnimations>0 && knight.ShoulderAngle>15 && Vector3.Distance(hand,knight.SwordHand.position)>.3f,"Sword windup animates the boss's shoulder and hand through space");
+            Check(Mathf.Abs(knight.BladeLength-bladeLength)<.05f,"The sword remains rigid while the arm animates");
+            yield return Capture("37-knight-windup.png");
+            yield return new WaitForSeconds(.43f);yield return Capture("38-knight-sweep.png");
+            yield return new WaitForSeconds(.65f);
+            Check(!knight.IsAttacking && knight.ShoulderAngle<10,"The boss recovers from his sword attack into an idle stance");
 
             BossFixture(new Vector3(-5,0,-7));
             var health=boss.Health; var position=boss.transform.position;

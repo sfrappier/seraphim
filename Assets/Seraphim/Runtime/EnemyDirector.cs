@@ -109,6 +109,7 @@ namespace Seraphim
         {
             KillCount++; Score+=enemy.IsBoss?5000:100+(int)enemy.Kind*25+Mathf.Max(0,enemy.WaveNumber-1)*10;
             Game.Audio?.Play(SoundCue.Banish,enemy.transform.position);
+            Game.Presentation.Play(EffectCue.Banish,enemy.transform.position+Vector3.up);
             Game.Drops.SpawnPair(enemy.transform.position);
             if (enemy.IsBoss) Game.Boss.Defeated(); else Game.Waves.RecordSlay(enemy);
         }
@@ -164,6 +165,7 @@ namespace Seraphim
             {
                 Game.Boss.Clear();
                 DespawnAll(); Game.Ultimate.Cancel(); Game.Player.StopKeyboardMovement();
+                Game.Presentation.Clear();
                 Game.Player.Agent.ResetPath(); Game.Player.Agent.Warp(Game.settings.spawnPoint);
                 Game.Vitals.Revive(); LastRecoveryAt=Time.time; nextSpawn=Time.time+4;
                 Game.Drops.Clear(); Game.Waves.Recover();

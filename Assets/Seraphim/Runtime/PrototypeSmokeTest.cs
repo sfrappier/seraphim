@@ -54,6 +54,10 @@ namespace Seraphim
             {
                 yield return CharacterModelChecks(); SaveReport(); yield break;
             }
+            if (Array.Exists(Environment.GetCommandLineArgs(),a=>a=="-seraphim-presentation-only"))
+            {
+                yield return PresentationChecks();SaveReport();yield break;
+            }
             if (Array.Exists(Environment.GetCommandLineArgs(),a=>a=="-seraphim-boss-only"))
             {
                 yield return BossChecks(); SaveReport(); yield break;
@@ -221,6 +225,7 @@ namespace Seraphim
             }
             Check(allMaterialsRestored,"Repeated ultimates restore every FallenAngel material slot, including multi-material skin");
             yield return CharacterModelChecks();
+            yield return PresentationChecks();
             yield return CombatChecks();
             yield return ScenarioChecks();
             yield return ControllerChecks();

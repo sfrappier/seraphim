@@ -8,7 +8,7 @@ namespace Seraphim
     {
         readonly List<Material> materials=new List<Material>();
         Transform halo;
-        DemonModelPresentation knight;
+        public InfernalKnightAnimation Knight {get;private set;}
         Material ember,voidGlow;
         Light furnace;
         int previousPhase;
@@ -37,7 +37,7 @@ namespace Seraphim
             voidGlow=Material(director.Game.models.glowCyan,new Color(1.9f,.12f,3));
             Body=Node("Infernal Wyrm · dragon knight",transform,Vector3.zero);
             var model=Instantiate(director.Game.models.bossModel.prefab,Body); model.name="DRAGON NEMESIS";
-            knight=Body.gameObject.AddComponent<DemonModelPresentation>(); knight.Initialize(GetComponent<DemonEnemy>(),director.Game.models.bossModel);
+            Knight=Body.gameObject.AddComponent<InfernalKnightAnimation>(); Knight.Initialize(GetComponent<DemonEnemy>(),director.Game.models);
             // Copy only this unique boss's materials, retaining every authored texture.
             foreach (var renderer in model.GetComponentsInChildren<Renderer>())
             {
@@ -66,13 +66,14 @@ namespace Seraphim
         }
         public void BeginTransformation(float seconds)
         {
+            Knight.Transform(seconds);
             transforming=true; transformBegan=Time.time; transformSeconds=seconds; nextEmission=0;
             ritual.SetActive(true); ascension.Stop(true,ParticleSystemStopBehavior.StopEmittingAndClear); ascension.Emit(120);
         }
         public void ResetForEncounter()
         {
             transforming=false; Slash=0; Phase=1; Channeling=false;
-            if (knight!=null) knight.ResetPose();
+            if (Knight!=null) Knight.ResetForEncounter();
             if (Body!=null) Body.localRotation=Quaternion.identity;
             if (ritual!=null) ritual.SetActive(false);
             if (ascension!=null) ascension.Stop(true,ParticleSystemStopBehavior.StopEmittingAndClear);
@@ -109,8 +110,7 @@ namespace Seraphim
             }
             halo.localRotation=Quaternion.Euler(90,Time.time*(9+Phase*3),0);
             halo.localScale=Vector3.one*(1+(Phase-1)*.06f);
-            var cleave=Mathf.Sin(Mathf.Clamp01(Slash)*Mathf.PI);
-            Body.localRotation=Quaternion.Euler((Channeling?-3:0)-cleave*16,Slash>0?Mathf.Lerp(-65,65,Slash):0,0);
+            Body.localRotation=Quaternion.identity;
         }
         void OnDestroy() { foreach (var mat in materials) Destroy(mat); }
     }

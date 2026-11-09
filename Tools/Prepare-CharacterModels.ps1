@@ -74,6 +74,9 @@ foreach ($input in $inputs) {
         $provenance.nestedArchiveSha256=$nested.archiveSha256
         $provenance.nestedOriginalFiles=$nested.files
     }
+    if ($input.key -eq 'infernal-wyrm') {
+        $provenance.modifications+=' Refined anatomical skin weights with continuous joint blends; separated hand-bound rigid sword, a blade-tip joint and a cape joint for authored skeletal locomotion, cast and attack poses.'
+    }
     $provenance | ConvertTo-Json -Depth 10 | Set-Content -LiteralPath (Join-Path $folder 'source.json') -Encoding utf8
     $credits+=@($definition.title,('Creator: '+$definition.creator),('Source: '+$definition.source),'License: CC BY 4.0','')
 }

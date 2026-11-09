@@ -4,6 +4,7 @@ Original archives stay in .cache. Unity builds consume the checked-in FBX/PNG de
 so neither Blender nor a Sketchfab login is required to build a clean checkout.
 """
 import bpy
+import bmesh
 import hashlib
 import json
 import math
@@ -87,6 +88,24 @@ def simple_rig(meshes, key):
     for obj in meshes:
         obj.data.transform(Matrix.Scale(size, 4) @ Matrix.Translation(-center) @ obj.matrix_world)
         obj.matrix_world = Matrix.Identity(4)
+    if key == 'infernal-wyrm':
+        # The source is one connected sculpt. Separate the sword/grip along its
+        # front-facing silhouette so the entire blade can follow one hand rigidly.
+        body = meshes[0]
+        sword = body.copy(); sword.data = body.data.copy(); sword.name = 'InfernalSword'
+        bpy.context.collection.objects.link(sword)
+        def weapon_face(face):
+            c = face.calc_center_median()
+            return c.x < -.25 and c.y < -.12 and (c.z < 1.68 or -.57 < c.x < -.34)
+        for obj, keep_weapon in ((body, False), (sword, True)):
+            bm = bmesh.new(); bm.from_mesh(obj.data)
+            remove = [face for face in bm.faces if weapon_face(face) != keep_weapon]
+            bmesh.ops.delete(bm, geom=remove, context='FACES')
+            loose = [v for v in bm.verts if not v.link_faces]
+            bmesh.ops.delete(bm, geom=loose, context='VERTS')
+            bm.to_mesh(obj.data); bm.free(); obj.data.update()
+        body.name = 'InfernalKnight'
+        meshes.append(sword)
     armature = bpy.data.armatures.new('Seraphim game skeleton')
     rig = bpy.data.objects.new('GameRig', armature)
     bpy.context.collection.objects.link(rig)
@@ -119,17 +138,79 @@ def simple_rig(meshes, key):
         shoulder = (sign * .23, 0, 1.49)
         elbow = (sign * .37, -.015, 1.22)
         hand = (sign * (.49 if key == 'ash-invoker' else .4), -.04, .97)
+        if key == 'infernal-wyrm':
+            shoulder = (sign * .28, -.015, 1.5)
+            elbow = (sign * .47, -.04, 1.25 if sign < 0 else 1.18)
+            hand = (sign * .44, -.27 if sign < 0 else -.17, 1.63 if sign < 0 else .99)
         bone('UpperArm.' + side, shoulder, elbow, 'Chest')
         bone('Forearm.' + side, elbow, hand, 'UpperArm.' + side)
         bone('Hand.' + side, hand, (hand[0] + sign * .035, -.06, .85), 'Forearm.' + side)
+    if key == 'infernal-wyrm':
+        bone('Cape', (0, .2, 1.5), (0, .35, .8), 'Chest')
+        bone('BladeTip', (-.44, -.28, .10), (-.44, -.28, .2), 'Hand.R')
     bpy.ops.object.mode_set(mode='OBJECT')
     segments = [(b.name, np.array(b.head_local), np.array(b.tail_local)) for b in rig.data.bones]
+    def weights_for(point, allowed):
+        distances = []
+        for name, a, b in segments:
+            if name not in allowed: continue
+            delta = b - a
+            nearest = a + delta * np.clip(np.dot(point - a, delta) / np.dot(delta, delta), 0, 1)
+            distances.append((np.linalg.norm(point - nearest), name))
+        closest = sorted(distances)[:3]
+        values = np.array([1 / (distance + .035) ** 5 for distance, _ in closest])
+        values /= values.sum()
+        return {name: float(value) for (_, name), value in zip(closest, values)}
+    def smooth(low, high, value):
+        t = float(np.clip((value - low) / (high - low), 0, 1))
+        return t * t * (3 - 2 * t)
     for obj in meshes:
         groups = {name: obj.vertex_groups.new(name=name) for name, _, _ in segments}
         for vertex in obj.data.vertices:
             p = np.array(vertex.co)
+            if key == 'infernal-wyrm' and obj.name == 'InfernalSword':
+                groups['Hand.R'].add([vertex.index], 1, 'REPLACE')
+                continue
+            if key == 'infernal-wyrm':
+                # Blend anatomical regions continuously. Hard region boundaries
+                # tear the original joined armor/cape sculpt during large casts.
+                result = weights_for(p, {'Hips', 'Spine', 'Chest', 'Neck'})
+                def blend(target, amount):
+                    nonlocal result
+                    result = {name: value * (1 - amount) for name, value in result.items()}
+                    for name, value in target.items(): result[name] = result.get(name, 0) + value * amount
+                side = 'L' if p[0] > 0 else 'R'
+                arm = smooth(.22, .46, abs(p[0])) * smooth(.85, 1.12, p[2]) * (1 - smooth(.10, .28, p[1]))
+                arm_bones = {'UpperArm.' + side} if p[2] > 1.42 else {'UpperArm.' + side, 'Forearm.' + side, 'Hand.' + side}
+                blend(weights_for(p, arm_bones), arm)
+                leg = (1 - smooth(.68, 1.03, p[2])) * (1 - smooth(.12, .30, p[1]))
+                if abs(p[0]) < .10 and p[2] > .28: leg *= smooth(.025, .10, abs(p[0]))
+                blend(weights_for(p, {'Hips', 'UpperLeg.' + side, 'LowerLeg.' + side, 'Foot.' + side}), leg)
+                cape = smooth(.12, .30, p[1]) * (1 - smooth(1.4, 1.6, p[2]))
+                blend({'Cape': 1}, cape)
+                head = smooth(1.54, 1.73, p[2]) * (1 - smooth(.27, .4, abs(p[0])))
+                blend({'Head': 1}, head)
+                chosen = sorted(result.items(), key=lambda item: item[1], reverse=True)[:4]
+                total = sum(value for _, value in chosen)
+                for name, value in chosen:
+                    if value > 0: groups[name].add([vertex.index], value / total, 'REPLACE')
+                continue
+            candidates = segments
+            if key == 'infernal-wyrm':
+                if p[1] > .12 and p[2] < 1.55:
+                    groups['Cape'].add([vertex.index], 1, 'REPLACE'); continue
+                if p[2] > 1.64 and abs(p[0]) < .35:
+                    groups['Head'].add([vertex.index], 1, 'REPLACE'); continue
+                side = 'L' if p[0] > 0 else 'R'
+                if abs(p[0]) > .30 and p[2] > .92 and p[1] < .12:
+                    allowed = {'UpperArm.' + side, 'Forearm.' + side, 'Hand.' + side}
+                elif p[2] < .98 and abs(p[0]) < .35 and not (abs(p[0]) < .10 and p[2] > .28):
+                    allowed = {'Hips', 'UpperLeg.' + side, 'LowerLeg.' + side, 'Foot.' + side}
+                else:
+                    allowed = {'Hips', 'Spine', 'Chest', 'Neck'}
+                candidates = [s for s in segments if s[0] in allowed]
             distances = []
-            for name, a, b in segments:
+            for name, a, b in candidates:
                 delta = b - a
                 nearest = a + delta * np.clip(np.dot(p - a, delta) / np.dot(delta, delta), 0, 1)
                 distance = np.linalg.norm(p - nearest)

@@ -66,6 +66,7 @@ namespace Seraphim
             if (index<0 || index>2 || Remaining(index)>0 || !game.Vitals.SpendSpirit(Cost(index))) return false;
             readyAt[index]=Time.time+Cooldown(index);
             game.Audio?.Play(index==0?SoundCue.Spear:index==1?SoundCue.Lightning:SoundCue.Fire,transform.position);
+            game.Presentation.Play(index==0?EffectCue.SpearCast:index==1?EffectCue.LightningCast:EffectCue.Inferno,transform.position+Vector3.up*.15f);
             if (index==0) CastLance(aim);
             else if (index==1) CastChain(aim);
             else CastInferno();
@@ -128,6 +129,7 @@ namespace Seraphim
                 chainHits.Add(target.TargetId);
                 target.Hit(game.settings.chainDamage*Mathf.Pow(.9f,hop),DivineDamage.Chain,transform.position,.2f,.8f);
                 SparksAt(point+Vector3.up,45,new Color(.4f,.85f,1));
+                game.Presentation.Play(EffectCue.LightningHit,point+Vector3.up);
                 from=point+Vector3.up;
                 target=game.Enemies.Nearest(point,7,chainHits);
             }

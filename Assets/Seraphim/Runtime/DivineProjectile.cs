@@ -42,7 +42,7 @@ namespace Seraphim
             var blocked=NavMesh.Raycast(groundFrom,groundTo,out var boundary,NavMesh.AllAreas);
             if (blocked) to=new Vector3(boundary.position.x,from.y,boundary.position.z);
             var hits=enemies.Segment(from,to,.45f,damage,hit);
-            if (hits>0) owner.SparksAt(to,22,new Color(.65f,.95f,1));
+            if (hits>0) {owner.SparksAt(to,22,new Color(.65f,.95f,1));enemies.Game.Presentation.Play(EffectCue.SpearHit,to);}
             transform.position=to;
             if (age>1.25f || blocked) { if (blocked) owner.SparksAt(to,18,new Color(.7f,.9f,1)); Stop(); }
         }

@@ -19,4 +19,4 @@ MonoBehaviour:
   baseHealth: 9600
   moveSpeed: 2.1
   nearTriangles: 10192
-  distantTriangles: 2853
+  distantTriangles: 2852

@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace Seraphim
 {
-    public enum SoundCue { Radiance,Spear,Lightning,Fire,Ascend,Revelation,Pulse,Hit,Banish,Hurt,Life,Spirit,Step,Warning,Charge,Wave,Victory,Ui }
+    public enum SoundCue { Radiance,Spear,Lightning,Fire,Ascend,Revelation,Pulse,Hit,Banish,Hurt,Life,Spirit,Step,Warning,Charge,Wave,Victory,Ui,BossSwing,Meteor,Hellfire,Nova,Roar }
 
     // Original procedural sound design; no external samples or runtime downloads.
     internal static class SanctuarySound
@@ -39,6 +39,11 @@ namespace Seraphim
                     case SoundCue.Charge: tone=noise*.23f+Sin(85*t+120*t*t)*.45f; break;
                     case SoundCue.Wave: tone=Sin(220*t)*.3f+Sin(330*t)*.25f+Sin(440*t)*.15f; break;
                     case SoundCue.Victory: tone=Sin(261.63f*t)*.25f+Sin(329.63f*t)*.23f+Sin(392*t)*.2f+Sin(523.25f*t)*.12f; break;
+                    case SoundCue.BossSwing: tone=low*1.4f+noise*.3f+Sin(75*t)*.2f; break;
+                    case SoundCue.Meteor: tone=low*2+Sin(45*t)*.4f; break;
+                    case SoundCue.Hellfire: tone=low*1.8f+noise*.25f; break;
+                    case SoundCue.Nova: tone=Sin(95*t-40*t*t)*.5f+noise*.2f; break;
+                    case SoundCue.Roar: tone=Sin(45*t)*.4f+low*1.6f; break;
                     default: tone=Sin(880*t)*.45f+Sin(1320*t)*.12f; break;
                 }
                 data[i]=Mathf.Clamp(tone*envelope,-.8f,.8f);

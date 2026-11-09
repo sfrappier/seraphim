@@ -54,7 +54,7 @@ namespace Seraphim
             art=enemy.GetComponent<CathedralBossArt>(); art.ResetForEncounter(); art.Slash=0;
             var direction=center-spawn; direction.y=0; if (direction.sqrMagnitude>.01f) enemy.transform.rotation=Quaternion.LookRotation(direction);
             var camera=Camera.main.GetComponent<SanctuaryCamera>(); camera.BossTarget=enemy.transform; camera.BossZoom=7;
-            AttackHint="THE HERALD DESCENDS"; game.Audio.Play(SoundCue.Ascend,spawn);
+            AttackHint="THE HERALD DESCENDS"; game.Audio.Play(SoundCue.Roar,spawn);
             game.Powers.SparksAt(spawn+Vector3.up*3,180,new Color(1,.15f,.7f));
             return true;
         }
@@ -66,6 +66,8 @@ namespace Seraphim
             enemy.transform.rotation=Quaternion.LookRotation(direction); enemy.Agent.ResetPath();
             busyUntil=Time.time+(attack==BossAttack.Meteor?1.8f:attack==BossAttack.Slash?1.65f:1.9f);
             Casts++; game.Audio.Play(SoundCue.Warning,origin);
+            art.Knight.PlayAttack(attack);
+            game.Presentation.Play(EffectCue.BossCast,origin+Vector3.up*4,enemy.transform,.8f);
             if (attack==BossAttack.Meteor)
             {
                 AttackHint="METEOR RAIN · leave the marked circles";
@@ -158,6 +160,7 @@ namespace Seraphim
             if (phase==3)
             {
                 enemy.GrowTo(game.settings.bossAscendedScale,duration); art.BeginTransformation(duration);
+                game.Presentation.Play(EffectCue.BossTransform,enemy.transform.position,enemy.transform,1,duration);
                 AttackHint="ASCENSION OF ASH · transforming / warded";
             }
             else AttackHint="THE ASHEN HOST · summoning / warded";

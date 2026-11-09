@@ -115,7 +115,9 @@ namespace Seraphim
             agent.ResetPath(); agent.isStopped=false;
             foreach (var renderer in renderers) renderer.SetPropertyBlock(null);
             marked=false; Presentation?.ResetPose();
-            HealthBar.ResetBar(); Offense.ResetForSpawn(); return true;
+            HealthBar.ResetBar(); Offense.ResetForSpawn();
+            if (!IsBoss) director.Game.Presentation.Play(EffectCue.EnemySpawn,point);
+            return true;
         }
         float BaseScale => IsBoss?encounterScale:(Kind==DemonKind.ObsidianGuard?1.13f:Kind==DemonKind.AshStalker?.92f:1)*Difficulty.size*encounterScale;
         public void MarkBossSummon() { IsBossSummon=true; }
@@ -149,6 +151,7 @@ namespace Seraphim
             if (stun>0) Offense.Interrupt();
             if (burn>0) { burnUntil=Time.time+burn; nextBurn=Time.time+1; }
             sparks.Emit(12);
+            director.Game.Presentation.Play(EffectCue.EnemyHit,transform.position+Vector3.up);
             if (Health<=0)
             {
                 IsAlive=false; deathAt=Time.time; targetCollider.enabled=false; if (agent.enabled) agent.enabled=false;

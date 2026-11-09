@@ -162,6 +162,7 @@ namespace Seraphim
             Stage=Phase.Charging;
             CastCount++;
             enemies.Game.Audio?.Play(SoundCue.Ascend,transform.position);
+            enemies.Game.Presentation.Play(EffectCue.Ascend,transform.position,transform);
             effectRoot.transform.position=transform.position;
             effectRoot.SetActive(true);
             chargeMotes.Emit(100);
@@ -185,6 +186,8 @@ namespace Seraphim
             var camera=Camera.main.GetComponent<SanctuaryCamera>();
             if (camera!=null) camera.Impact();
             enemies.Game.Audio?.Play(SoundCue.Revelation,transform.position);
+            enemies.Game.Presentation.Play(EffectCue.Revelation,transform.position+Vector3.up*.25f);
+            enemies.Game.Presentation.Play(EffectCue.DivineAura,transform.position,transform,1,settings.ultimateDuration);
             Pulse();
             nextPulseAt=startedAt+ChargeTime+settings.ultimatePulseInterval;
         }
@@ -193,6 +196,7 @@ namespace Seraphim
         {
             PulseCount++;
             if (PulseCount>1) enemies.Game.Audio?.Play(SoundCue.Pulse,transform.position);
+            enemies.Game.Presentation.Play(EffectCue.Pulse,transform.position);
             enemies.Radial(transform.position,settings.ultimateRadius,settings.ultimateDamage,DivineDamage.WordOfGod,null,.35f,.15f);
             if (PulseCount>1) burstMotes.Emit(100);
             foreach (var stone in stones) if (Vector3.Distance(transform.position,stone.transform.position)<=settings.ultimateRadius) stone.Attune();
@@ -259,6 +263,7 @@ namespace Seraphim
 
         void RestoreForm()
         {
+            enemies.Game.Presentation.ClearUltimate();
             IsActive=false;
             Stage=Phase.Ready;
             VisualPower=0;

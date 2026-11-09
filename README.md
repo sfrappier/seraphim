@@ -14,13 +14,15 @@ This repository is the Unity project root. On this computer it lives at `F:\Temp
 
 [FallenAngel](Docs/images/fallen-angel.png) · [Four demon classes](Docs/images/demon-roster.png)
 
+[Divine effects](Docs/images/divine-effects.png) · [Revelation](Docs/images/divine-revelation.png) · [Knight windup](Docs/images/knight-windup.png) · [Sword sweep](Docs/images/knight-sweep.png)
+
 The previews are camera renders from the exported Windows player, including its native angelic HUD.
 
 ## Play the prototype
 
 Double-click **Play Seraphim.cmd** after a successful build. The executable is `Builds/Windows/Seraphim.exe`; distribute its entire folder, including `Seraphim_Data`, not just the executable.
 
-Version **0.10.0** opens at a shaded main menu with **Start** in the upper left. Its background is a live, autonomous battle: a moving seraphim uses all five powers against up to **96 demons**, with eight simultaneous special attacks. Start clears the demonstration and begins a fresh ten-wave campaign with the normal 24-enemy cap, followed by a final boss. **Boss Trial** skips directly to that fight for practice. The demonstration grants no campaign score, drops, or cooldown penalties.
+Version **0.11.0** opens at a shaded main menu with **Start** in the upper left. Its background is a live, autonomous battle: a moving seraphim uses all five powers against up to **96 demons**, with eight simultaneous special attacks. Start clears the demonstration and begins a fresh ten-wave campaign with the normal 24-enemy cap, followed by a final boss. **Boss Trial** skips directly to that fight for practice. The demonstration grants no campaign score, drops, or cooldown penalties.
 
 Open **Settings** from the menu or the in-game button to adjust **Music** and **Sound Effects** separately. Zero mutes a channel, and volumes persist between runs. Escape or controller Options/Start opens in-game settings and pauses combat; music continues. Circle/B or Escape returns. Main-menu buttons and sliders support mouse, keyboard arrows/Enter, and controller navigation. Quit is available on the main menu.
 
@@ -69,9 +71,17 @@ These six models are **CC BY 4.0**, with author credits, source links, complete 
 
 This remains a playable wave scenario; player classes, equipment, pets, saving, campaign generation and multiplayer are future milestones.
 
+## Downloaded sound and particle presentation
+
+Version 0.11 uses the owner's **Magic Effects FREE 1.6**, **General RPG SFX Pack 1.0**, **Small Sound Kit 1.0**, and **Particle Pack | Starter Assets 3.3**. Every one of the 23 sound cues maps to a sample, with four concrete footstep variants and separate boss swing/meteor/fire/nova/arrival sounds. The existing independent Music/Sound Effects controls remain authoritative. No blood/gore sounds are selected.
+
+Twenty-four presentation cues add textured holy bursts, casting flashes, spear impacts, electrical strikes, flame slashes, revelation/aura/pulses, gold/silver pickups, spawn portals, banishment, defensive shields, rifts, explosions, boss fire/nova/slash/transformation and ambient motes. Adapted materials use the project's URP particle shader; source texture art and particle shapes are reused. Demo scripts, embedded audio, physics and particle lights are removed from runtime effect prefabs. Effects are recolored and bounded, with at most **32 active instances**, **96 retained instances**, and per-type/particle limits. Existing damage tests, cooldowns and fixed warnings remain authoritative. Cleanup handles ultimate cancellation, defeat, boss transitions, retry, menu and replay.
+
+The four packs and all adapted content remain under ignored `Assets/ThirdParty/AssetStore/`. Build preparation moves new default import folders there with their metadata intact, then generates a private `Resources/SeraphimPresentation.asset` bank. A clean public checkout builds with the original sound/particle fallback; import the listed licensed packs to reproduce the local enhanced presentation. Source versions, official links, licenses and original imported-file checksums are recorded in `Tools/presentation-sources.json`. The compiled Windows export embeds the selected licensed content and carries the notices; raw assets are not published on GitHub.
+
 ## Final boss: Vorath, Herald of Ash
 
-After all **370 wave demons**, a seven-second preparation rest restores 35 Life and full Spirit. Vorath then descends nearby on reachable ground. He now uses **DRAGON NEMESIS // The Infernal Wyrm by Atahan3D**, a dragon-armored knight with an enormous sword, horned helmet, dragon-head pauldron and cape. The imported model stands about seven meters tall before ascension, with a rotating infernal seal and furnace lighting. A large top-center health bar shows his health, phase, and attack warning; the minimap marks him with a larger magenta dot. The camera widens and includes him while retaining player movement and aiming controls.
+After all **370 wave demons**, a seven-second preparation rest restores 35 Life and full Spirit. Vorath then descends nearby on reachable ground. He now uses **DRAGON NEMESIS // The Infernal Wyrm by Atahan3D**, a dragon-armored knight with an enormous sword, horned helmet, dragon-head pauldron and cape. The imported model stands about seven meters tall before ascension, with a rotating infernal seal and furnace lighting. Its articulated animation now includes idle breathing, walking, casting, transformation gestures, a sword windup and sweep, recovery, and a fiery blade-tip trail. The separated sword remains rigid while the arm moves; joint weights blend continuously across the original armor sculpt. A large top-center health bar shows his health, phase, and attack warning; the minimap marks him with a larger magenta dot. The camera widens and includes him while retaining player movement and aiming controls.
 
 Vorath has **9,600 HP** and three mandatory phases. Damage stops at **65% and 30% health**, even for multiple lethal hits in one frame. Each boundary begins a temporary, visibly labeled ward: **2.2 seconds** to rally his phase-two host, then **3.4 seconds** for his phase-three transformation. Pending hazards clear for these transitions; summoned demons remain dangerous and vulnerable. Excess damage cannot skip the next phase. The health bar marks both boundaries and shows the ward and living host count.
 
@@ -126,7 +136,7 @@ Unity Package Manager installs the pinned Input System package automatically. It
 
 The local Windows build includes the owner-authorized **Track Realm** recording, starting at **1:03:51** and looping through the end of Repeat Cycle 3 at **1:35:40** (31 minutes 49 seconds). The game reads a local streaming OGG file; it does not contact YouTube during play. Recording provenance and conversion-tool checksums are in `Tools/music-source.json`. The recording and its SHA-256 receipt stay in ignored `LocalAudio/`; build preparation copies them into `Builds/Windows/Music/`. Permission to use the recording was confirmed by the project owner; no raw recording is published in this repository.
 
-A clean checkout uses an original 32-second choir/organ-style loop. All combat, pickup, movement, wave, and UI effects are generated from original synthesis code, with a bounded 20-voice pool and hit-rate limits. To prepare the authorized recording again, supply its local file and an FFmpeg installation:
+A clean checkout uses an original 32-second choir/organ-style loop. The local build uses 23 downloaded sound bindings, including holy magic, casting, electricity, fire, restoration, concrete footsteps, interface cues and deeper boss impacts. Original synthesis remains the fallback when the packs are absent. Both presentations share a bounded 20-voice pool, cue-rate limits, stereo positioning and independent effects volume. To prepare the authorized recording again, supply its local file and an FFmpeg installation:
 
 ```powershell
 .\Tools\Import-LicensedMusic.ps1 -InputFile 'C:\Music\authorized-recording.webm' -FfmpegPath 'C:\Tools\ffmpeg.exe'
@@ -155,7 +165,9 @@ Use `.\Tools\Smoke-Test.ps1 -DifficultyOnly` for pressure checks. These exercise
 
 Use `.\Tools\Smoke-Test.ps1 -FrontEndOnly` for menu/showcase, start/reset, pause/resume, independent volumes, preference persistence, and music-loading checks. Add `-FallbackMusic` to verify the original soundtrack without removing the authorized local recording. These checks restore the user's saved volumes afterward. Audio signal measurements verify playback, not perceived musical quality or speaker routing.
 
-Use `.\Tools\Smoke-Test.ps1 -CharactersOnly` for imported model checks and close views of FallenAngel and the four demons. These verify textured material slots, humanoid retargeting, distinct enemy skins, skeleton-driven movement, both LODs, scale and health-bar alignment, damage and pooled reuse, plus the Scourger's rift damage, dodge and lightning interruption. The boss source is a static, joined knight/sword/cape mesh; this first pass uses a rigid stance and whole-body sword sweep to preserve its authored shapes. A more detailed limb/weapon animation pass remains possible.
+Use `.\Tools\Smoke-Test.ps1 -CharactersOnly` for imported model checks and close views of FallenAngel and the four demons. These verify textured material slots, humanoid retargeting, distinct enemy skins, skeleton-driven movement, both LODs, scale and health-bar alignment, damage and pooled reuse, plus the Scourger's rift damage, dodge and lightning interruption. The boss source was a static joined mesh. It now has fitted skin weights, a separate rigid sword attached to the right hand, and a cape joint for skeletal animation.
+
+Use `.\Tools\Smoke-Test.ps1 -PresentationOnly` for all sampled sound bindings, decoded audio, effects volume/mute, imported URP materials, actual ability effects, ultimate cleanup and particle pool limits. `-FallbackPresentation` explicitly selects the original procedural sound/particle presentation even when the local Asset Store bank exists. Combine it with `-FrontEndOnly -FallbackMusic` to check the public fallback's menu, audio and input handoffs. Boss checks also measure shoulder/hand movement, rigid blade length and recovery, with separate windup/sweep screenshots.
 
 Use `.\Tools\Smoke-Test.ps1 -BossOnly` for the final encounter. Checks cover all five powers, boss poise, same-frame lethal burst limits, temporary wards, summoned attacks and reinforcements, living caps, resource drops and collection, progressive boss and summon growth, ritual cleanup, meteors and persistent fire, warning escape routes, traveling fire and wall blocking, nova safe zones, scythe hits and dodges, automatic attack chaining, hazard bounds, retry cleanup, final scoring, and normal guard reuse. Full scenario checks additionally verify that wave ten leads to the boss and that victory requires all three boss phases. Boss Trial uses the same encounter as the normal campaign.
 

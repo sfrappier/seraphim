@@ -111,6 +111,7 @@ namespace Seraphim
         }
         public void Clear()
         {
+            game.Presentation.Clear(true);
             foreach (var h in pool)
             {
                 h.root.SetActive(false); h.trail.emitting=false; h.trail.Clear();
@@ -152,7 +153,9 @@ namespace Seraphim
                     h.particles.transform.localPosition=Vector3.up*.2f;
                     var shape=h.particles.shape; shape.shapeType=ParticleSystemShapeType.Circle; shape.radius=h.kind==BossAttack.Meteor?h.radius:1;
                     h.particles.Emit(h.kind==BossAttack.Meteor?100:40);
-                    game.Audio.Play(h.kind==BossAttack.Meteor?SoundCue.Revelation:h.kind==BossAttack.Slash?SoundCue.Spear:SoundCue.Fire,h.point);
+                    game.Audio.Play(h.kind==BossAttack.Meteor?SoundCue.Meteor:h.kind==BossAttack.Slash?SoundCue.BossSwing:h.kind==BossAttack.Nova?SoundCue.Nova:SoundCue.Hellfire,h.point);
+                    game.Presentation.Play(h.kind==BossAttack.Meteor?EffectCue.BossMeteor:h.kind==BossAttack.Slash?EffectCue.BossSlash:h.kind==BossAttack.Nova?EffectCue.BossNova:EffectCue.BossFire,
+                        h.point+(h.kind==BossAttack.Slash?Vector3.up*1.4f:Vector3.zero),h.kind==BossAttack.Fire?h.rock.transform:null,1,0,h.direction);
                     var distance=FlatDistance(player,h.point);
                     if (h.kind==BossAttack.Meteor && distance<=h.radius+.25f) Damage(h.damage);
                     if (h.kind==BossAttack.Nova && distance>=4.75f && distance<=12.25f) Damage(h.damage);

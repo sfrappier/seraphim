@@ -67,6 +67,7 @@ namespace Seraphim
             readyAt=Time.time+settings.pulseCooldown;
             CastCount++;
             enemies.Game.Audio?.Play(SoundCue.Radiance,transform.position);
+            enemies.Game.Presentation.Play(EffectCue.Radiance,transform.position);
             pulse.ring.gameObject.SetActive(true);
             pulse.ring.transform.position = transform.position + Vector3.up * .12f;
             pulse.age = 0;

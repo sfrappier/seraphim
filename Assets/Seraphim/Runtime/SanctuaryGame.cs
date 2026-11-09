@@ -26,6 +26,7 @@ namespace Seraphim
         public SeraphimFrontEnd FrontEnd { get; private set; }
         public CathedralShowcase Attract { get; private set; }
         public CathedralBoss Boss { get; private set; }
+        public SanctuaryPresentation Presentation {get;private set;}
         public readonly List<Rect> MapObstacles=new List<Rect>();
         public List<Waystone> Waystones { get; } = new List<Waystone>();
         public int AttunedCount => Waystones.FindAll(s => s.IsAttuned).Count;
@@ -39,6 +40,7 @@ namespace Seraphim
             if (settings == null || models == null) { Debug.LogError("Sanctuary content is missing. Run Tools/Build.ps1."); enabled = false; return; }
             Application.targetFrameRate = 120;
             QualitySettings.vSyncCount = 1;
+            Presentation=gameObject.AddComponent<SanctuaryPresentation>();Presentation.Initialize(this);
             Audio=gameObject.AddComponent<SanctuaryAudio>(); Audio.Initialize(this);
             BuildSanctuary();
             BuildNavigation();
@@ -140,7 +142,7 @@ namespace Seraphim
             var aura = SceneArt.Ring("Seraphim ground aura",player.transform,.6f,.025f,models.glowCyan);
             aura.transform.localPosition = Vector3.up*.05f;
             Vitals=player.AddComponent<SeraphimVitals>();
-            Vitals.Initialize(settings,Audio);
+            Vitals.Initialize(settings,Audio,Presentation);
             Ability = player.AddComponent<CelestialAbility>();
             Ability.Initialize(settings,models.glowGold,models.celestialMote,Waystones,Vitals,Enemies);
             Ultimate=player.AddComponent<WordOfGodAbility>();
@@ -229,12 +231,14 @@ namespace Seraphim
 
         public void ResetPlayableWorld()
         {
+            Presentation.Clear();
             Waves.StopScenario(); Enemies.DespawnAll(); Drops.Clear();
             Ability.ResetForRun(); Ultimate.ResetForRun(); Powers.ResetForRun();
             Player.StopKeyboardMovement(); Player.Agent.ResetPath(); Player.Agent.Warp(settings.spawnPoint);
             Vitals.PresentationMode=false; Vitals.RestoreLife(Vitals.MaxLife); Vitals.RestoreSpirit(Vitals.MaxSpirit);
             foreach (var stone in Waystones) stone.ResetAttunement();
             Audio.StopEffects();
+            Presentation.Play(EffectCue.Ambient,settings.spawnPoint+Vector3.up*2,null,1,30);
         }
         void OnDestroy()
         {

@@ -28,6 +28,7 @@ namespace Seraphim.Editor
             ConfigureProject();
             ConfigureRenderer();
             var models = ConfigureModels();
+            DownloadedPresentationBuilder.Configure();
             var settings = GetOrCreate<SanctuarySettings>(Generated+"/SanctuarySettings.asset");
             var atmosphere = ConfigureAtmosphere();
             // Create the bootstrap scene only once. Subsequent builds preserve authored scene changes.
@@ -59,7 +60,7 @@ namespace Seraphim.Editor
         {
             PlayerSettings.companyName = "Seraphim";
             PlayerSettings.productName = "Seraphim";
-            PlayerSettings.bundleVersion = "0.10.0";
+            PlayerSettings.bundleVersion = "0.11.0";
             PlayerSettings.colorSpace = ColorSpace.Linear;
             PlayerSettings.defaultScreenWidth = 1600;
             PlayerSettings.defaultScreenHeight = 900;
@@ -291,7 +292,7 @@ namespace Seraphim.Editor
             if (game.models.marble==null || game.models.marble.mainTexture==null || game.models.cathedralWood==null
                 || game.settings.waveCount!=10 || game.settings.cathedralSize.x<80 || game.settings.cathedralSize.y<100)
                 throw new BuildFailedException("Cathedral textures, dimensions, or ten-wave scenario are missing.");
-            var shaders = new[] {Shader.Find("Universal Render Pipeline/Lit"),Shader.Find("Seraphim/Celestial Glow"),Shader.Find("Seraphim/Celestial Mote"),Shader.Find("Seraphim/Celestial Armor"),Shader.Find("UI/Default")};
+            var shaders = new[] {Shader.Find("Universal Render Pipeline/Lit"),Shader.Find("Seraphim/Celestial Glow"),Shader.Find("Seraphim/Celestial Mote"),Shader.Find("Seraphim/Celestial Armor"),Shader.Find("Seraphim/Imported Particle"),Shader.Find("UI/Default")};
             if (shaders.Any(s => s == null || UnityEditor.ShaderUtil.ShaderHasError(s))) throw new BuildFailedException("A required shader failed to compile.");
             Debug.Log("SERAPHIM_VALIDATION: scene, settings, imported models, animations, shaders and renderer passed.");
         }
@@ -306,6 +307,7 @@ namespace Seraphim.Editor
                 scenes=new[] {ScenePath},locationPathName=output,target=BuildTarget.StandaloneWindows64,options=BuildOptions.None
             });
             if (report.summary.result != BuildResult.Succeeded) throw new BuildFailedException("Windows build failed: "+report.summary.result);
+            if (ShaderUtil.ShaderHasError(Shader.Find("Seraphim/Imported Particle"))) throw new BuildFailedException("Imported particle shader failed during player compilation.");
             var outputDirectory=Path.GetDirectoryName(output);
             Directory.CreateDirectory(Path.Combine(outputDirectory,"Licenses"));
             File.Copy("Assets/ThirdParty/CinzelDecorative/OFL.txt",Path.Combine(outputDirectory,"Licenses","CinzelDecorative-OFL.txt"),true);

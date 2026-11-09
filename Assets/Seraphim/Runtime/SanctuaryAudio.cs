@@ -16,6 +16,9 @@ namespace Seraphim
         readonly AudioSource[] voices=new AudioSource[VoiceCount];
         readonly float[] gains=new float[VoiceCount];
         AudioClip[] clips;
+        bool[] owned;
+        SoundBinding[] bindings;
+        int[] variations;
         float[] lastPlayed;
         float nextStep,saveAt;
         bool dirty;
@@ -26,6 +29,9 @@ namespace Seraphim
         public bool LicensedMusicLoaded { get; private set; }
         public string MusicCredit => LicensedMusicLoaded?"Track Realm · Repeat Cycle 3":"Original sanctuary choir and organ";
         public int PlayedEffects { get; private set; }
+        public int DownloadedCueCount {get;private set;}
+        public AudioClip LastEffectClip {get;private set;}
+        public bool HasDownloadedCue(SoundCue cue) => bindings!=null && bindings[(int)cue]!=null;
         public int ActiveVoices { get { var count=0; foreach (var source in voices) if (source!=null && source.isPlaying) count++; return count; } }
         public void Initialize(SanctuaryGame owner)
         {
@@ -34,7 +40,15 @@ namespace Seraphim
             music=new GameObject("Music channel").AddComponent<AudioSource>(); music.transform.SetParent(transform,false);
             music.playOnAwake=false; music.loop=true; music.spatialBlend=0; music.priority=0; music.volume=Gain(MusicVolume);
             clips=new AudioClip[Enum.GetValues(typeof(SoundCue)).Length]; lastPlayed=new float[clips.Length];
-            for (var i=0;i<clips.Length;i++) { clips[i]=SanctuarySound.Create((SoundCue)i); lastPlayed[i]=-100; }
+            owned=new bool[clips.Length];bindings=new SoundBinding[clips.Length];variations=new int[clips.Length];
+            for (var i=0;i<clips.Length;i++)
+            {
+                var binding=game.Presentation.Bank!=null?game.Presentation.Bank.Sound((SoundCue)i):null;
+                if (binding!=null && binding.variants!=null && binding.variants.Length>0 && binding.variants[0]!=null)
+                {bindings[i]=binding;clips[i]=binding.variants[0];DownloadedCueCount++;}
+                else {clips[i]=SanctuarySound.Create((SoundCue)i);owned[i]=true;}
+                lastPlayed[i]=-100;
+            }
             for (var i=0;i<voices.Length;i++)
             {
                 var source=new GameObject("Effects voice "+i).AddComponent<AudioSource>(); source.transform.SetParent(transform,false);
@@ -84,13 +98,22 @@ namespace Seraphim
             lastPlayed[index]=Time.unscaledTime;
             var voice=-1;
             for (var i=0;i<voices.Length;i++) if (!voices[i].isPlaying) { voice=i; break; }
+            var priority=cue==SoundCue.Revelation || cue==SoundCue.Ascend || cue==SoundCue.Victory || index>=(int)SoundCue.BossSwing?30:cue==SoundCue.Hit || cue==SoundCue.Banish?100:60;
+            if (voice<0 && priority<=60)
+            {
+                for (var i=0;i<voices.Length;i++) if (voices[i].priority>priority && (voice<0 || voices[i].volume<voices[voice].volume)) voice=i;
+            }
             if (voice<0) return;
             var level=cue==SoundCue.Hit?.16f:cue==SoundCue.Banish?.22f:cue==SoundCue.Step?.2f:cue==SoundCue.Warning?.28f:
                 cue==SoundCue.Pulse?.25f:cue==SoundCue.Revelation?.75f:.55f;
             if (game.Attract!=null && game.Attract.IsRunning) level*=.7f;
-            gains[voice]=level; var source=voices[voice]; source.clip=clips[index]; source.volume=level*Gain(EffectsVolume);
+            var binding=bindings[index];
+            var clip=binding!=null?binding.variants[variations[index]++%binding.variants.Length]:clips[index];
+            if (binding!=null) level*=binding.gain;
+            gains[voice]=level; var source=voices[voice];source.Stop();source.priority=priority;source.clip=clip;source.volume=level*Gain(EffectsVolume);
+            source.pitch=index>=(int)SoundCue.BossSwing?.74f:cue==SoundCue.Step?.95f+(variations[index]%4)*.03f:1;
             source.panStereo=world.HasValue && Camera.main!=null?Mathf.Clamp((Camera.main.WorldToViewportPoint(world.Value).x-.5f)*.8f,-.6f,.6f):0;
-            source.Play(); PlayedEffects++;
+            source.Play(); PlayedEffects++;LastEffectClip=clip;
         }
         public void StopEffects()
         {
@@ -121,7 +144,7 @@ namespace Seraphim
         void OnDestroy()
         {
             if (music!=null && music.clip!=null) Destroy(music.clip);
-            if (clips!=null) foreach (var clip in clips) Destroy(clip);
+            if (clips!=null) for (var i=0;i<clips.Length;i++) if (owned[i]) Destroy(clips[i]);
         }
     }
 }

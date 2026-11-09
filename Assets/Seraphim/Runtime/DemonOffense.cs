@@ -116,6 +116,7 @@ namespace Seraphim
                 if (Time.time<until) return;
                 if (kind==AttackKind.RiftBurst)
                 {
+                    director.Game.Presentation.Play(EffectCue.EnemyRift,point);
                     if (FlatDistance(director.Game.Player.transform.position,point)<radius+.25f) Damage(7*owner.Difficulty.damage);
                     embers.Emit(75); Phase=AttackPhase.Recovery; until=Time.time+.4f;
                 }

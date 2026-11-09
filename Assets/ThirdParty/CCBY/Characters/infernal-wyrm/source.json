@@ -47,12 +47,12 @@
     "sha256": "41da973b9bf95bb312cbeff4d1982feb13259b43c821686b9bafea4dfe5477cf",
     "requiredForBuild": false
   },
-  "modifications": "Converted to FBX/Unity PBR; resized textures, packed metallic/smoothness; retained author skeletons where present; supplied game rigs for Devil Demon, Demon Witch and Infernal Wyrm; two demon/boss mesh LODs. Original unmodified downloads remain outside the source tree.",
+  "modifications": "Converted to FBX/Unity PBR; resized textures, packed metallic/smoothness; retained author skeletons where present; supplied game rigs for Devil Demon, Demon Witch and Infernal Wyrm; two demon/boss mesh LODs. Original unmodified downloads remain outside the source tree. Refined anatomical skin weights with continuous joint blends; separated hand-bound rigid sword, a blade-tip joint and a cape joint for authored skeletal locomotion, cast and attack poses.",
   "runtimeFiles": [
     {
       "file": "infernal-wyrm.fbx",
-      "bytes": 1089276,
-      "sha256": "ff4a7d9a17cc6003eebd427c81735796f56827e99fbf75694687ed62e756f7c9"
+      "bytes": 1163500,
+      "sha256": "263b590bb69b64a7f55ea598eed64f24a171e0d825c3a81e7ceaba781a6101ca"
     },
     {
       "file": "Material_0_001_baseColor.png",
@@ -77,7 +77,7 @@
     {
       "file": "model.json",
       "bytes": 447,
-      "sha256": "8e419567b52bf5b2882810ef5b68a62eb72f4e9f6c4a751a596b0a1ad014b50e"
+      "sha256": "651f9e274dd0f187556059e6f6ba3844fb0bdade9e33a1376f6120cfc6e71a33"
     }
   ]
 }
