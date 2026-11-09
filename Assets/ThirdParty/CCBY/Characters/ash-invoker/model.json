@@ -1,0 +1,37 @@
+{
+  "key": "ash-invoker",
+  "model": "ash-invoker.fbx",
+  "lod": true,
+  "triangles": {
+    "0": 37866,
+    "1": 10598
+  },
+  "materials": [
+    {
+      "name": "02_-_Default",
+      "alphaClip": false,
+      "doubleSided": false,
+      "baseColor": "02_-_Default_baseColor.png",
+      "normal": "02_-_Default_normal.png",
+      "metalSmooth": "02_-_Default_metalSmooth.png"
+    },
+    {
+      "name": "03_-_Default",
+      "alphaClip": false,
+      "doubleSided": true,
+      "baseColor": "03_-_Default_baseColor.png",
+      "normal": "03_-_Default_normal.png",
+      "emission": "03_-_Default_emission.png",
+      "metalSmooth": "03_-_Default_metalSmooth.png"
+    },
+    {
+      "name": "default",
+      "alphaClip": false,
+      "doubleSided": false,
+      "baseColor": "default_baseColor.png",
+      "normal": "default_normal.png",
+      "emission": "default_emission.png",
+      "metalSmooth": "default_metalSmooth.png"
+    }
+  ]
+}

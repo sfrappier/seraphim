@@ -1,0 +1,183 @@
+{
+  "title": "Scourger Rig",
+  "creator": "DM-913",
+  "source": "https://sketchfab.com/3d-models/scourger-rig-deb9b27965064f85a7f482599f5a69a8",
+  "uid": "deb9b27965064f85a7f482599f5a69a8",
+  "license": "CC-BY-4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+  "originalArchive": "scourger-rig.zip",
+  "originalArchiveSha256": "525d91fdbdf9cef4209961485e49f7f24ffcf06630b947d1e88b05c973eab96a",
+  "originalFiles": [
+    {
+      "file": "source/Scourger3.blend",
+      "bytes": 150782532,
+      "sha256": "802511bf6001c0a1ecfe06f02fbb3c4314fe161a5e4a5320fe6b1e6211167b4c"
+    },
+    {
+      "file": "textures/AxeDiffuse.png",
+      "bytes": 3473376,
+      "sha256": "45536d20e51dd2dc03a519149807b1965dc94b49b8a0b9175c720da1d70aeadf"
+    },
+    {
+      "file": "textures/AxeNormal.png",
+      "bytes": 1590639,
+      "sha256": "6f3827cd7956a87b900716859130079873b131cbed8f0d03ea7058f33ddb2269"
+    },
+    {
+      "file": "textures/AxeRoughness@channels=B.png",
+      "bytes": 660,
+      "sha256": "4405f615959b7eed99cebae90c3c8bc18ba87504d19460dcb511a72dd796e0f3"
+    },
+    {
+      "file": "textures/AxeRoughness@channels=G.png",
+      "bytes": 222653,
+      "sha256": "9e5b6cd9768879be41d348786be4993f42bda6e5d6e4b4fa6e711ce8a0d298f9"
+    },
+    {
+      "file": "textures/Feather_Alpha.png",
+      "bytes": 501123,
+      "sha256": "c4d0e4405ee10c0fad15f029b8d0019a265cf1b78308bf65ed705ae2512c4296"
+    },
+    {
+      "file": "textures/Feather_Diffuse.png",
+      "bytes": 1341470,
+      "sha256": "4fd5bd6790664c3ddba0d83cb523dc90536e174b334a3e2dec574659f5153b2a"
+    },
+    {
+      "file": "textures/MainFeatherNormal.png",
+      "bytes": 919687,
+      "sha256": "2c7848d3da9e0f7ae57a64a90ca2979b3a4c63e17b6d9021ff825003d548a981"
+    },
+    {
+      "file": "textures/Scourger_Roughness.png",
+      "bytes": 1782543,
+      "sha256": "db22fb75d218cbcad9ea2c5e636e0a96fcd98920f907f9647f7a598d03a32c25"
+    },
+    {
+      "file": "textures/ScourgerAttireDiffuse-ScourgerAttireAlpha.png",
+      "bytes": 6230231,
+      "sha256": "ac020f4f8b3b1b3bebfcfb35a1536cdc86bba8dc9f868040e570842ef0ce753b"
+    },
+    {
+      "file": "textures/ScourgerAttireMetalness1-ScourgerAttireRoughness@channels=B.png",
+      "bytes": 96019,
+      "sha256": "0770527db701377659e477de7d37e0f36208ccf23316a9d805a01b77b1a38b25"
+    },
+    {
+      "file": "textures/ScourgerAttireMetalness1-ScourgerAttireRoughness@channels=G.png",
+      "bytes": 484565,
+      "sha256": "e8d71015e2683ef152443d188ed1a05535bb418ced947552c31381df79c4c487"
+    },
+    {
+      "file": "textures/ScourgerAttireNormal.png",
+      "bytes": 10005905,
+      "sha256": "aba8f22513f8a6a4a611335e691223a3f32f2108e91aad721a5759bf0117368c"
+    },
+    {
+      "file": "textures/ScourgerDiffuse.png",
+      "bytes": 15156017,
+      "sha256": "a9d92b17aeccdb141ebf4cd0bd6295df94f549fddf4e0f43d6b4178bddee88e6"
+    },
+    {
+      "file": "textures/ScourgerNormal.png",
+      "bytes": 12615615,
+      "sha256": "3539d146894f5694f4decd0ae57cca38a86b2771242b989298ef9c076d9831e0"
+    }
+  ],
+  "preparationTool": {
+    "name": "Blender",
+    "version": "4.5.9 LTS",
+    "license": "GPL-3.0-or-later",
+    "source": "https://download.blender.org/release/Blender4.5/blender-4.5.9-windows-x64.zip",
+    "sha256": "41da973b9bf95bb312cbeff4d1982feb13259b43c821686b9bafea4dfe5477cf",
+    "requiredForBuild": false
+  },
+  "modifications": "Converted to FBX/Unity PBR; resized textures, packed metallic/smoothness; retained author skeletons where present; supplied game rigs for Devil Demon, Demon Witch and Infernal Wyrm; two demon/boss mesh LODs. Original unmodified downloads remain outside the source tree.",
+  "runtimeFiles": [
+    {
+      "file": "Attire_baseColor.png",
+      "bytes": 1890163,
+      "sha256": "a03c6137bbd05b44e091296048ad6f15ecb47c4f6b1c4420be91f14639f47a2b"
+    },
+    {
+      "file": "Attire_metalSmooth.png",
+      "bytes": 495487,
+      "sha256": "cfcc09c8dbb675b4683a465d68b62590d189f11328001cebb49aac5d4676822e"
+    },
+    {
+      "file": "Attire_normal.png",
+      "bytes": 2773008,
+      "sha256": "f945e12f534ca8cad7d62e70ed6aa9cc86debc0859aa381abd35c417f1133cd1"
+    },
+    {
+      "file": "Axe_baseColor.png",
+      "bytes": 1075382,
+      "sha256": "706e2a51dba48d20ffc136f320c4027b13434f135352db90c1eeffb953f46661"
+    },
+    {
+      "file": "Axe_metalSmooth.png",
+      "bytes": 471055,
+      "sha256": "9595a199fa961fb3e6e71ee133f374a19e7870c4b980014b6b0999ab3bb99b15"
+    },
+    {
+      "file": "Axe_normal.png",
+      "bytes": 1788915,
+      "sha256": "8457399e4354977126fbc8801923c19a8fbf99abc1a54e93c644e56c80a0e778"
+    },
+    {
+      "file": "Eye_Material_baseColor.png",
+      "bytes": 1105624,
+      "sha256": "36ef460dbd3ef581ff36441c9417f44c0b24aa778f7f8ae75283c5c4c74b8f5c"
+    },
+    {
+      "file": "Eye_Material_metalSmooth.png",
+      "bytes": 591682,
+      "sha256": "a3776e1d7b388f42384342ac44ea9c73a62f08797bfa943d9c19774cc15206a3"
+    },
+    {
+      "file": "Eye_Material_normal.png",
+      "bytes": 1982581,
+      "sha256": "fd63111fd79ddf8631438ce8eb760e91ab96f2589d3d8a8a94fd4a91e3f62d96"
+    },
+    {
+      "file": "Feather_baseColor.png",
+      "bytes": 680611,
+      "sha256": "435a50f41510474c29b99b5f891df8fdf826423e71b9dbb5ed4c9b3ee2837086"
+    },
+    {
+      "file": "Feather_metalSmooth.png",
+      "bytes": 20654,
+      "sha256": "c9efa763cbc24a2ee7954a3cc437601b29db949b60c7cd2a746d0de682e8e567"
+    },
+    {
+      "file": "Feather_normal.png",
+      "bytes": 1062643,
+      "sha256": "6c12f329b1c20ed4646ba7fe084b04780a1f801270b5c8c8e92ef25f58ed9e85"
+    },
+    {
+      "file": "model.json",
+      "bytes": 1289,
+      "sha256": "afd7a2fdb8870de8ce5db21fe2a6ee2cffdd0983312a0d94c131624d95df08b1"
+    },
+    {
+      "file": "rift-scourger.fbx",
+      "bytes": 3858460,
+      "sha256": "29ad49a13159356cf02aabebdfae9882b6f859d382a2fb10a470d0d4e0cfe113"
+    },
+    {
+      "file": "Scourger_Material_baseColor.png",
+      "bytes": 1105624,
+      "sha256": "36ef460dbd3ef581ff36441c9417f44c0b24aa778f7f8ae75283c5c4c74b8f5c"
+    },
+    {
+      "file": "Scourger_Material_metalSmooth.png",
+      "bytes": 591682,
+      "sha256": "a3776e1d7b388f42384342ac44ea9c73a62f08797bfa943d9c19774cc15206a3"
+    },
+    {
+      "file": "Scourger_Material_normal.png",
+      "bytes": 1982581,
+      "sha256": "fd63111fd79ddf8631438ce8eb760e91ab96f2589d3d8a8a94fd4a91e3f62d96"
+    }
+  ]
+}

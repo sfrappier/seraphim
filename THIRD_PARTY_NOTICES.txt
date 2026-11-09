@@ -27,8 +27,29 @@ Source: https://github.com/KayKit-Game-Assets/KayKit-Character-Pack-Adventures-1
 Publisher revision: 672074b73ba276876a19e8816ecdc5241817ab47
 License: Creative Commons Zero (CC0 1.0 Universal)
 Included license, checksums, and provenance: Assets/ThirdParty/CC0/KayKitAngel/
-Seraphim uses the original humanoid rig with its own animation controller,
-ivory palette shader, crown, mantle, surcoat, and six animated wings.
+Retained as the previous prototype character base. The playable model is now
+FallenAngel, credited below.
+
+CC BY 4.0 character models
+FallenAngel - Free Game Character - UE5 Rig: Kaan Tezcan
+Realistic Devil Demon 3D Model - Game Ready: IdeaLK Models
+Demon Witch - Stylized Game-Ready Character: ZeRealSpone
+Minotaurs: Vasian-Digital3D
+Scourger Rig: DM-913
+DRAGON NEMESIS // The Infernal Wyrm: Atahan3D (display name: 6)
+License: Creative Commons Attribution 4.0 International (CC BY 4.0).
+https://creativecommons.org/licenses/by/4.0/
+Complete titles, source links, credits and modifications:
+Assets/ThirdParty/CCBY/Characters/CREDITS.txt
+Full terms: Assets/ThirdParty/CCBY/Characters/CC-BY-4.0.txt
+Per-model original and derivative SHA-256 receipts: each model's source.json.
+Adaptations include game skeletons where absent, animation, FBX conversion,
+PBR maps, resized textures, mesh LODs, normalization, and celestial additions.
+Windows exports include Licenses/Character-Credits.txt and
+Licenses/Characters-CC-BY-4.0.txt. No author endorsement is implied.
+Blender 4.5.9 LTS (GPL-3.0-or-later) is an optional offline preparation tool;
+its pinned download/checksum is in Tools/Prepare-CharacterModels.ps1 and the
+model receipts. Neither Blender nor original ZIPs are redistributed here.
 
 Poly Haven: Cathedral material sets
 Sources: https://polyhaven.com/a/marble_01

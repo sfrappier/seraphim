@@ -45,7 +45,9 @@ namespace Seraphim
             var boss=game.Boss.Enemy;
             BossFixture(new Vector3(-5,0,-9)); yield return new WaitForSeconds(.5f);
             var bounds=SanctuaryGame.VisualBounds(boss.GetComponent<CathedralBossArt>().Body.GetComponentsInChildren<Renderer>());
-            Check(boss.IsBoss && bounds.size.y>7 && bounds.size.x>5,"Vorath has an original towering skeletal model, crown, robe and scythe");
+            Debug.Log("SERAPHIM_BOSS_BOUNDS: "+bounds);
+            Check(boss.IsBoss && game.models.bossModel.prefab.name=="infernal-wyrm" && bounds.size.y>game.models.bossModel.height*.85f
+                && new Vector2(bounds.size.x,bounds.size.z).magnitude>4,"Vorath uses the towering imported Infernal Wyrm knight");
             Check(boss.MaxHealth==game.settings.bossHealth && boss.MaxHealth>=4000 && game.Boss.Phase==1,"Final boss starts with a full substantial health pool and phase one");
             Check(game.Boss.Hud.Visible && game.Boss.Hud.DisplayedFraction==1,"Final boss displays a dedicated health bar");
             Check(SanctuaryHud.BlocksScreenPoint(new Vector2(Screen.width*.5f,Screen.height-90)),"Boss health HUD cannot issue world movement");

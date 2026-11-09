@@ -117,22 +117,12 @@ namespace Seraphim
                 var normalizedAvatar = new GameObject("Normalized avatar");
                 normalizedAvatar.transform.SetParent(visual,false);
                 var avatar = Instantiate(models.character,normalizedAvatar.transform);
-                var bodyMaterial = new Material(models.angelArmor);
-                if (models.characterTexture != null)
-                {
-                    bodyMaterial.SetTexture("_BaseMap",models.characterTexture);
-                    bodyMaterial.SetColor("_BaseColor",Color.white);
-                }
                 foreach (var renderer in avatar.GetComponentsInChildren<Renderer>())
                 {
                     var skinned = renderer as SkinnedMeshRenderer;
-                    var mesh = skinned != null ? skinned.sharedMesh : renderer.GetComponent<MeshFilter>()?.sharedMesh;
-                    var materials = new Material[mesh != null ? Mathf.Max(1,mesh.subMeshCount) : 1];
-                    for (var i=0;i<materials.Length;i++) materials[i]=bodyMaterial;
-                    renderer.sharedMaterials = materials;
                     if (skinned != null) skinned.updateWhenOffscreen = true;
                 }
-                anim = avatar.GetComponent<Animator>();
+                anim = avatar.GetComponentInChildren<Animator>();
                 if (anim == null) anim = avatar.AddComponent<Animator>();
                 anim.avatar = models.humanoidAvatar;
                 anim.runtimeAnimatorController = models.animatorController;

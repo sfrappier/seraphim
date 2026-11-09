@@ -1,0 +1,130 @@
+{
+  "key": "fallen-angel",
+  "model": "FallenAngel.fbx",
+  "lod": false,
+  "triangles": {
+    "0": 146772,
+    "1": 0
+  },
+  "materials": [
+    {
+      "name": "ArmArmor",
+      "alphaClip": false,
+      "doubleSided": false,
+      "baseColor": "ArmArmor_baseColor.png",
+      "normal": "ArmArmor_normal.png",
+      "metalSmooth": "ArmArmor_metalSmooth.png"
+    },
+    {
+      "name": "Belt",
+      "alphaClip": false,
+      "doubleSided": false,
+      "baseColor": "Belt_baseColor.png",
+      "normal": "Belt_normal.png",
+      "metalSmooth": "Belt_metalSmooth.png"
+    },
+    {
+      "name": "Body",
+      "alphaClip": false,
+      "doubleSided": false,
+      "baseColor": "Body_baseColor.png",
+      "normal": "Body_normal.png",
+      "metalSmooth": "Body_metalSmooth.png"
+    },
+    {
+      "name": "ChestArmor",
+      "alphaClip": false,
+      "doubleSided": false,
+      "baseColor": "ChestArmor_baseColor.png",
+      "normal": "ChestArmor_normal.png",
+      "metalSmooth": "ChestArmor_metalSmooth.png"
+    },
+    {
+      "name": "ChestArmor2",
+      "alphaClip": false,
+      "doubleSided": false,
+      "baseColor": "ChestArmor2_baseColor.png",
+      "normal": "ChestArmor2_normal.png",
+      "metalSmooth": "ChestArmor2_metalSmooth.png"
+    },
+    {
+      "name": "Eyes_001",
+      "alphaClip": false,
+      "doubleSided": false,
+      "baseColor": "Eyes_001_baseColor.png",
+      "normal": "Eyes_001_normal.png",
+      "metalSmooth": "Eyes_001_metalSmooth.png"
+    },
+    {
+      "name": "FeetArmor",
+      "alphaClip": false,
+      "doubleSided": false,
+      "baseColor": "FeetArmor_baseColor.png",
+      "normal": "FeetArmor_normal.png",
+      "metalSmooth": "FeetArmor_metalSmooth.png"
+    },
+    {
+      "name": "Hair",
+      "alphaClip": true,
+      "doubleSided": true,
+      "baseColor": "Hair_baseColor.png",
+      "normal": "Hair_normal.png",
+      "metalSmooth": "Hair_metalSmooth.png"
+    },
+    {
+      "name": "handArmor",
+      "alphaClip": false,
+      "doubleSided": false,
+      "baseColor": "handArmor_baseColor.png",
+      "normal": "handArmor_normal.png",
+      "metalSmooth": "handArmor_metalSmooth.png"
+    },
+    {
+      "name": "Head",
+      "alphaClip": false,
+      "doubleSided": false,
+      "baseColor": "Head_baseColor.png",
+      "normal": "Head_normal.png",
+      "metalSmooth": "Head_metalSmooth.png"
+    },
+    {
+      "name": "Face",
+      "alphaClip": false,
+      "doubleSided": false,
+      "baseColor": "Face_baseColor.png",
+      "normal": "Face_normal.png",
+      "metalSmooth": "Face_metalSmooth.png"
+    },
+    {
+      "name": "helmet",
+      "alphaClip": false,
+      "doubleSided": false,
+      "baseColor": "helmet_baseColor.png",
+      "normal": "helmet_normal.png",
+      "metalSmooth": "helmet_metalSmooth.png"
+    },
+    {
+      "name": "LegArmor",
+      "alphaClip": false,
+      "doubleSided": false,
+      "baseColor": "LegArmor_baseColor.png",
+      "normal": "LegArmor_normal.png",
+      "metalSmooth": "LegArmor_metalSmooth.png"
+    },
+    {
+      "name": "Scarf",
+      "alphaClip": false,
+      "doubleSided": true,
+      "baseColor": "Scarf_baseColor.png",
+      "normal": "Scarf_normal.png",
+      "metalSmooth": "Scarf_metalSmooth.png"
+    },
+    {
+      "name": "Skirt",
+      "alphaClip": false,
+      "doubleSided": true,
+      "baseColor": "Skirt_baseColor.png",
+      "metalSmooth": "Skirt_metalSmooth.png"
+    }
+  ]
+}

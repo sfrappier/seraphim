@@ -1,0 +1,83 @@
+{
+  "title": "DRAGON NEMESIS // The Infernal Wyrm",
+  "creator": "Atahan3D (display name: 6)",
+  "source": "https://sketchfab.com/3d-models/dragon-nemesis-the-infernal-wyrm-e2d20f8953f244bdb9df97e1b5ae1f1c",
+  "uid": "e2d20f8953f244bdb9df97e1b5ae1f1c",
+  "license": "CC-BY-4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+  "originalArchive": "dragon-nemesis-the-infernal-wyrm.zip",
+  "originalArchiveSha256": "f864f087994bd747944704b49f21f7fb3c61d0ea73196c82fe79ba04cbda78e5",
+  "originalFiles": [
+    {
+      "file": "source/DRAGON_NEMESIS.glb",
+      "bytes": 15940308,
+      "sha256": "7c6022ab2bf71418a3037e706655853beae686c0c2daed3d8942caea82aeab2e"
+    },
+    {
+      "file": "textures/Baked_BaseColor_2.png",
+      "bytes": 5279205,
+      "sha256": "0a4785f1e7df52510aff1cc0d7f112293526e612579289358af821c76f26bc79"
+    },
+    {
+      "file": "textures/Baked_Emit_0.png",
+      "bytes": 5068,
+      "sha256": "08b04c1b1a51bc43545022c2ceeb67115e37b96ea5d32742345c3ff614383f24"
+    },
+    {
+      "file": "textures/Baked_MetallicRoughness_3@channels=B.png",
+      "bytes": 1260239,
+      "sha256": "ff2c843762798a021d0763972ff2c42650ba4f6bd24ff2899bc137841011b0cd"
+    },
+    {
+      "file": "textures/Baked_MetallicRoughness_3@channels=G.png",
+      "bytes": 1338461,
+      "sha256": "62bf0416aefdfabd526eecd3d325f40e8dd585d28f571dec444d2b888c2d60ee"
+    },
+    {
+      "file": "textures/normal_1.png",
+      "bytes": 5208754,
+      "sha256": "a2b99f48bdaec2e62364a0eafd4ddf118023985578ba8dc3d2eac9af30cef0ab"
+    }
+  ],
+  "preparationTool": {
+    "name": "Blender",
+    "version": "4.5.9 LTS",
+    "license": "GPL-3.0-or-later",
+    "source": "https://download.blender.org/release/Blender4.5/blender-4.5.9-windows-x64.zip",
+    "sha256": "41da973b9bf95bb312cbeff4d1982feb13259b43c821686b9bafea4dfe5477cf",
+    "requiredForBuild": false
+  },
+  "modifications": "Converted to FBX/Unity PBR; resized textures, packed metallic/smoothness; retained author skeletons where present; supplied game rigs for Devil Demon, Demon Witch and Infernal Wyrm; two demon/boss mesh LODs. Original unmodified downloads remain outside the source tree.",
+  "runtimeFiles": [
+    {
+      "file": "infernal-wyrm.fbx",
+      "bytes": 1089276,
+      "sha256": "ff4a7d9a17cc6003eebd427c81735796f56827e99fbf75694687ed62e756f7c9"
+    },
+    {
+      "file": "Material_0_001_baseColor.png",
+      "bytes": 5978116,
+      "sha256": "bd13c63ec2cef4c0e3b916da6757a5ff45c547e6dc915018bee0a6c55a9e76f1"
+    },
+    {
+      "file": "Material_0_001_emission.png",
+      "bytes": 82497,
+      "sha256": "5ee0f53cdfe9445b7846322656492355ee65a167757f685581b98171b57d4307"
+    },
+    {
+      "file": "Material_0_001_metalSmooth.png",
+      "bytes": 1291202,
+      "sha256": "09b1e5f792d800ca0a31c3783d5c728378223c616f78c7af4bde70484510efb6"
+    },
+    {
+      "file": "Material_0_001_normal.png",
+      "bytes": 6082751,
+      "sha256": "749d8f3b55b7e4596c65455741775ca1d6a454b7f5c53c7089da553eef7c9f63"
+    },
+    {
+      "file": "model.json",
+      "bytes": 447,
+      "sha256": "8e419567b52bf5b2882810ef5b68a62eb72f4e9f6c4a751a596b0a1ad014b50e"
+    }
+  ]
+}

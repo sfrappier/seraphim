@@ -91,7 +91,7 @@ namespace Seraphim
             }
             else
             {
-                AttackHint="REAPING SCYTHE · get behind him or retreat";
+                AttackHint="INFERNAL GREATSWORD · get behind him or retreat";
                 Field.Cast(attack,origin,direction); slashAt=Time.time+1.05f;
             }
             return true;

@@ -14,7 +14,7 @@ namespace Seraphim
             game.ResetPlayableWorld(); IsRunning=true; began=Time.time; nextFill=0; AutomatedCasts=0;
             game.Vitals.PresentationMode=true;
             Camera.main.GetComponent<SanctuaryCamera>().ShowcaseZoom=8;
-            for (var i=0;i<72;i++) game.Enemies.SpawnRandom((DemonKind)(i%3),10);
+            for (var i=0;i<72;i++) game.Enemies.SpawnRandom(i%12==11?DemonKind.RiftScourger:(DemonKind)(i%3),10);
         }
         public void End()
         {

@@ -53,7 +53,7 @@ namespace Seraphim
             DisplayedFraction=boss.Enemy.HealthFraction;
             ghostHealth=Mathf.MoveTowards(ghostHealth,DisplayedFraction,Time.deltaTime*.14f);
             fill.sizeDelta=new Vector2(648*DisplayedFraction,11); ghost.sizeDelta=new Vector2(648*ghostHealth,11);
-            title.text=boss.Phase==3?"VORATH ASCENDANT":"VORATH, HERALD OF ASH";
+            title.text=boss.Phase==3?"VORATH ASCENDANT":"VORATH, THE INFERNAL WYRM";
             health.text=$"{Mathf.CeilToInt(boss.Enemy.Health)} / {Mathf.CeilToInt(boss.Enemy.MaxHealth)}    ·    PHASE {boss.Phase} / 3"+(boss.IsTransitioning?"   ·   WARDED":boss.Phase>=2?"   ·   HOST "+boss.Summons.ActiveCount+" / "+boss.Summons.Limit:"");
             hint.text=boss.AttackHint;
         }

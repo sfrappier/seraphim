@@ -1,0 +1,163 @@
+{
+  "title": "Demon Witch - Stylized Game-Ready Character",
+  "creator": "ZeRealSpone",
+  "source": "https://sketchfab.com/3d-models/demon-witch-stylized-game-ready-character-035acf9e15544c969094eec6dbf2f66b",
+  "uid": "035acf9e15544c969094eec6dbf2f66b",
+  "license": "CC-BY-4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+  "originalArchive": "demon-witch-stylized-game-ready-character.zip",
+  "originalArchiveSha256": "40a4036d536f538a2513a431e38743fd63bf99e50c8d10e568bac5dc8412268e",
+  "originalFiles": [
+    {
+      "file": "source/WitchRIG_NEWRIG.fbx",
+      "bytes": 1838732,
+      "sha256": "50ada1c29873615e3314c582790ec18b8c8623e9b3ff9d6b1d5151ec54dd28b5"
+    },
+    {
+      "file": "textures/LD_DemonWitch_Armor_BaseColor.1001.png",
+      "bytes": 11380720,
+      "sha256": "05d5bc4953265fcd69d4ca981121384982d8094ad1a08c5ef1da629c1dd3677c"
+    },
+    {
+      "file": "textures/LD_DemonWitch_Armor_Emissive.1001.png",
+      "bytes": 57033,
+      "sha256": "b795652d1451e511e9848468061cb5ea21c50e7411b02264b9cb2be452112a9c"
+    },
+    {
+      "file": "textures/LD_DemonWitch_Armor_Metallic.1001.png",
+      "bytes": 127892,
+      "sha256": "4083140fc2cc9747cb64831f9715f1b5569cb4fb301332a2cebd0b9852faa296"
+    },
+    {
+      "file": "textures/LD_DemonWitch_Armor_Normal.1001.png",
+      "bytes": 61106365,
+      "sha256": "62939128294a477a687002403f1cef75ae05bac145983c9560709481723b87f5"
+    },
+    {
+      "file": "textures/LD_DemonWitch_Armor_Roughness.1001.png",
+      "bytes": 6860942,
+      "sha256": "d805fd0d8f19ed17451101560eeb6f4866e0d4c3beae01b83fd70cb815a0a4e4"
+    },
+    {
+      "file": "textures/LD_DemonWitch_Body_BaseColor.1001.png",
+      "bytes": 14939742,
+      "sha256": "7c52d4329d9ba78a818d5c03788bb79b05049bd8fc923dfd9634933187e3f035"
+    },
+    {
+      "file": "textures/LD_DemonWitch_Body_Metallic.1001.png",
+      "bytes": 53482,
+      "sha256": "f8f841d547990a2aa46fa5bea2d27e42baae492e7f6fae9ac67b49552d3edefd"
+    },
+    {
+      "file": "textures/LD_DemonWitch_Body_Normal.1001.png",
+      "bytes": 63537038,
+      "sha256": "20b0ce046ee4e79445196283719aabec5f09f07e10626146ac503220a8ce284b"
+    },
+    {
+      "file": "textures/LD_DemonWitch_Body_Roughness.1001.png",
+      "bytes": 9021110,
+      "sha256": "6c107b962ca4454420f3ed56559441a5172386171799b37449f14fe5f37c4f12"
+    },
+    {
+      "file": "textures/LD_DemonWitch_Hair_BaseColor.1001.png",
+      "bytes": 941578,
+      "sha256": "459309e50fcf3787c9f7ef0d517849dbf071ac7771c888d31d010ed252bcc8bf"
+    },
+    {
+      "file": "textures/LD_DemonWitch_Hair_Emissive.1001.png",
+      "bytes": 49073,
+      "sha256": "33d54003abdb2519fdd2eea1f0a7ba02ae34abc76d66dccae9965ad87b3024d9"
+    },
+    {
+      "file": "textures/LD_DemonWitch_Hair_Metallic.1001.png",
+      "bytes": 16411,
+      "sha256": "f790625c24510389aba626a3b4ea80806ad5012b1f838bfbee3b69dd87e3a70e"
+    },
+    {
+      "file": "textures/LD_DemonWitch_Hair_Normal.1001.png",
+      "bytes": 28809469,
+      "sha256": "0986408a77c27dcbbe882330971b18ce48b9086ab181c9987ba5808f3b4784ab"
+    },
+    {
+      "file": "textures/LD_DemonWitch_Hair_Roughness.1001.png",
+      "bytes": 25415,
+      "sha256": "0ed7123d5178464f94bcd6f53ec88f498eaf09b4167003c058cae89684e5c3cf"
+    }
+  ],
+  "preparationTool": {
+    "name": "Blender",
+    "version": "4.5.9 LTS",
+    "license": "GPL-3.0-or-later",
+    "source": "https://download.blender.org/release/Blender4.5/blender-4.5.9-windows-x64.zip",
+    "sha256": "41da973b9bf95bb312cbeff4d1982feb13259b43c821686b9bafea4dfe5477cf",
+    "requiredForBuild": false
+  },
+  "modifications": "Converted to FBX/Unity PBR; resized textures, packed metallic/smoothness; retained author skeletons where present; supplied game rigs for Devil Demon, Demon Witch and Infernal Wyrm; two demon/boss mesh LODs. Original unmodified downloads remain outside the source tree.",
+  "runtimeFiles": [
+    {
+      "file": "02_-_Default_baseColor.png",
+      "bytes": 4765377,
+      "sha256": "6231d8426d474a0d9e9fd2491b4173c9bd9a3026954861c184f119520790b202"
+    },
+    {
+      "file": "02_-_Default_metalSmooth.png",
+      "bytes": 1013104,
+      "sha256": "0486900e21244c5da02b5802b3effef404e556f10783fbbb69b087fdf6485b15"
+    },
+    {
+      "file": "02_-_Default_normal.png",
+      "bytes": 6410028,
+      "sha256": "ad802cbd23b6bbf1530f809be17bc16575999adf5ec5c58739d63fe26955abac"
+    },
+    {
+      "file": "03_-_Default_baseColor.png",
+      "bytes": 297072,
+      "sha256": "9084ce29551831b23f65066c4144b0a370386275f41423d68efba566de7ffbb9"
+    },
+    {
+      "file": "03_-_Default_emission.png",
+      "bytes": 13922,
+      "sha256": "6dc277ac7171be615c76ca0ffe7a721b2f0692c07b51120a0e28824da4c685ad"
+    },
+    {
+      "file": "03_-_Default_metalSmooth.png",
+      "bytes": 18505,
+      "sha256": "008e64b67741be1277a1d4b940e8432ff749505861c8fa0842a6de76fd2c5f59"
+    },
+    {
+      "file": "03_-_Default_normal.png",
+      "bytes": 738700,
+      "sha256": "adf4eb0f062edf5120b395ac08285f97473a4859c40894262f5bdb6e5382bff6"
+    },
+    {
+      "file": "ash-invoker.fbx",
+      "bytes": 2159132,
+      "sha256": "b93e6e8661fd9d2062bd45e54e832374b4923944414c6dabfed32c02afab9c47"
+    },
+    {
+      "file": "default_baseColor.png",
+      "bytes": 1132192,
+      "sha256": "c3427d24d7cf37583ae605d009a9f0b3558c9e04a17ef7e69b1867462faa1b7f"
+    },
+    {
+      "file": "default_emission.png",
+      "bytes": 15386,
+      "sha256": "808936ed0b22ff5ee1f86af0b3e588e3f9d81ae9685cbdcb9661639b238ac6d2"
+    },
+    {
+      "file": "default_metalSmooth.png",
+      "bytes": 959907,
+      "sha256": "d0f43fc02efe78b6d408abfd21123efaab81d1c801d48475ccafd5f3407951c2"
+    },
+    {
+      "file": "default_normal.png",
+      "bytes": 1675659,
+      "sha256": "e2e1a48abf70849c228389d16e12f6190859943ee54cb87362c230620aa4f585"
+    },
+    {
+      "file": "model.json",
+      "bytes": 937,
+      "sha256": "26b1cb4006dba183d8ea4db42d38e7bb4ef94054a778d36e9612740ee345ab5b"
+    }
+  ]
+}

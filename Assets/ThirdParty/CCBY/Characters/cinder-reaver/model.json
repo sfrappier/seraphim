@@ -1,0 +1,18 @@
+{
+  "key": "cinder-reaver",
+  "model": "cinder-reaver.fbx",
+  "lod": true,
+  "triangles": {
+    "0": 9998,
+    "1": 2798
+  },
+  "materials": [
+    {
+      "name": "Material_001",
+      "alphaClip": false,
+      "doubleSided": false,
+      "baseColor": "Material_001_baseColor.png",
+      "metalSmooth": "Material_001_metalSmooth.png"
+    }
+  ]
+}

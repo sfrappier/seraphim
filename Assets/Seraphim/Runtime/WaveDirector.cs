@@ -114,7 +114,8 @@ namespace Seraphim
             {
                 var roll=Random.value;
                 var guardChance=.06f+Wave*.021f;
-                var kind=roll<guardChance?DemonKind.ObsidianGuard:roll<guardChance+.28f?DemonKind.AshStalker:DemonKind.CinderImp;
+                var scourgerChance=Wave>=4?.04f+(Wave-4)*.009f:0;
+                var kind=roll<scourgerChance?DemonKind.RiftScourger:roll<scourgerChance+guardChance?DemonKind.ObsidianGuard:roll<scourgerChance+guardChance+.28f?DemonKind.AshStalker:DemonKind.CinderImp;
                 if (game.Enemies.SpawnRandom(kind,Wave)!=null) Spawned++;
             }
         }

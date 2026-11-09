@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f2b7dc2255ea07b45aacb21eed9062ad, type: 3}
+  m_Name: infernal-wyrm
+  m_EditorClassIdentifier: Assembly-CSharp::Seraphim.CharacterModelDefinition
+  prefab: {fileID: 1038021570880115278, guid: 441e26367b3ec564199c4c8cac87bf30, type: 3}
+  displayName: VORATH, THE INFERNAL WYRM
+  rig: 0
+  height: 7.2
+  baseHealth: 9600
+  moveSpeed: 2.1
+  nearTriangles: 10192
+  distantTriangles: 2853

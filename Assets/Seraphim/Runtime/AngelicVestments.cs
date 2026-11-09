@@ -12,17 +12,21 @@ namespace Seraphim
         public void Initialize(Animator animator,PrototypeModels art)
         {
             if (animator==null || !animator.isHuman) return;
+            var detailed=art.playerModel!=null;
             embroidery=art.gold;
             var head=Anchor(animator.GetBoneTransform(HumanBodyBones.Head),"Aureate crown",new Vector3(0,1.55f,0));
-            var crown=SceneArt.Ring("Crown circlet",head,.4f,.027f,art.gold,64);
+            var crown=SceneArt.Ring("Crown circlet",head,detailed?.23f:.4f,detailed?.012f:.027f,detailed?art.glowGold:art.gold,64);
             crown.transform.localPosition=Vector3.up*.28f;
             for (var i=0;i<7;i++)
             {
                 var angle=i*Mathf.PI*2/7;
-                var tip=SceneArt.Shape(PrimitiveType.Cube,"Crown ray",head,new Vector3(Mathf.Sin(angle)*.4f,.34f,Mathf.Cos(angle)*.4f),new Vector3(.045f,.18f,.045f),art.gold);
+                var radius=detailed?.23f:.4f;
+                var tip=SceneArt.Shape(PrimitiveType.Cube,"Crown ray",head,new Vector3(Mathf.Sin(angle)*radius,.34f,Mathf.Cos(angle)*radius),detailed?new Vector3(.015f,.07f,.015f):new Vector3(.045f,.18f,.045f),art.gold);
                 tip.transform.localRotation=Quaternion.Euler(0,i*360/7,25);
             }
             HasCrown=true;
+            // FallenAngel already includes authored armor, cloth and a helmet.
+            if (detailed) return;
             var chestBone=animator.GetBoneTransform(HumanBodyBones.UpperChest)??animator.GetBoneTransform(HumanBodyBones.Chest)??animator.GetBoneTransform(HumanBodyBones.Spine);
             var chest=Anchor(chestBone,"Celestial mantle",new Vector3(0,1.02f,0));
             Cloth(chest,art.vestment,.4f,.12f,-.31f,.96f);

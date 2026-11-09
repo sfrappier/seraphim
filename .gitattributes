@@ -11,6 +11,7 @@
 *.mat whitespace=-blank-at-eol
 *.anim whitespace=-blank-at-eol
 *.unity whitespace=-blank-at-eol
+*.prefab whitespace=-blank-at-eol
 *.controller whitespace=-blank-at-eol
 Assets/ThirdParty/** -whitespace
 *.fbx binary

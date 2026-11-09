@@ -1,0 +1,20 @@
+{
+  "key": "infernal-wyrm",
+  "model": "infernal-wyrm.fbx",
+  "lod": true,
+  "triangles": {
+    "0": 10192,
+    "1": 2853
+  },
+  "materials": [
+    {
+      "name": "Material_0_001",
+      "alphaClip": false,
+      "doubleSided": false,
+      "baseColor": "Material_0_001_baseColor.png",
+      "normal": "Material_0_001_normal.png",
+      "emission": "Material_0_001_emission.png",
+      "metalSmooth": "Material_0_001_metalSmooth.png"
+    }
+  ]
+}

@@ -1,0 +1,41 @@
+SERAPHIM CHARACTER CREDITS
+
+All models below: Creative Commons Attribution 4.0 International.
+License: https://creativecommons.org/licenses/by/4.0/
+Full terms: CC-BY-4.0.txt
+
+Adapted for Seraphim: Unity FBX conversion, game skeletons where absent,
+skeletal movement, PBR channel conversion, texture resizing, mesh LODs,
+normalization, celestial crown and six procedural wings for FallenAngel.
+No endorsement by the original authors is implied.
+
+FallenAngel - Free Game Character - UE5 Rig
+Creator: Kaan Tezcan
+Source: https://sketchfab.com/3d-models/fallenangel-free-game-character-ue5-rig-1c781768b8d349329921bc6bffe2579a
+License: CC BY 4.0
+
+Realistic Devil Demon 3D Model - Game Ready
+Creator: IdeaLK Models
+Source: https://sketchfab.com/3d-models/realistic-devil-demon-3d-model-game-ready-2ecf3ab2fd1c4676acda445389728708
+License: CC BY 4.0
+
+Demon Witch - Stylized Game-Ready Character
+Creator: ZeRealSpone
+Source: https://sketchfab.com/3d-models/demon-witch-stylized-game-ready-character-035acf9e15544c969094eec6dbf2f66b
+License: CC BY 4.0
+
+Minotaurs
+Creator: Vasian-Digital3D
+Source: https://sketchfab.com/3d-models/minotaurs-6d89706e5db845bab57ea595ce4006e5
+License: CC BY 4.0
+
+Scourger Rig
+Creator: DM-913
+Source: https://sketchfab.com/3d-models/scourger-rig-deb9b27965064f85a7f482599f5a69a8
+License: CC BY 4.0
+
+DRAGON NEMESIS // The Infernal Wyrm
+Creator: Atahan3D (display name: 6)
+Source: https://sketchfab.com/3d-models/dragon-nemesis-the-infernal-wyrm-e2d20f8953f244bdb9df97e1b5ae1f1c
+License: CC BY 4.0
+

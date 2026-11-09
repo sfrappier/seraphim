@@ -25,15 +25,15 @@ namespace Seraphim
         public int ActiveSpecialAttacks { get { var count=0; foreach (var enemy in pool) if (enemy.IsAlive && enemy.Offense.SpecialActive) count++; return count; } }
         public int PopulationLimit => Game.Attract!=null && Game.Attract.IsRunning?Game.settings.menuEnemyLimit:Game.settings.enemyLimit;
         public int SpecialAttackLimit => Game.Attract!=null && Game.Attract.IsRunning?8:Game.settings.maxConcurrentSpecialAttacks;
-        public int PoolCapacity => (PopulationLimit+4)*3+1;
+        public int PoolCapacity => (PopulationLimit+4)*DemonRoster.KindCount+1;
 
         public void Initialize(SanctuaryGame game,bool spawn)
         {
             Game=game; random=new System.Random(); ConeMesh=CombatArt.CreateCone();
-            BodyMaterials=new Material[3]; EyeMaterials=new Material[3];
-            var tones=new[]{new Color(.18f,.08f,.075f),new Color(.13f,.08f,.23f),new Color(.09f,.13f,.16f)};
-            var eyes=new[]{new Color(3,.7f,.12f),new Color(1.6f,.3f,3),new Color(3,1.5f,.15f)};
-            for (var i=0;i<3;i++)
+            BodyMaterials=new Material[DemonRoster.KindCount]; EyeMaterials=new Material[DemonRoster.KindCount];
+            var tones=new[]{new Color(.18f,.08f,.075f),new Color(.13f,.08f,.23f),new Color(.09f,.13f,.16f),new Color(.14f,.07f,.2f)};
+            var eyes=new[]{new Color(3,.7f,.12f),new Color(1.6f,.3f,3),new Color(3,1.5f,.15f),new Color(2,.2f,3)};
+            for (var i=0;i<DemonRoster.KindCount;i++)
             {
                 BodyMaterials[i]=new Material(game.models.ivory) {name="Demon obsidian "+i};
                 BodyMaterials[i].SetColor("_BaseColor",tones[i]); BodyMaterials[i].SetFloat("_Metallic",.3f);
@@ -47,7 +47,7 @@ namespace Seraphim
         }
         public void Populate()
         {
-            for (var i=0;i<Mathf.Min(Game.settings.initialEnemies,Game.settings.enemyLimit);i++) SpawnRandom((DemonKind)(i%3));
+            for (var i=0;i<Mathf.Min(Game.settings.initialEnemies,Game.settings.enemyLimit);i++) SpawnRandom((DemonKind)(i%DemonRoster.KindCount));
         }
         public DemonEnemy SpawnRandom(DemonKind? preferred=null,int wave=0)
         {
@@ -61,7 +61,7 @@ namespace Seraphim
                 if (!NavMesh.SamplePosition(candidate,out var sample,1,NavMesh.AllAreas)) continue;
                 var path=new NavMeshPath();
                 if (!NavMesh.CalculatePath(sample.position,Game.Player.transform.position,NavMesh.AllAreas,path) || path.status!=NavMeshPathStatus.PathComplete) continue;
-                return SpawnAt(sample.position,preferred??(DemonKind)random.Next(3),false,wave);
+                return SpawnAt(sample.position,preferred??(random.Next(12)==0?DemonKind.RiftScourger:(DemonKind)random.Next(3)),false,wave);
             }
             return null;
         }
@@ -94,7 +94,7 @@ namespace Seraphim
         public void DespawnAll() { foreach (var enemy in pool) enemy.ReturnToPool(); }
         public void TrimShowcasePool()
         {
-            var retained=new int[3];
+            var retained=new int[DemonRoster.KindCount];
             for (var i=pool.Count-1;i>=0;i--)
             {
                 var enemy=pool[i];

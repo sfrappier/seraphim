@@ -1,0 +1,66 @@
+{
+  "title": "Realistic Devil Demon 3D Model - Game Ready",
+  "creator": "IdeaLK Models",
+  "source": "https://sketchfab.com/3d-models/realistic-devil-demon-3d-model-game-ready-2ecf3ab2fd1c4676acda445389728708",
+  "uid": "2ecf3ab2fd1c4676acda445389728708",
+  "license": "CC-BY-4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+  "originalArchive": "realistic-devil-demon-3d-model-game-ready.zip",
+  "originalArchiveSha256": "e0b9acdc7fd5cff519be5b7892ff19cf55ec2ab4df973d9d8b7932da3806859d",
+  "originalFiles": [
+    {
+      "file": "source/devil.zip",
+      "bytes": 8593134,
+      "sha256": "4a61c11d537b759e55164e5d2ad3131c9b6ba0ec79393d8a63df06955a0de9d3"
+    },
+    {
+      "file": "textures/texture_0.png",
+      "bytes": 4064703,
+      "sha256": "732d112b385a16f39ceef809483b4ca536fc636771515c00f6bf2ea0150b5bb0"
+    }
+  ],
+  "preparationTool": {
+    "name": "Blender",
+    "version": "4.5.9 LTS",
+    "license": "GPL-3.0-or-later",
+    "source": "https://download.blender.org/release/Blender4.5/blender-4.5.9-windows-x64.zip",
+    "sha256": "41da973b9bf95bb312cbeff4d1982feb13259b43c821686b9bafea4dfe5477cf",
+    "requiredForBuild": false
+  },
+  "modifications": "Converted to FBX/Unity PBR; resized textures, packed metallic/smoothness; retained author skeletons where present; supplied game rigs for Devil Demon, Demon Witch and Infernal Wyrm; two demon/boss mesh LODs. Original unmodified downloads remain outside the source tree.",
+  "runtimeFiles": [
+    {
+      "file": "cinder-reaver.fbx",
+      "bytes": 821644,
+      "sha256": "3f4095b48e03f518ffd240ac2804deebb39c9d76eb884cb5fd7e5169b9fe3b8e"
+    },
+    {
+      "file": "Material_001_baseColor.png",
+      "bytes": 1620138,
+      "sha256": "1b3e0fa842ec680de79853fec35cea6090ceb77b663c27239d4fa32cda829e6c"
+    },
+    {
+      "file": "Material_001_metalSmooth.png",
+      "bytes": 20654,
+      "sha256": "e725d46c9e463650471718ad5b5d951f91e4127b3d704ad66345a73b59b13c8f"
+    },
+    {
+      "file": "model.json",
+      "bytes": 346,
+      "sha256": "6c6d75b29d116fe04c765571b8827666ac978ef78d947a523c2ee1a6662f9d85"
+    }
+  ],
+  "nestedArchiveSha256": "4a61c11d537b759e55164e5d2ad3131c9b6ba0ec79393d8a63df06955a0de9d3",
+  "nestedOriginalFiles": [
+    {
+      "file": "devil/devil.fbx",
+      "bytes": 4549900,
+      "sha256": "48559b7013c2499a32b6592f0825b31f4a9a453c7c61e00b12961ab82e278c11"
+    },
+    {
+      "file": "devil/devil.png",
+      "bytes": 4065447,
+      "sha256": "38cee2d883b3aaa7b65bf62a1479f130a39a76effc41b4381c0d0dc29d225034"
+    }
+  ]
+}

@@ -40,7 +40,7 @@ namespace Seraphim
                         || Vector3.Distance(candidate,game.Player.transform.position)<3 || !NavMesh.SamplePosition(candidate,out var point,1,NavMesh.AllAreas)) continue;
                     var path=new NavMeshPath();
                     if (!NavMesh.CalculatePath(point.position,game.Player.transform.position,NavMesh.AllAreas,path) || path.status!=NavMeshPathStatus.PathComplete) continue;
-                    var kind=sequence%4==3?DemonKind.ObsidianGuard:sequence%4==2?DemonKind.AshStalker:DemonKind.CinderImp;
+                    var kind=boss.Phase>=3 && sequence%6==5?DemonKind.RiftScourger:sequence%4==3?DemonKind.ObsidianGuard:sequence%4==2?DemonKind.AshStalker:DemonKind.CinderImp;
                     var enemy=game.Enemies.SpawnAt(point.position,kind,false,8);
                     if (enemy==null) continue;
                     enemy.MarkBossSummon();

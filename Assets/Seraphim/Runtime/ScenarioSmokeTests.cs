@@ -10,7 +10,7 @@ namespace Seraphim
         {
             game.Waves.StopScenario(); game.Enemies.DespawnAll(); game.Drops.Clear();
             game.Player.StopKeyboardMovement(); game.Player.Agent.ResetPath(); game.Player.Agent.Warp(game.settings.spawnPoint);
-            Check(game.models.character.name=="Knight" && game.Player.GetComponent<AngelicVestments>().HasCrown,"Rigged armored seraphim has a celestial crown and vestments");
+            Check(game.models.character==game.models.playerModel.prefab && game.Player.GetComponent<AngelicVestments>().HasCrown,"Kaan's FallenAngel is playable with the celestial crown");
             Check(game.Player.GetComponent<SeraphimWings>().HasValidGeometry,"Sculpted seraphim wings have finite mesh geometry");
             Check(game.models.marble.mainTexture.width==2048 && game.models.cathedralStone.mainTexture.width==2048 && game.models.cathedralWood.mainTexture.width==2048,"Cathedral uses three high-resolution 2K texture sets");
             var path=new NavMeshPath();
@@ -81,7 +81,7 @@ namespace Seraphim
             Check(capped,"All ten waves obey their increasing concurrency limits and the 24-enemy cap");
             Check(bossQueued && bossSpawned,"Clearing all ten waves queues and spawns the final boss before victory");
             Check(allWaves && waveKills==370 && game.Enemies.KillCount==371,"Scenario victory requires all 370 wave demons and all three boss phases");
-            Check(maxHealth>100 && maxHealth<210 && game.Waves.IntervalFor(10)<game.Waves.IntervalFor(1),"Later waves increase demon durability and spawn rate substantially");
+            Check(maxHealth>100 && maxHealth<240 && game.Waves.IntervalFor(10)<game.Waves.IntervalFor(1),"Later waves increase demon durability and spawn rate substantially, including the rarer elite");
             Check(game.Enemies.Score>=37000,"Scenario score includes every demon and later-wave bonuses");
             yield return Capture("13-cathedral-victory.png");
             game.Waves.BeginScenario();

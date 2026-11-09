@@ -1,0 +1,60 @@
+{
+  "status": "Original archives downloaded by the owner; runtime derivatives prepared by Tools/Prepare-CharacterModels.ps1.",
+  "license": {
+    "id": "CC-BY-4.0",
+    "url": "https://creativecommons.org/licenses/by/4.0/",
+    "textUrl": "https://creativecommons.org/licenses/by/4.0/legalcode.txt",
+    "textSha256": "9ba9550ad48438d0836ddab3da480b3b69ffa0aac7b7878b5a0039e7ab429411"
+  },
+  "notes": "Stage-CharacterModel.ps1 records the original archive and every extracted file's SHA-256. Staging never installs assets into Unity. Retain source credits and license notices and record modifications when preparing runtime derivatives.",
+  "models": [
+    {
+      "key": "fallen-angel",
+      "role": "Player seraphim",
+      "title": "FallenAngel - Free Game Character - UE5 Rig",
+      "creator": "Kaan Tezcan",
+      "uid": "1c781768b8d349329921bc6bffe2579a",
+      "source": "https://sketchfab.com/3d-models/fallenangel-free-game-character-ue5-rig-1c781768b8d349329921bc6bffe2579a"
+    },
+    {
+      "key": "cinder-reaver",
+      "role": "Common melee demon",
+      "title": "Realistic Devil Demon 3D Model - Game Ready",
+      "creator": "IdeaLK Models",
+      "uid": "2ecf3ab2fd1c4676acda445389728708",
+      "source": "https://sketchfab.com/3d-models/realistic-devil-demon-3d-model-game-ready-2ecf3ab2fd1c4676acda445389728708"
+    },
+    {
+      "key": "ash-invoker",
+      "role": "Ranged caster demon",
+      "title": "Demon Witch - Stylized Game-Ready Character",
+      "creator": "ZeRealSpone",
+      "uid": "035acf9e15544c969094eec6dbf2f66b",
+      "source": "https://sketchfab.com/3d-models/demon-witch-stylized-game-ready-character-035acf9e15544c969094eec6dbf2f66b"
+    },
+    {
+      "key": "obsidian-brute",
+      "role": "Heavy charging demon",
+      "title": "Minotaurs",
+      "creator": "Vasian-Digital3D",
+      "uid": "6d89706e5db845bab57ea595ce4006e5",
+      "source": "https://sketchfab.com/3d-models/minotaurs-6d89706e5db845bab57ea595ce4006e5"
+    },
+    {
+      "key": "rift-scourger",
+      "role": "Rare winged demon",
+      "title": "Scourger Rig",
+      "creator": "DM-913",
+      "uid": "deb9b27965064f85a7f482599f5a69a8",
+      "source": "https://sketchfab.com/3d-models/scourger-rig-deb9b27965064f85a7f482599f5a69a8"
+    },
+    {
+      "key": "infernal-wyrm",
+      "role": "Vorath boss: dragon-armored knight",
+      "title": "DRAGON NEMESIS // The Infernal Wyrm",
+      "creator": "Atahan3D (display name: 6)",
+      "uid": "e2d20f8953f244bdb9df97e1b5ae1f1c",
+      "source": "https://sketchfab.com/3d-models/dragon-nemesis-the-infernal-wyrm-e2d20f8953f244bdb9df97e1b5ae1f1c"
+    }
+  ]
+}

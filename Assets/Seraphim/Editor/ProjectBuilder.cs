@@ -59,7 +59,7 @@ namespace Seraphim.Editor
         {
             PlayerSettings.companyName = "Seraphim";
             PlayerSettings.productName = "Seraphim";
-            PlayerSettings.bundleVersion = "0.9.0";
+            PlayerSettings.bundleVersion = "0.10.0";
             PlayerSettings.colorSpace = ColorSpace.Linear;
             PlayerSettings.defaultScreenWidth = 1600;
             PlayerSettings.defaultScreenHeight = 900;
@@ -152,6 +152,7 @@ namespace Seraphim.Editor
             }
             catalog.angelArmor.SetTexture("_BaseMap",catalog.characterTexture); EditorUtility.SetDirty(catalog.angelArmor);
             EditorUtility.SetDirty(catalog.stone);
+            CharacterContentBuilder.Configure(catalog);
             EditorUtility.SetDirty(catalog);
             return catalog;
         }
@@ -312,6 +313,8 @@ namespace Seraphim.Editor
             if (inputPackage==null) throw new BuildFailedException("Input System package provenance is missing.");
             File.Copy(Path.Combine(inputPackage.resolvedPath,"LICENSE.md"),Path.Combine(outputDirectory,"Licenses","UnityInputSystem-LICENSE.md"),true);
             File.Copy("THIRD_PARTY_NOTICES.txt",Path.Combine(outputDirectory,"THIRD_PARTY_NOTICES.txt"),true);
+            File.Copy("Assets/ThirdParty/CCBY/Characters/CC-BY-4.0.txt",Path.Combine(outputDirectory,"Licenses","Characters-CC-BY-4.0.txt"),true);
+            File.Copy("Assets/ThirdParty/CCBY/Characters/CREDITS.txt",Path.Combine(outputDirectory,"Licenses","Character-Credits.txt"),true);
             var localMusic=Path.GetFullPath("LocalAudio/seraphim-theme.ogg");
             var musicDestination=Path.Combine(outputDirectory,"Music","seraphim-theme.ogg");
             if (File.Exists(localMusic))

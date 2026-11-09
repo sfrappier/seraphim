@@ -25,5 +25,8 @@ namespace Seraphim
         public Material cathedralWood;
         public Material vestment;
         public Material angelArmor;
+        public CharacterModelDefinition playerModel;
+        public CharacterModelDefinition[] demonModels;
+        public CharacterModelDefinition bossModel;
     }
 }

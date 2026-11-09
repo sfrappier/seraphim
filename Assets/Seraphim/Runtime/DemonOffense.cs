@@ -6,7 +6,7 @@ namespace Seraphim
     public sealed class DemonOffense : MonoBehaviour
     {
         public enum AttackPhase { Idle,Windup,Burning,Charging,Recovery }
-        enum AttackKind { Melee,EmberField,Charge }
+        enum AttackKind { Melee,EmberField,Charge,RiftBurst }
         DemonEnemy owner;
         EnemyDirector director;
         GameObject effects;
@@ -20,7 +20,8 @@ namespace Seraphim
         public bool BlocksMovement => Phase==AttackPhase.Windup || Phase==AttackPhase.Charging || Phase==AttackPhase.Recovery;
         public bool SpecialActive => Phase!=AttackPhase.Idle && kind!=AttackKind.Melee;
         public bool SpecialReady => Phase==AttackPhase.Idle && !owner.IsStunned && Time.time>=nextSpecial
-            && ((owner.Kind==DemonKind.AshStalker && owner.WaveNumber>=3) || (owner.Kind==DemonKind.ObsidianGuard && owner.WaveNumber>=5));
+            && ((owner.Kind==DemonKind.AshStalker && owner.WaveNumber>=3) || (owner.Kind==DemonKind.ObsidianGuard && owner.WaveNumber>=5)
+                || (owner.Kind==DemonKind.RiftScourger && owner.WaveNumber>=4));
         public Vector3 ThreatPoint => point;
         public int SpecialCasts { get; private set; }
         public float DamageApplied { get; private set; }
@@ -65,7 +66,12 @@ namespace Seraphim
             if (!owner.IsAlive || !SpecialReady || director.ActiveSpecialAttacks>=director.SpecialAttackLimit) return false;
             var target=director.Game.Player.transform.position;
             var distance=FlatDistance(target,transform.position);
-            if (owner.Kind==DemonKind.AshStalker)
+            if (owner.Kind==DemonKind.RiftScourger)
+            {
+                if (distance>13) return false;
+                Begin(AttackKind.RiftBurst,target,2.2f,.85f);
+            }
+            else if (owner.Kind==DemonKind.AshStalker)
             {
                 if (distance>14) return false;
                 Begin(AttackKind.EmberField,target,2.5f,1.05f);
@@ -89,9 +95,10 @@ namespace Seraphim
             if (kind!=AttackKind.Melee) director.Game.Audio?.Play(SoundCue.Warning,transform.position);
             effects.transform.position=point; effects.SetActive(true);
             warning.enabled=progress.enabled=true; lane.enabled=kind==AttackKind.Charge;
-            var mat=kind==AttackKind.EmberField?director.Game.models.glowCyan:director.Game.models.glowGold;
+            var arcane=kind==AttackKind.EmberField || kind==AttackKind.RiftBurst;
+            var mat=arcane?director.Game.models.glowCyan:director.Game.models.glowGold;
             warning.sharedMaterial=progress.sharedMaterial=mat;
-            var color=kind==AttackKind.EmberField?new Color(1,.18f,.72f,.85f):new Color(1,.19f,.06f,.85f);
+            var color=arcane?new Color(1,.18f,.72f,.85f):new Color(1,.19f,.06f,.85f);
             warning.startColor=warning.endColor=progress.startColor=progress.endColor=color;
             var fire=embers.main; fire.startColor=kind==AttackKind.EmberField?new Color(.8f,.18f,1):new Color(1,.55f,.15f);
             var emitter=embers.shape; emitter.radius=radius;
@@ -107,7 +114,12 @@ namespace Seraphim
             {
                 progress.transform.localScale=Vector3.one*radius*Mathf.Clamp01((Time.time-started)/(until-started));
                 if (Time.time<until) return;
-                if (kind==AttackKind.EmberField)
+                if (kind==AttackKind.RiftBurst)
+                {
+                    if (FlatDistance(director.Game.Player.transform.position,point)<radius+.25f) Damage(7*owner.Difficulty.damage);
+                    embers.Emit(75); Phase=AttackPhase.Recovery; until=Time.time+.4f;
+                }
+                else if (kind==AttackKind.EmberField)
                 {
                     Phase=AttackPhase.Burning; until=Time.time+2.4f; nextBurn=Time.time; nextEmission=0;
                     var shape=embers.shape; shape.radius=radius;

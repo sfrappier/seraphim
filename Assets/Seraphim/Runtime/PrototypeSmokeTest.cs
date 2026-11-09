@@ -50,6 +50,10 @@ namespace Seraphim
             foreach (var pad in UnityEngine.InputSystem.Gamepad.all) hardware.Add(pad.displayName+" ["+pad.layout+"]");
             detectedGamepads=hardware.ToArray();
             Debug.Log("SERAPHIM_GAMEPADS: "+string.Join(", ",detectedGamepads));
+            if (Array.Exists(Environment.GetCommandLineArgs(),a=>a=="-seraphim-characters-only"))
+            {
+                yield return CharacterModelChecks(); SaveReport(); yield break;
+            }
             if (Array.Exists(Environment.GetCommandLineArgs(),a=>a=="-seraphim-boss-only"))
             {
                 yield return BossChecks(); SaveReport(); yield break;
@@ -161,6 +165,8 @@ namespace Seraphim
             var lifeBeforeUltimate=game.Vitals.Life;
             var spiritBeforeUltimate=game.Vitals.Spirit;
             var originalMaterial=avatarRenderers[0].sharedMaterial;
+            var originalSets=new Material[avatarRenderers.Length][];
+            for (var i=0;i<avatarRenderers.Length;i++) originalSets[i]=avatarRenderers[i].sharedMaterials;
             var originalVisualHeight=game.Player.transform.Find("Character visual").localPosition.y;
             var ultimateStarted=Time.time;
             Check(game.Skills.TryUse(4),"Slot 5 casts Word of God");
@@ -206,6 +212,15 @@ namespace Seraphim
             finishDeadline=Time.realtimeSinceStartup+game.settings.ultimateDuration+4;
             while (game.Ultimate.IsActive && Time.realtimeSinceStartup<finishDeadline) yield return null;
             Check(!game.Ultimate.IsActive && avatarRenderers[0].sharedMaterial==originalMaterial,"A second ultimate also restores the original character");
+            var allMaterialsRestored=true;
+            for (var i=0;i<avatarRenderers.Length;i++)
+            {
+                var restored=avatarRenderers[i].sharedMaterials;
+                allMaterialsRestored &= restored.Length==originalSets[i].Length;
+                for (var j=0;j<Mathf.Min(restored.Length,originalSets[i].Length);j++) allMaterialsRestored &= restored[j]==originalSets[i][j];
+            }
+            Check(allMaterialsRestored,"Repeated ultimates restore every FallenAngel material slot, including multi-material skin");
+            yield return CharacterModelChecks();
             yield return CombatChecks();
             yield return ScenarioChecks();
             yield return ControllerChecks();

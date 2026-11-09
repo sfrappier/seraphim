@@ -19,7 +19,7 @@ namespace Seraphim
             foreach (var enemy in game.Enemies.Enemies) if (enemy.IsAlive) enemy.Passive=true;
             var kinds=new HashSet<DemonKind>();
             foreach (var enemy in game.Enemies.Enemies) if (enemy.IsAlive) kinds.Add(enemy.Kind);
-            Check(initial==game.settings.initialEnemies && kinds.Count==3,"Random initial encounter includes three demon variants");
+            Check(initial==game.settings.initialEnemies && kinds.Count==DemonRoster.KindCount,"Random initial encounter includes all four imported demon classes");
             game.Enemies.SpawnAutomatic=true;
             yield return new WaitForSeconds(game.settings.enemySpawnInterval+.65f);
             game.Enemies.SpawnAutomatic=false;

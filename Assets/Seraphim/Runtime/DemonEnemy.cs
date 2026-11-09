@@ -7,7 +7,9 @@ namespace Seraphim
     {
         EnemyDirector director;
         NavMeshAgent agent;
-        Transform visual,leftLeg,rightLeg,leftArm,rightArm,tail;
+        Transform visual;
+        CharacterModelDefinition appearance;
+        public DemonModelPresentation Presentation { get; private set; }
         Renderer[] renderers;
         Color[] baseColors;
         MaterialPropertyBlock hitBlock;
@@ -35,8 +37,8 @@ namespace Seraphim
         public float Health { get; private set; }
         public float MaxHealth { get; private set; }
         public float HealthFraction => Mathf.Clamp01(Health/Mathf.Max(1,MaxHealth));
-        public float BarHeight => IsBoss?8.5f*encounterScale:(Kind==DemonKind.ObsidianGuard?2.8f:2.45f)*Difficulty.size*encounterScale;
-        public string DisplayName => IsBoss?"VORATH, HERALD OF ASH":Kind==DemonKind.CinderImp?"CINDER IMP":Kind==DemonKind.AshStalker?"ASH STALKER":"OBSIDIAN GUARD";
+        public float BarHeight => IsBoss?8.5f*encounterScale:appearance.height*BaseScale+.25f;
+        public string DisplayName => IsBoss?"VORATH, THE INFERNAL WYRM":appearance.displayName;
         public DemonHealthBar HealthBar { get; private set; }
         public DivineDamage LastDamageSource { get; private set; }
         public bool IsBurning => IsAlive && Time.time<burnUntil;
@@ -45,10 +47,11 @@ namespace Seraphim
         public void Initialize(EnemyDirector owner,DemonKind kind,bool boss=false)
         {
             director=owner; Kind=kind; IsBoss=boss;
-            MaxHealth=kind==DemonKind.CinderImp?42:kind==DemonKind.AshStalker?32:60;
+            appearance=boss?director.Game.models.bossModel:director.Game.models.demonModels[(int)kind];
+            MaxHealth=appearance.baseHealth;
             baseHealth=MaxHealth;
             agent=gameObject.AddComponent<NavMeshAgent>();
-            agent.radius=.38f; agent.height=1.8f; agent.speed=kind==DemonKind.AshStalker?3.2f:kind==DemonKind.ObsidianGuard?2:2.6f;
+            agent.radius=.38f; agent.height=1.8f; agent.speed=appearance.moveSpeed;
             agent.acceleration=12; agent.angularSpeed=360; agent.stoppingDistance=1.35f;
             baseSpeed=agent.speed;
             agent.avoidancePriority=35+(int)kind*8;
@@ -75,34 +78,9 @@ namespace Seraphim
         }
         void BuildVisuals()
         {
-            visual=new GameObject("Demon silhouette").transform; visual.SetParent(transform,false);
-            var body=director.BodyMaterials[(int)Kind]; var horn=director.HornMaterial; var eye=director.EyeMaterials[(int)Kind];
-            SceneArt.Shape(PrimitiveType.Capsule,"Obsidian body",visual,new Vector3(0,.8f,0),new Vector3(.68f,.59f,.48f),body);
-            SceneArt.Shape(PrimitiveType.Sphere,"Horned head",visual,new Vector3(0,1.45f,.02f),new Vector3(.58f,.52f,.5f),body);
-            for (var side=-1;side<=1;side+=2)
-            {
-                SceneArt.Shape(PrimitiveType.Sphere,"Ember eye",visual,new Vector3(side*.14f,1.5f,.258f),new Vector3(.115f,.065f,.05f),eye);
-                CombatArt.Spike(visual,new Vector3(side*.16f,1.64f,0),new Vector3(side*.34f,2.05f,-.12f),.13f,horn,director.ConeMesh);
-                CombatArt.Spike(visual,new Vector3(side*.34f,2.02f,-.12f),new Vector3(side*.27f,2.25f,.08f),.065f,horn,director.ConeMesh);
-                var arm=new GameObject("Claw arm").transform; arm.SetParent(visual,false); arm.localPosition=new Vector3(side*.4f,1.1f,0);
-                SceneArt.Shape(PrimitiveType.Capsule,"Arm",arm,new Vector3(side*.08f,-.23f,.02f),new Vector3(.2f,.29f,.2f),body);
-                for (var claw=0;claw<3;claw++) CombatArt.Spike(arm,new Vector3(side*.1f+(claw-1)*.055f,-.45f,.04f),new Vector3(side*.1f+(claw-1)*.075f,-.6f,.25f),.035f,horn,director.ConeMesh);
-                var leg=new GameObject("Demon leg").transform; leg.SetParent(visual,false); leg.localPosition=new Vector3(side*.2f,.5f,0);
-                SceneArt.Shape(PrimitiveType.Capsule,"Leg",leg,new Vector3(0,-.16f,0),new Vector3(.22f,.24f,.22f),body);
-                SceneArt.Shape(PrimitiveType.Cube,"Cloven foot",leg,new Vector3(0,-.4f,.08f),new Vector3(.23f,.16f,.34f),horn);
-                if (side<0) { leftArm=arm; leftLeg=leg; } else { rightArm=arm; rightLeg=leg; }
-                if (Kind==DemonKind.ObsidianGuard)
-                    CombatArt.Spike(visual,new Vector3(side*.4f,1.2f,0),new Vector3(side*.8f,1.6f,-.03f),.2f,horn,director.ConeMesh);
-                if (Kind==DemonKind.AshStalker)
-                {
-                    CombatArt.Spike(visual,new Vector3(side*.25f,1.1f,-.1f),new Vector3(side*1.1f,1.5f,-.5f),.07f,horn,director.ConeMesh);
-                    CombatArt.Spike(visual,new Vector3(side*.25f,1.1f,-.1f),new Vector3(side*.85f,.65f,-.5f),.06f,body,director.ConeMesh);
-                    SceneArt.Shape(PrimitiveType.Cube,"Shadow wing",visual,new Vector3(side*.65f,1.12f,-.3f),new Vector3(.7f,.48f,.07f),body).transform.localRotation=Quaternion.Euler(0,side*20,side*27);
-                }
-            }
-            tail=new GameObject("Barbed tail").transform; tail.SetParent(visual,false); tail.localPosition=new Vector3(0,.55f,-.2f);
-            CombatArt.Spike(tail,Vector3.zero,new Vector3(.14f,-.15f,-.65f),.1f,body,director.ConeMesh);
-            CombatArt.Spike(tail,new Vector3(.14f,-.15f,-.6f),new Vector3(.1f,.1f,-.9f),.1f,eye,director.ConeMesh);
+            visual=new GameObject("Imported demon presentation").transform; visual.SetParent(transform,false);
+            var model=Instantiate(appearance.prefab,visual); model.name=appearance.displayName;
+            Presentation=visual.gameObject.AddComponent<DemonModelPresentation>(); Presentation.Initialize(this,appearance);
             renderers=visual.GetComponentsInChildren<Renderer>(); baseColors=new Color[renderers.Length];
             for (var i=0;i<renderers.Length;i++) baseColors[i]=renderers[i].sharedMaterial.GetColor("_BaseColor");
             hitBlock=new MaterialPropertyBlock();
@@ -118,7 +96,7 @@ namespace Seraphim
             Difficulty=new DemonDifficulty(director.Game.settings,Kind,wave);
             MaxHealth=baseHealth*Difficulty.health; agent.speed=baseSpeed*Difficulty.speed;
             agent.radius=Mathf.Clamp(.38f*Difficulty.size,.38f,.6f); agent.height=1.8f*Difficulty.size;
-            targetCollider.height=2*BaseScale; targetCollider.radius=.45f*BaseScale; targetCollider.center=Vector3.up*BaseScale;
+            targetCollider.height=appearance.height*BaseScale; targetCollider.radius=.45f*BaseScale; targetCollider.center=Vector3.up*(targetCollider.height*.5f);
             if (IsBoss)
             {
                 MaxHealth=director.Game.settings.bossHealth; agent.speed=director.Game.settings.bossMoveSpeed;
@@ -136,6 +114,7 @@ namespace Seraphim
             if (!agent.Warp(point)) { ReturnToPool(); return false; }
             agent.ResetPath(); agent.isStopped=false;
             foreach (var renderer in renderers) renderer.SetPropertyBlock(null);
+            marked=false; Presentation?.ResetPose();
             HealthBar.ResetBar(); Offense.ResetForSpawn(); return true;
         }
         float BaseScale => IsBoss?encounterScale:(Kind==DemonKind.ObsidianGuard?1.13f:Kind==DemonKind.AshStalker?.92f:1)*Difficulty.size*encounterScale;
@@ -152,9 +131,9 @@ namespace Seraphim
             visual.localScale=Vector3.one*BaseScale;
             agent.radius=IsBoss?1.1f*encounterScale:Mathf.Clamp(.38f*Difficulty.size*encounterScale,.38f,.8f);
             agent.height=(IsBoss?6:1.8f*Difficulty.size)*encounterScale;
-            targetCollider.height=IsBoss?6.5f*encounterScale:2*BaseScale;
+            targetCollider.height=IsBoss?6.5f*encounterScale:appearance.height*BaseScale;
             targetCollider.radius=IsBoss?1.7f*encounterScale:.45f*BaseScale;
-            targetCollider.center=Vector3.up*(IsBoss?3.1f*encounterScale:BaseScale);
+            targetCollider.center=Vector3.up*(IsBoss?3.1f*encounterScale:targetCollider.height*.5f);
             if (t>=1) growthSeconds=0;
         }
         public void Hit(float amount,DivineDamage source,Vector3 origin,float push=0,float stun=0,float burn=0)
@@ -235,10 +214,7 @@ namespace Seraphim
                     agent.SetDestination(destination); nextPath=Time.time+.3f;
                 }
             }
-            var swing=Mathf.Sin(Time.time*8+TargetId)*Mathf.Clamp01(agent.enabled?agent.velocity.magnitude/2:0)*28;
-            leftLeg.localRotation=Quaternion.Euler(swing,0,0); rightLeg.localRotation=Quaternion.Euler(-swing,0,0);
-            leftArm.localRotation=Quaternion.Euler(-swing*.7f,0,-12); rightArm.localRotation=Quaternion.Euler(swing*.7f,0,12);
-            tail.localRotation=Quaternion.Euler(0,Mathf.Sin(Time.time*3+TargetId)*18,0);
+
         }
         public void ReturnToPool()
         {

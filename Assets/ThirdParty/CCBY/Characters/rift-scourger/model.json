@@ -1,0 +1,51 @@
+{
+  "key": "rift-scourger",
+  "model": "rift-scourger.fbx",
+  "lod": true,
+  "triangles": {
+    "0": 55140,
+    "1": 15434
+  },
+  "materials": [
+    {
+      "name": "Attire",
+      "alphaClip": true,
+      "doubleSided": true,
+      "baseColor": "Attire_baseColor.png",
+      "normal": "Attire_normal.png",
+      "metalSmooth": "Attire_metalSmooth.png"
+    },
+    {
+      "name": "Axe",
+      "alphaClip": false,
+      "doubleSided": false,
+      "baseColor": "Axe_baseColor.png",
+      "normal": "Axe_normal.png",
+      "metalSmooth": "Axe_metalSmooth.png"
+    },
+    {
+      "name": "Feather",
+      "alphaClip": true,
+      "doubleSided": true,
+      "baseColor": "Feather_baseColor.png",
+      "normal": "Feather_normal.png",
+      "metalSmooth": "Feather_metalSmooth.png"
+    },
+    {
+      "name": "Scourger_Material",
+      "alphaClip": true,
+      "doubleSided": false,
+      "baseColor": "Scourger_Material_baseColor.png",
+      "normal": "Scourger_Material_normal.png",
+      "metalSmooth": "Scourger_Material_metalSmooth.png"
+    },
+    {
+      "name": "Eye_Material",
+      "alphaClip": true,
+      "doubleSided": false,
+      "baseColor": "Eye_Material_baseColor.png",
+      "normal": "Eye_Material_normal.png",
+      "metalSmooth": "Eye_Material_metalSmooth.png"
+    }
+  ]
+}

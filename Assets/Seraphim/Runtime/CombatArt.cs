@@ -3,7 +3,9 @@ using UnityEngine;
 namespace Seraphim
 {
     public enum DivineDamage { Radiance,WordOfGod,Lance,Chain,Inferno,Burning }
-    public enum DemonKind { CinderImp,AshStalker,ObsidianGuard }
+    // Preserve the first three numeric IDs used by existing content and saves.
+    public enum DemonKind { CinderImp,AshStalker,ObsidianGuard,RiftScourger }
+    public static class DemonRoster { public const int KindCount=4; }
 
     internal static class CombatArt
     {

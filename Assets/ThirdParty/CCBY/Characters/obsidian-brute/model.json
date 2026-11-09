@@ -1,0 +1,27 @@
+{
+  "key": "obsidian-brute",
+  "model": "obsidian-brute.fbx",
+  "lod": true,
+  "triangles": {
+    "0": 8286,
+    "1": 3146
+  },
+  "materials": [
+    {
+      "name": "_0_0000_Minotaurs_A01_0_1_16_16",
+      "alphaClip": false,
+      "doubleSided": false,
+      "baseColor": "_0_0000_Minotaurs_A01_0_1_16_16_baseColor.png",
+      "normal": "_0_0000_Minotaurs_A01_0_1_16_16_normal.png",
+      "metalSmooth": "_0_0000_Minotaurs_A01_0_1_16_16_metalSmooth.png"
+    },
+    {
+      "name": "_0_0001_Minotaurs_A01_0_1_16_16",
+      "alphaClip": false,
+      "doubleSided": false,
+      "baseColor": "_0_0001_Minotaurs_A01_0_1_16_16_baseColor.png",
+      "normal": "_0_0001_Minotaurs_A01_0_1_16_16_normal.png",
+      "metalSmooth": "_0_0001_Minotaurs_A01_0_1_16_16_metalSmooth.png"
+    }
+  ]
+}

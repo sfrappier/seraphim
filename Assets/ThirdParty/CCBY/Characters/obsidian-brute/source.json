@@ -1,0 +1,98 @@
+{
+  "title": "Minotaurs",
+  "creator": "Vasian-Digital3D",
+  "source": "https://sketchfab.com/3d-models/minotaurs-6d89706e5db845bab57ea595ce4006e5",
+  "uid": "6d89706e5db845bab57ea595ce4006e5",
+  "license": "CC-BY-4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+  "originalArchive": "minotaurs.zip",
+  "originalArchiveSha256": "28e7ae6215fa55838e139870e94a9db1e9bada27e90456f2bc0cb810099d9bb5",
+  "originalFiles": [
+    {
+      "file": "source/Minotaurs.fbx",
+      "bytes": 7244544,
+      "sha256": "4375d6c72b47927bd346a6145cfc1accd3d1d862bfadc141013565cb7de43034"
+    },
+    {
+      "file": "textures/_0_0000_Minotaurs_A01_0_1_16_16_Diffuse.jpeg",
+      "bytes": 122288,
+      "sha256": "63982a444293d3c66af1b7b749f4a5f22f83cd9ed103aa45ec223086a6e0c825"
+    },
+    {
+      "file": "textures/_0_0000_Minotaurs_A01_0_1_16_16_Normal.jpeg",
+      "bytes": 720524,
+      "sha256": "71b454736df7c8a9b316bd27de9e3f8b3aec8053290aae1e331d925c6939236f"
+    },
+    {
+      "file": "textures/_0_0001_Minotaurs_A01_0_1_16_16_Diffuse.jpeg",
+      "bytes": 90917,
+      "sha256": "c3eb9a09a69fbbcf8354184b6944c6b471a5450640a2a5e58ddca335c7e8d697"
+    },
+    {
+      "file": "textures/_0_0001_Minotaurs_A01_0_1_16_16_Normal.jpeg",
+      "bytes": 257902,
+      "sha256": "987e918c9a48840defff983647b2593c694a10ed8fb98d992098852dedfa2bbb"
+    },
+    {
+      "file": "textures/CH_NPC_MOB_Minotaurs_A01_SP_TOM.jpg",
+      "bytes": 187420,
+      "sha256": "b2811cef04622613a477c5e701f14d998c5e1046d38c17a10962868de054eb22"
+    },
+    {
+      "file": "textures/CH_NPC_WP_TAX_MT_A01_SP_TOM.jpg",
+      "bytes": 90941,
+      "sha256": "f427b755c546d937b8d45b59d9646875af3a05e86194e08ecc61400ae0809b44"
+    }
+  ],
+  "preparationTool": {
+    "name": "Blender",
+    "version": "4.5.9 LTS",
+    "license": "GPL-3.0-or-later",
+    "source": "https://download.blender.org/release/Blender4.5/blender-4.5.9-windows-x64.zip",
+    "sha256": "41da973b9bf95bb312cbeff4d1982feb13259b43c821686b9bafea4dfe5477cf",
+    "requiredForBuild": false
+  },
+  "modifications": "Converted to FBX/Unity PBR; resized textures, packed metallic/smoothness; retained author skeletons where present; supplied game rigs for Devil Demon, Demon Witch and Infernal Wyrm; two demon/boss mesh LODs. Original unmodified downloads remain outside the source tree.",
+  "runtimeFiles": [
+    {
+      "file": "_0_0000_Minotaurs_A01_0_1_16_16_baseColor.png",
+      "bytes": 1237275,
+      "sha256": "6f5f28294997432daaf7d49de0491e23c1f47c8282d1bdc939e3d028e4469e18"
+    },
+    {
+      "file": "_0_0000_Minotaurs_A01_0_1_16_16_metalSmooth.png",
+      "bytes": 20654,
+      "sha256": "c9efa763cbc24a2ee7954a3cc437601b29db949b60c7cd2a746d0de682e8e567"
+    },
+    {
+      "file": "_0_0000_Minotaurs_A01_0_1_16_16_normal.png",
+      "bytes": 1716312,
+      "sha256": "3469ba8c3413c5d9ef20c50c0b2522c21e83e45eec279882aa8f3d5630d7e7bc"
+    },
+    {
+      "file": "_0_0001_Minotaurs_A01_0_1_16_16_baseColor.png",
+      "bytes": 680692,
+      "sha256": "b9cda3088c1dbad8451295ab0e8a877bc7a04a1941bd7902d667841e7b73ba66"
+    },
+    {
+      "file": "_0_0001_Minotaurs_A01_0_1_16_16_metalSmooth.png",
+      "bytes": 20654,
+      "sha256": "c9efa763cbc24a2ee7954a3cc437601b29db949b60c7cd2a746d0de682e8e567"
+    },
+    {
+      "file": "_0_0001_Minotaurs_A01_0_1_16_16_normal.png",
+      "bytes": 658222,
+      "sha256": "c110782e3d36691ad35250c493cdd72831f777139e87b007d50a2b09d579e84b"
+    },
+    {
+      "file": "model.json",
+      "bytes": 784,
+      "sha256": "6ac9d8eb8434dcc6070b74599173deffbd3b476ac2f0929a69833910552bdbde"
+    },
+    {
+      "file": "obsidian-brute.fbx",
+      "bytes": 843116,
+      "sha256": "825160f0454d4077d8b1bd44d6f5087e4f5fb74e5ba8b24db5c4ed3af879f6bd"
+    }
+  ]
+}
