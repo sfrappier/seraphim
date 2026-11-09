@@ -6,7 +6,7 @@ This repository is the Unity project root. On this computer it lives at `F:\Temp
 
 [Wave-ten pressure](Docs/images/wave-ten-pressure.png) · [Ember fields](Docs/images/ember-field.png) · [Guard charges](Docs/images/guard-charge.png) · [Controller HUD](Docs/images/controller-hud.png) · [Cathedral overview](Docs/images/cathedral-overview.png) · [Recorded validation results](Docs/validation.json)
 
-[Main menu](Docs/images/main-menu.png) · [Audio settings](Docs/images/audio-settings.png)
+[Main menu](Docs/images/main-menu.png) · [Menu running](Docs/images/menu-running.png) · [Later in the battle](Docs/images/menu-running-later.png) · [Showcase movement results](Docs/showcase-validation.json) · [Audio settings](Docs/images/audio-settings.png)
 
 [Vorath, Herald of Ash](Docs/images/vorath.png) · [Meteor rain](Docs/images/meteor-rain.png) · [Hellfire fan](Docs/images/hellfire-fan.png) · [Infernal greatsword](Docs/images/reaping-scythe.png)
 
@@ -22,7 +22,7 @@ The previews are camera renders from the exported Windows player, including its 
 
 Double-click **Play Seraphim.cmd** after a successful build. The executable is `Builds/Windows/Seraphim.exe`; distribute its entire folder, including `Seraphim_Data`, not just the executable.
 
-Version **0.11.0** opens at a shaded main menu with **Start** in the upper left. Its background is a live, autonomous battle: a moving seraphim uses all five powers against up to **96 demons**, with eight simultaneous special attacks. Start clears the demonstration and begins a fresh ten-wave campaign with the normal 24-enemy cap, followed by a final boss. **Boss Trial** skips directly to that fight for practice. The demonstration grants no campaign score, drops, or cooldown penalties.
+Version **0.11.1** opens at a shaded main menu with **Start** in the upper left. Its background is a live, autonomous battle: the seraphim runs at **9 meters per second** between distant destinations across the cathedral, casting all five powers while moving against up to **96 demons**, with eight simultaneous special attacks. Navigation routes around architecture, and distant stragglers are recycled near the action. Casts are staggered rather than fired simultaneously. Start clears the demonstration and restores the campaign's normal movement, crowd avoidance and 24-enemy cap for a fresh ten-wave campaign, followed by a final boss. **Boss Trial** skips directly to that fight for practice. The demonstration grants no campaign score, drops, or cooldown penalties.
 
 Open **Settings** from the menu or the in-game button to adjust **Music** and **Sound Effects** separately. Zero mutes a channel, and volumes persist between runs. Escape or controller Options/Start opens in-game settings and pauses combat; music continues. Circle/B or Escape returns. Main-menu buttons and sliders support mouse, keyboard arrows/Enter, and controller navigation. Quit is available on the main menu.
 
@@ -163,7 +163,7 @@ Use `.\Tools\Smoke-Test.ps1 -ControllerOnly` for focused controller checks. The 
 
 Use `.\Tools\Smoke-Test.ps1 -DifficultyOnly` for pressure checks. These exercise late-wave melee damage, marked-field damage and escape, lightning interrupts, special-attack limits, charge dodges and wall collisions, pooled difficulty reset, a three-power kill, and a live 24-enemy wave-ten scene. Wave progression in the scheduler checks uses an accelerated clock; dodges and damage checks run in real time. The wave-ten preview uses a wider camera view. Human playtesting is still needed to assess the challenge and frame rate.
 
-Use `.\Tools\Smoke-Test.ps1 -FrontEndOnly` for menu/showcase, start/reset, pause/resume, independent volumes, preference persistence, and music-loading checks. Add `-FallbackMusic` to verify the original soundtrack without removing the authorized local recording. These checks restore the user's saved volumes afterward. Audio signal measurements verify playback, not perceived musical quality or speaker routing.
+Use `.\Tools\Smoke-Test.ps1 -FrontEndOnly` for menu/showcase, start/reset, pause/resume, independent volumes, preference persistence, and music-loading checks. This includes a **90-second menu movement soak** through three ultimate cycles, measuring actual travel, successive five-second speeds, slow stretches, cathedral coverage, navigation and population bounds. The full suite includes a shorter 12-second sample. Reports include these movement metrics, and screenshots capture different points along the route. Add `-FallbackMusic` to verify the original soundtrack without removing the authorized local recording. These checks restore the user's saved volumes afterward. Audio signal measurements verify playback, not perceived musical quality or speaker routing.
 
 Use `.\Tools\Smoke-Test.ps1 -CharactersOnly` for imported model checks and close views of FallenAngel and the four demons. These verify textured material slots, humanoid retargeting, distinct enemy skins, skeleton-driven movement, both LODs, scale and health-bar alignment, damage and pooled reuse, plus the Scourger's rift damage, dodge and lightning interruption. The boss source was a static joined mesh. It now has fitted skin weights, a separate rigid sword attached to the right hand, and a cape joint for skeletal animation.
 

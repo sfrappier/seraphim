@@ -7,6 +7,59 @@ namespace Seraphim
 {
     public sealed partial class PrototypeSmokeTest
     {
+        [Serializable] sealed class ShowcaseReport
+        {
+            public float seconds,distance,averageSpeed,minimumFiveSecondSpeed,longestSlowStretch,width,depth;
+            public int completedRuns,navigationRecoveries,casts,maximumEnemies;
+        }
+        ShowcaseReport showcaseReport;
+
+        IEnumerator ShowcaseMovementChecks(float seconds)
+        {
+            var metrics=new ShowcaseReport { minimumFiveSecondSpeed=float.MaxValue };
+            var began=Time.time; var previous=game.Player.transform.position;
+            var minimum=previous; var maximum=previous;
+            var windowAt=began; var windowDistance=0f; var slowStretch=0f;
+            var onNavigation=true; var bounded=true; var firstCapture=false;
+            while (Time.time-began<seconds)
+            {
+                yield return null;
+                var position=game.Player.transform.position;
+                var distance=Vector3.Distance(previous,position); previous=position;
+                metrics.distance+=distance; windowDistance+=distance;
+                minimum=Vector3.Min(minimum,position); maximum=Vector3.Max(maximum,position);
+                slowStretch=distance<2*Time.deltaTime?slowStretch+Time.deltaTime:0;
+                metrics.longestSlowStretch=Mathf.Max(metrics.longestSlowStretch,slowStretch);
+                onNavigation&=UnityEngine.AI.NavMesh.SamplePosition(position,out _,.2f,UnityEngine.AI.NavMesh.AllAreas);
+                metrics.maximumEnemies=Mathf.Max(metrics.maximumEnemies,game.Enemies.ActiveCount);
+                bounded&=game.Enemies.ActiveCount<=game.settings.menuEnemyLimit && game.Audio.ActiveVoices<=20;
+                if (Time.time-windowAt>=5)
+                {
+                    metrics.minimumFiveSecondSpeed=Mathf.Min(metrics.minimumFiveSecondSpeed,windowDistance/(Time.time-windowAt));
+                    windowAt=Time.time; windowDistance=0;
+                }
+                if (!firstCapture && Time.time-began>=seconds*.5f)
+                {
+                    firstCapture=true; yield return Capture("24-menu-running.png");
+                }
+            }
+            metrics.seconds=Time.time-began; metrics.averageSpeed=metrics.distance/metrics.seconds;
+            metrics.width=maximum.x-minimum.x; metrics.depth=maximum.z-minimum.z;
+            metrics.completedRuns=game.Attract.CompletedRuns; metrics.navigationRecoveries=game.Attract.NavigationRecoveries;
+            metrics.casts=game.Attract.AutomatedCasts; showcaseReport=metrics;
+            Check(metrics.averageSpeed>=game.settings.menuMoveSpeed*.8f && metrics.minimumFiveSecondSpeed>=game.settings.menuMoveSpeed*.7f,
+                "Menu sustains actual running speed across successive five-second windows");
+            Check(metrics.longestSlowStretch<1,"Menu hero never settles into a stationary or creeping attack loop");
+            Check(metrics.completedRuns>=3 && metrics.width>15 && metrics.depth>25,"Menu hero completes distant runs across the cathedral");
+            Check(onNavigation,"Extended menu movement stays on cathedral navigation");
+            Check(bounded,"Extended showcase preserves enemy and audio pool limits");
+            var allPowers=true; for (var slot=0;slot<5;slot++) allPowers&=game.Attract.CastsFor(slot)>0;
+            Check(allPowers,"All five powers cast while the menu hero runs");
+            if (seconds>=60) Check(game.Attract.CastsFor(4)>=3,"Menu running continues through three Word of God cycles");
+            Debug.Log("SERAPHIM_SHOWCASE: "+JsonUtility.ToJson(metrics));
+            yield return Capture("25-menu-running-later.png");
+        }
+
         IEnumerator FrontEndChecks()
         {
             var audio=game.Audio;
@@ -30,6 +83,8 @@ namespace Seraphim
                 Check(!game.Player.MoveFromScreen(Camera.main.WorldToScreenPoint(new Vector3(6,0,-1))),"Main menu blocks world clicking");
                 Check(audio.ActiveVoices<=20,"Showcase sound effects use a bounded voice pool");
                 yield return Capture("21-main-menu.png");
+                var extended=Array.Exists(Environment.GetCommandLineArgs(),a=>a=="-seraphim-front-end-only");
+                yield return ShowcaseMovementChecks(extended?90:12);
                 var deadline=Time.realtimeSinceStartup+12;
                 while (!audio.MusicReady && Time.realtimeSinceStartup<deadline) yield return null;
                 Check(audio.MusicReady && audio.MusicSource.loop && audio.MusicSource.isPlaying,"Background music loads and loops in the exported player");
@@ -45,6 +100,9 @@ namespace Seraphim
                 }
                 game.FrontEnd.OpenSettings(); yield return null;
                 Check(game.FrontEnd.IsSettings && Time.timeScale==1 && game.Attract.IsRunning,"Menu settings keep the background battle running");
+                var settingsPosition=game.Player.transform.position;
+                yield return new WaitForSeconds(.6f);
+                Check(Vector3.Distance(settingsPosition,game.Player.transform.position)>3,"Menu hero keeps running behind audio settings");
                 game.FrontEnd.MusicSlider.value=.2f; game.FrontEnd.EffectsSlider.value=0;
                 Check(Mathf.Abs(audio.MusicSource.volume-.04f)<.0001f && audio.EffectsPeakGain==0,"Effects mute independently while music retains its own volume");
                 game.FrontEnd.MusicSlider.value=0; game.FrontEnd.EffectsSlider.value=.65f;
@@ -62,6 +120,10 @@ namespace Seraphim
                 var ready=true; for (var slot=0;slot<5;slot++) ready&=game.Skills.Remaining(slot)<=0;
                 Check(ready && game.Vitals.Life==game.Vitals.MaxLife && game.Vitals.Spirit==game.Vitals.MaxSpirit,"Fresh campaign restores resources and all five ability cooldowns");
                 Check(game.Enemies.PopulationLimit==24 && Camera.main.GetComponent<SanctuaryCamera>().ShowcaseZoom==0 && game.Hud.HudCanvas.enabled,"Campaign restores normal camera, HUD and population cap");
+                Check(Mathf.Approximately(game.Player.Agent.speed,game.settings.moveSpeed)
+                    && game.Player.Agent.avoidancePriority==50
+                    && game.Player.Agent.obstacleAvoidanceType==UnityEngine.AI.ObstacleAvoidanceType.HighQualityObstacleAvoidance,
+                    "Starting restores campaign movement speed and crowd avoidance");
                 Check(game.Player.InputEnabled && game.Skills.InputEnabled && game.Gamepads.InputEnabled && !EventSystem.current.sendNavigationEvents,"Gameplay resumes concurrent keyboard, mouse and controller input");
                 yield return Capture("23-started-game.png");
                 game.FrontEnd.OpenSettings(); var paused=Time.time;

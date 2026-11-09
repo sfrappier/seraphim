@@ -19,6 +19,7 @@ namespace Seraphim
             public string[] detectedGamepads;
             public string music;
             public float musicSeconds;
+            public ShowcaseReport showcase;
             public string[] passed;
             public string[] failures;
         }
@@ -245,7 +246,7 @@ namespace Seraphim
             }
             detectedGamepads=hardware.ToArray();
             var report = new Report { success=failures.Count==0,engine=Application.unityVersion,avatarHeight=avatarHeight,detectedGamepads=detectedGamepads,
-                music=game.Audio.MusicCredit,musicSeconds=game.Audio.MusicReady?game.Audio.MusicSource.clip.length:0,passed=passed.ToArray(),failures=failures.ToArray() };
+                music=game.Audio.MusicCredit,musicSeconds=game.Audio.MusicReady?game.Audio.MusicSource.clip.length:0,showcase=showcaseReport,passed=passed.ToArray(),failures=failures.ToArray() };
             File.WriteAllText(Path.Combine(output,"results.json"),JsonUtility.ToJson(report,true));
             Debug.Log($"SERAPHIM_SMOKE: {passed.Count} passed; {failures.Count} failed. Results: {output}");
             Application.Quit(report.success?0:1);

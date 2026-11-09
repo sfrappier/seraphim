@@ -72,6 +72,7 @@ namespace Seraphim
         public float enemyDamageGrowth = .18f;
         [Header("Main menu showcase")]
         [Range(32,128)] public int menuEnemyLimit = 96;
+        [Range(6.5f,12)] public float menuMoveSpeed = 9;
         [Header("Final boss")]
         public float bossHealth = 9600;
         public float bossMoveSpeed = 2.7f;

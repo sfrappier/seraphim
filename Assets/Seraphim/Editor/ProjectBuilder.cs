@@ -60,7 +60,7 @@ namespace Seraphim.Editor
         {
             PlayerSettings.companyName = "Seraphim";
             PlayerSettings.productName = "Seraphim";
-            PlayerSettings.bundleVersion = "0.11.0";
+            PlayerSettings.bundleVersion = "0.11.1";
             PlayerSettings.colorSpace = ColorSpace.Linear;
             PlayerSettings.defaultScreenWidth = 1600;
             PlayerSettings.defaultScreenHeight = 900;
@@ -282,6 +282,8 @@ namespace Seraphim.Editor
                 throw new BuildFailedException("Pulse duration, Radiance cooldown, or demon population configuration is invalid.");
             if (game.settings.menuEnemyLimit<32 || game.settings.menuEnemyLimit>128)
                 throw new BuildFailedException("Main-menu showcase population must remain bounded between 32 and 128.");
+            if (game.settings.menuMoveSpeed<6.5f || game.settings.menuMoveSpeed>12)
+                throw new BuildFailedException("Main-menu running speed must be between 6.5 and 12 meters per second.");
             if (game.settings.bossHealth<=0 || game.settings.bossMoveSpeed<=0 || game.settings.bossMeteorDamage<=0
                 || game.settings.bossSlashDamage<=0 || game.settings.bossFireDamage<=0 || game.settings.bossNovaDamage<=0 || game.settings.bossRestSeconds<3)
                 throw new BuildFailedException("Final boss health, attacks, speed or arrival rest is invalid.");
